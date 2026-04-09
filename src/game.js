@@ -1067,7 +1067,7 @@ export function updateMovingPieces(dt) {
 
 export async function fetchMapManifest() {
   try {
-    const res = await fetch('/api/maps');
+    const res = await fetch('/maps/manifest.json');
     mapManifest = await res.json();
   } catch (e) {
     console.error('Failed to fetch map manifest:', e);
