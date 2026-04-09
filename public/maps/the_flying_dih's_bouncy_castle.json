@@ -1,0 +1,1830 @@
+{
+  "name": "The Flying Dih's bouncy castle",
+  "timeLimit": 120,
+  "timeOfDay": "day",
+  "rain": false,
+  "start": [
+    0,
+    9,
+    0
+  ],
+  "hole": [
+    0,
+    8.5,
+    -20
+  ],
+  "pieces": [
+    {
+      "type": "speedboost",
+      "size": [
+        2,
+        0.15,
+        3
+      ],
+      "position": [
+        -0.395,
+        8.25,
+        -19.826
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#44ff44",
+      "boostForce": 12
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -0.122,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -0.563,
+        8.25,
+        -13.154
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -0.649,
+        8.25,
+        -11.037
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        2.354,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        1.078,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        4.562,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -0.7,
+        8.25,
+        -8.676
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        4.347,
+        8.25,
+        -13.034
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        7.029,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        2.08,
+        8.25,
+        -10.36
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        12.954,
+        8.25,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -2.073,
+        7.926,
+        -15.151
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        1.605,
+        8.25,
+        -13.249
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "launcher",
+      "size": [
+        1.5,
+        0.3,
+        1.5
+      ],
+      "position": [
+        1.489,
+        8.856,
+        -7.212
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff4488",
+      "launchForce": 20
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        15.655,
+        8.25,
+        -11.039
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -0.214,
+        7.675,
+        -20.604
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#e6d5a8"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -0.178,
+        8.25,
+        -0.182
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#e6d5a8"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        2.288,
+        8.25,
+        -4.846
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "launcher",
+      "size": [
+        1.5,
+        0.3,
+        1.5
+      ],
+      "position": [
+        0.163,
+        8.25,
+        -5.285
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff4488",
+      "launchForce": 20
+    },
+    {
+      "type": "launcher",
+      "size": [
+        1.5,
+        0.3,
+        1.5
+      ],
+      "position": [
+        -1.359,
+        8.25,
+        -6.418
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff4488",
+      "launchForce": 20
+    },
+    {
+      "type": "launcher",
+      "size": [
+        1.5,
+        0.3,
+        1.5
+      ],
+      "position": [
+        -1.096,
+        8.25,
+        -3.329
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff4488",
+      "launchForce": 20
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -3.505,
+        8.25,
+        -12.709
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -3.937,
+        8.25,
+        -10.375
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -3.391,
+        8.25,
+        -9.101
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        2.467,
+        8.25,
+        -2.125
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0.237,
+        8.25,
+        -2.125
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -1.695,
+        8.25,
+        -2.125
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0.237,
+        8.25,
+        -7.079
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        3.136,
+        8.25,
+        -8.262
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0.237,
+        8.25,
+        -9.363
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0.237,
+        8.25,
+        -3.784
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0.237,
+        8.25,
+        -11.513
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -2.956,
+        8.25,
+        -9.682
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -2.811,
+        8.25,
+        -3.679
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -1.779,
+        8.25,
+        -5.081
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -4.136,
+        8.25,
+        -5.745
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -1.783,
+        8.25,
+        -7.853
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -2.487,
+        8.25,
+        -12.198
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0.237,
+        8.25,
+        -17.058
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -1.662,
+        8.25,
+        -17.293
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        2.05,
+        8.25,
+        -16.317
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -1.546,
+        8.25,
+        -10.008
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0.237,
+        8.25,
+        -24.378
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "launcher",
+      "size": [
+        1.5,
+        0.3,
+        1.5
+      ],
+      "position": [
+        0.237,
+        8.25,
+        -13.349
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff4488",
+      "launchForce": 20
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        1.613,
+        8.25,
+        -9.199
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        3.866,
+        8.25,
+        -20.076
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "bumper",
+      "radiusTop": 0.6,
+      "radiusBottom": 0.6,
+      "height": 0.8,
+      "segments": 16,
+      "position": [
+        6.902,
+        8.25,
+        -3.957
+      ],
+      "color": "#ff4444",
+      "bumperForce": 12,
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "box",
+      "size": [
+        0.3,
+        0.8,
+        8
+      ],
+      "position": [
+        -7.491,
+        12.401,
+        -8.892
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "teleporter",
+      "size": [
+        1.5,
+        0.15,
+        1.5
+      ],
+      "position": [
+        -6.978,
+        11.556,
+        -9.853
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff44ff",
+      "target": [
+        5,
+        8.8,
+        0
+      ]
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        31,
+        0.3,
+        40
+      ],
+      "position": [
+        0.5,
+        8.5,
+        2.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.3,
+        0.8,
+        8
+      ],
+      "position": [
+        -5,
+        8.5,
+        -5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.3,
+        0.8,
+        8
+      ],
+      "position": [
+        6,
+        8.5,
+        -1.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "launcher",
+      "size": [
+        1.5,
+        0.3,
+        1.5
+      ],
+      "position": [
+        -3.5,
+        8.5,
+        3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff4488",
+      "launchForce": 20
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        0.5,
+        6.5,
+        -12.5
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "launcher",
+      "size": [
+        1.5,
+        0.3,
+        1.5
+      ],
+      "position": [
+        -2,
+        9,
+        -7.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff4488",
+      "launchForce": 20
+    },
+    {
+      "type": "box",
+      "size": [
+        0.3,
+        0.8,
+        8
+      ],
+      "position": [
+        9.5,
+        9,
+        -17
+      ],
+      "rotation": [
+        3.142,
+        1.571,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -1.465,
+        8.25,
+        -0.035
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0.5,
+        8.5,
+        -0.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        6
+      ],
+      "position": [
+        11,
+        9,
+        -5.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#7ec87e"
+    },
+    {
+      "type": "water",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -5,
+        9,
+        -12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#1e8cff"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        7.5,
+        8.5,
+        -13
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#e6d5a8"
+    },
+    {
+      "type": "door",
+      "size": [
+        3,
+        2,
+        0.3
+      ],
+      "position": [
+        0.5,
+        11.5,
+        -11.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#886644",
+      "motion": {
+        "type": "translate",
+        "axis": "y",
+        "range": 2.5,
+        "speed": 0.3,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -1.09,
+        8.25,
+        9.108
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#e6d5a8"
+    },
+    {
+      "type": "box",
+      "size": [
+        6,
+        0.5,
+        6
+      ],
+      "position": [
+        -0.5,
+        8.5,
+        12.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#e6d5a8"
+    },
+    {
+      "type": "conveyor",
+      "size": [
+        2,
+        0.3,
+        6
+      ],
+      "position": [
+        -8,
+        9,
+        -10.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffaa00",
+      "conveyorDir": [
+        0,
+        0,
+        -1
+      ],
+      "conveyorSpeed": 5
+    },
+    {
+      "type": "blower",
+      "size": [
+        1,
+        1.5,
+        1
+      ],
+      "position": [
+        -9.5,
+        9.5,
+        -15
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#88ddff",
+      "blowForce": 8,
+      "blowDir": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 1,
+      "segments": 16,
+      "position": [
+        -3,
+        22,
+        15
+      ],
+      "color": "#dddddd",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 1,
+      "segments": 16,
+      "position": [
+        -3,
+        20,
+        15
+      ],
+      "color": "#dddddd",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 1,
+      "segments": 16,
+      "position": [
+        -3,
+        18.5,
+        15
+      ],
+      "color": "#dddddd",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 1,
+      "segments": 16,
+      "position": [
+        -4,
+        17,
+        15
+      ],
+      "color": "#dddddd",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 1,
+      "segments": 16,
+      "position": [
+        -2,
+        17,
+        15
+      ],
+      "color": "#dddddd",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "door",
+      "size": [
+        3,
+        2,
+        0.3
+      ],
+      "position": [
+        -3.5,
+        10,
+        -14
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#886644",
+      "motion": {
+        "type": "translate",
+        "axis": "y",
+        "range": 2.5,
+        "speed": 0.3,
+        "phase": 0
+      }
+    },
+    {
+      "type": "door",
+      "size": [
+        3,
+        2,
+        0.3
+      ],
+      "position": [
+        4,
+        10.5,
+        -13
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#886644",
+      "motion": {
+        "type": "translate",
+        "axis": "y",
+        "range": 2.5,
+        "speed": 0.3,
+        "phase": 0
+      }
+    },
+    {
+      "type": "door",
+      "size": [
+        3,
+        2,
+        0.3
+      ],
+      "position": [
+        -0.5,
+        9.5,
+        -17
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#886644",
+      "motion": {
+        "type": "translate",
+        "axis": "y",
+        "range": 2.5,
+        "speed": 0.3,
+        "phase": 0
+      }
+    },
+    {
+      "type": "door",
+      "size": [
+        3,
+        2,
+        0.3
+      ],
+      "position": [
+        0,
+        10,
+        -15.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#886644",
+      "motion": {
+        "type": "translate",
+        "axis": "y",
+        "range": 2.5,
+        "speed": 0.3,
+        "phase": 0
+      }
+    },
+    {
+      "type": "laser",
+      "position": [
+        0.5,
+        9.5,
+        -14.5
+      ],
+      "rotation": [
+        -3.142,
+        1.571,
+        -1.571
+      ],
+      "color": "#ff0000",
+      "length": 10,
+      "width": 0.1
+    },
+    {
+      "type": "box",
+      "size": [
+        0.3,
+        0.8,
+        8
+      ],
+      "position": [
+        -8,
+        9,
+        -17
+      ],
+      "rotation": [
+        -3.142,
+        1.571,
+        -3.142
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "blower",
+      "size": [
+        1,
+        1.5,
+        1
+      ],
+      "position": [
+        0.5,
+        10,
+        6.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#88ddff",
+      "blowForce": 8,
+      "blowDir": [
+        0,
+        0,
+        -1
+      ]
+    }
+  ]
+}

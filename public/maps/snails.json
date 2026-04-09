@@ -1,0 +1,63 @@
+{
+  "name": "Snails Pace",
+  "timeLimit": 120,
+  "timeOfDay": "day",
+  "rain": false,
+  "start": [
+    0,
+    19,
+    0
+  ],
+  "hole": [
+    0,
+    14,
+    -20
+  ],
+  "pieces": [
+    {
+      "type": "box",
+      "size": [
+        0.4,
+        0.5,
+        0.4
+      ],
+      "position": [
+        0,
+        18.5,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        14,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#e6d5a8",
+      "motion": {
+        "type": "translate",
+        "axis": "z",
+        "range": 10,
+        "speed": 0.02,
+        "phase": 0
+      }
+    }
+  ]
+}

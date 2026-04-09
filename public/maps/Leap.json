@@ -1,0 +1,56 @@
+{
+  "name": "Leap of Faith",
+  "timeLimit": 120,
+  "timeOfDay": "day",
+  "rain": false,
+  "start": [
+    0,
+    51,
+    0
+  ],
+  "hole": [
+    0,
+    8.5,
+    -20
+  ],
+  "pieces": [
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        50,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    }
+  ]
+}
