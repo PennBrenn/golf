@@ -405,15 +405,12 @@ export function showLobby(roomCode, isHost) {
 export function updatePlayerList(players) {
   const list = document.getElementById('player-list');
   list.innerHTML = '';
-  players.forEach((p, index) => {
+  for (const p of players) {
     const li = document.createElement('li');
     const colorHex = playerColorHex(p.colorIndex);
     li.innerHTML = `<span class="player-dot" style="background:${colorHex}"></span> ${escapeHtml(p.name)}${p.isHost ? ' (Host)' : ''}`;
-    li.style.animation = 'slideInLeft 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
-    li.style.animationDelay = (index * 0.05) + 's';
-    li.style.animationFillMode = 'both';
     list.appendChild(li);
-  });
+  }
 
   // HUD player list
   const hudList = document.getElementById('hud-players');
@@ -457,17 +454,6 @@ export function showCountdown(onComplete) {
     el.className = 'countdown-number';
     void el.offsetWidth;
     el.className = 'countdown-number countdown-animate';
-
-    // Special GO! styling
-    if (steps[i] === 'GO!') {
-      el.style.color = '#A8D400';
-      el.style.textShadow = '0 0 40px rgba(168,212,0,0.9), 0 4px 24px rgba(168,212,0,0.5)';
-      el.style.fontSize = '11rem';
-    } else {
-      el.style.color = '';
-      el.style.textShadow = '';
-      el.style.fontSize = '';
-    }
   }, 1000);
 }
 
@@ -517,17 +503,14 @@ export function updateDragIndicator(ratio, active) {
   const bar = document.getElementById('drag-fill');
   if (bar) {
     bar.style.width = (ratio * 100) + '%';
-    bar.style.backgroundPosition = `${(1 - ratio) * 100}% 0`;
-  }
-  const container = document.getElementById('drag-bar-container');
-  if (container) {
-    container.style.opacity = active ? '1' : '0.3';
-    if (ratio > 0.8) {
-      container.style.boxShadow = `0 0 ${ratio * 20}px rgba(255, 68, 34, ${ratio * 0.7})`;
+    if (ratio < 0.5) {
+      bar.style.background = `rgb(${Math.floor(ratio * 2 * 255)}, 200, 50)`;
     } else {
-      container.style.boxShadow = '';
+      bar.style.background = `rgb(255, ${Math.floor((1 - ratio) * 2 * 200)}, 50)`;
     }
   }
+  const container = document.getElementById('drag-bar-container');
+  if (container) container.style.opacity = active ? '1' : '0.3';
 }
 
 export function showSpectatorBanner() {
