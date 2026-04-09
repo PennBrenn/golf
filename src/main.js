@@ -103,7 +103,7 @@ function setupChatInput() {
         e.preventDefault();
       } else {
         const text = input.value.trim();
-        if (text && MP.peer) {
+        if (text && MP.ably) {
           sendChat(text);
           const local = getLocalPlayer();
           const colorHex = local ? playerColorHex(local.colorIndex) : '#ffffff';
