@@ -191,6 +191,13 @@ export function initUI() {
     // Don't navigate - stay on settings screen
   });
 
+  // Lobby admin commands toggle
+  document.getElementById('lobby-admin-commands').addEventListener('change', (e) => {
+    Commands.setAdminCommandsEnabled(e.target.checked);
+    currentSettings.adminCommands = e.target.checked;
+    saveSettings();
+  });
+
   // Settings radio buttons
   document.querySelectorAll('.settings-radio-row').forEach(row => {
     row.querySelectorAll('.settings-radio').forEach(btn => {
@@ -455,6 +462,14 @@ export function showLobby(roomCode, isHost) {
   document.getElementById('lobby-code').textContent = roomCode;
   document.getElementById('btn-start-game').style.display = isHost ? 'inline-block' : 'none';
   document.getElementById('lobby-waiting').style.display = isHost ? 'none' : 'block';
+  
+  const adminToggle = document.getElementById('lobby-admin-toggle');
+  const adminCheckbox = document.getElementById('lobby-admin-commands');
+  if (adminToggle && adminCheckbox) {
+    adminToggle.style.display = isHost ? 'block' : 'none';
+    adminCheckbox.checked = Commands.adminCommandsEnabled;
+  }
+  
   updateStartButton(false);
 }
 
