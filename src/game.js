@@ -37,6 +37,9 @@ export const Game = {
   prevBallSpeed: 0, vfxTime: 0,
   onSwingCountChanged: null, onTimeUpdate: null, onTimeUp: null,
   onFinishHole: null, onDragChanged: null, onWaterSplash: null,
+  // Sky system
+  skyDome: null, sunMesh: null, moonMesh: null, starField: null,
+  clouds: [], cloudTime: 0,
 };
 
 const BALL_RADIUS = 0.2;
@@ -142,6 +145,7 @@ export function initScene(container) {
   // Initialize post-processing and VFX
   initPostProcessing(Game.renderer, Game.scene, Game.camera);
   createAimVisuals(Game.scene);
+  initSkySystem();
 }
 
 function onResize() {
@@ -422,6 +426,238 @@ function createShinyTexture() {
   texture.minFilter = THREE.LinearMipmapLinearFilter;
   
   return texture;
+}
+
+// ── Sky System ─────────────────────────────────────────────
+const SkyDomeShader = {
+  uniforms: {
+    topColor: { value: new THREE.Color(0x0077ff) },
+    bottomColor: { value: new THREE.Color(0xffffff) },
+    offset: { value: 33 },
+    exponent: { value: 0.6 },
+    time: { value: 0 },
+  },
+  vertexShader: `
+    varying vec3 vWorldPosition;
+    void main() {
+      vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+      vWorldPosition = worldPosition.xyz;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform vec3 topColor;
+    uniform vec3 bottomColor;
+    uniform float offset;
+    uniform float exponent;
+    uniform float time;
+    varying vec3 vWorldPosition;
+    void main() {
+      float h = normalize(vWorldPosition + offset).y;
+      gl_FragColor = vec4(mix(bottomColor, topColor, max(pow(max(h, 0.0), exponent), 0.0)), 1.0);
+    }
+  `,
+};
+
+export function initSkySystem() {
+  // Sky dome
+  const skyGeo = new THREE.SphereGeometry(800, 32, 15);
+  const skyMat = new THREE.ShaderMaterial({
+    uniforms: THREE.UniformsUtils.clone(SkyDomeShader.uniforms),
+    vertexShader: SkyDomeShader.vertexShader,
+    fragmentShader: SkyDomeShader.fragmentShader,
+    side: THREE.BackSide,
+  });
+  Game.skyDome = new THREE.Mesh(skyGeo, skyMat);
+  Game.scene.add(Game.skyDome);
+
+  // Sun
+  const sunGeo = new THREE.SphereGeometry(15, 32, 32);
+  const sunMat = new THREE.MeshBasicMaterial({ color: 0xffff88 });
+  Game.sunMesh = new THREE.Mesh(sunGeo, sunMat);
+  Game.sunMesh.position.set(80, 120, 60);
+  Game.scene.add(Game.sunMesh);
+
+  // Sun glow (larger transparent sphere)
+  const sunGlowGeo = new THREE.SphereGeometry(25, 32, 32);
+  const sunGlowMat = new THREE.MeshBasicMaterial({
+    color: 0xffffcc,
+    transparent: true,
+    opacity: 0.15,
+  });
+  const sunGlow = new THREE.Mesh(sunGlowGeo, sunGlowMat);
+  Game.sunMesh.add(sunGlow);
+
+  // Moon
+  const moonGeo = new THREE.SphereGeometry(12, 32, 32);
+  const moonMat = new THREE.MeshStandardMaterial({
+    color: 0xdddddd,
+    roughness: 0.9,
+    metalness: 0.0,
+  });
+  Game.moonMesh = new THREE.Mesh(moonGeo, moonMat);
+  Game.moonMesh.position.set(-80, 120, -60);
+  Game.moonMesh.visible = false;
+  Game.scene.add(Game.moonMesh);
+
+  // Star field (particles)
+  const starCount = 2000;
+  const starGeo = new THREE.BufferGeometry();
+  const starPositions = new Float32Array(starCount * 3);
+  const starSizes = new Float32Array(starCount);
+
+  for (let i = 0; i < starCount; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.random() * Math.PI;
+    const r = 600 + Math.random() * 150;
+
+    starPositions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+    starPositions[i * 3 + 1] = r * Math.cos(phi);
+    starPositions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+    starSizes[i] = 1 + Math.random() * 2;
+  }
+
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+  starGeo.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
+
+  const starMat = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 2,
+    sizeAttenuation: true,
+    transparent: true,
+    opacity: 0,
+  });
+  Game.starField = new THREE.Points(starGeo, starMat);
+  Game.scene.add(Game.starField);
+
+  // Volumetric voxel clouds
+  initClouds();
+}
+
+function initClouds() {
+  const cloudCount = 15;
+  const voxelSize = 8;
+  const cloudMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.95,
+    metalness: 0.0,
+    transparent: true,
+    opacity: 0.85,
+  });
+
+  for (let i = 0; i < cloudCount; i++) {
+    const cloud = new THREE.Group();
+    const voxelCount = 5 + Math.floor(Math.random() * 8);
+
+    for (let j = 0; j < voxelCount; j++) {
+      const voxel = new THREE.Mesh(
+        new THREE.BoxGeometry(voxelSize, voxelSize * 0.6, voxelSize),
+        cloudMat
+      );
+      voxel.position.set(
+        (Math.random() - 0.5) * voxelSize * 4,
+        (Math.random() - 0.5) * voxelSize * 1.5,
+        (Math.random() - 0.5) * voxelSize * 4
+      );
+      voxel.rotation.set(
+        Math.random() * 0.1,
+        Math.random() * 0.1,
+        Math.random() * 0.1
+      );
+      cloud.add(voxel);
+    }
+
+    cloud.position.set(
+      (Math.random() - 0.5) * 400,
+      80 + Math.random() * 40,
+      (Math.random() - 0.5) * 400
+    );
+    cloud.userData = {
+      speed: 0.02 + Math.random() * 0.03,
+      baseY: cloud.position.y,
+      phase: Math.random() * Math.PI * 2,
+    };
+    Game.scene.add(cloud);
+    Game.clouds.push(cloud);
+  }
+}
+
+export function updateSkySystem(dt, isNight) {
+  Game.cloudTime += dt;
+
+  // Update sky dome colors
+  if (Game.skyDome) {
+    const u = Game.skyDome.material.uniforms;
+    if (isNight) {
+      u.topColor.value.setHex(0x0a1020);
+      u.bottomColor.value.setHex(0x1a1a3a);
+    } else {
+      u.topColor.value.setHex(0x4488ff);
+      u.bottomColor.value.setHex(0xddeeff);
+    }
+    u.time.value = Game.cloudTime;
+  }
+
+  // Sun/moon visibility
+  if (Game.sunMesh && Game.moonMesh) {
+    Game.sunMesh.visible = !isNight;
+    Game.moonMesh.visible = isNight;
+  }
+
+  // Star visibility (fade in/out)
+  if (Game.starField) {
+    const targetOpacity = isNight ? 0.8 : 0;
+    Game.starField.material.opacity += (targetOpacity - Game.starField.material.opacity) * dt * 2;
+  }
+
+  // Animate clouds
+  for (const cloud of Game.clouds) {
+    cloud.position.x += cloud.userData.speed;
+    if (cloud.position.x > 250) cloud.position.x = -250;
+    cloud.position.y = cloud.userData.baseY + Math.sin(Game.cloudTime + cloud.userData.phase) * 2;
+  }
+
+  // Sync god rays sun position with sky sun
+  if (Game.sunMesh && VFX.godRays) {
+    VFX.godRays.sunPosition.copy(Game.sunMesh.position);
+  }
+}
+
+export function cleanupSkySystem() {
+  if (Game.skyDome) {
+    Game.scene.remove(Game.skyDome);
+    Game.skyDome.geometry.dispose();
+    Game.skyDome.material.dispose();
+    Game.skyDome = null;
+  }
+  if (Game.sunMesh) {
+    Game.scene.remove(Game.sunMesh);
+    Game.sunMesh.geometry.dispose();
+    Game.sunMesh.material.dispose();
+    Game.sunMesh = null;
+  }
+  if (Game.moonMesh) {
+    Game.scene.remove(Game.moonMesh);
+    Game.moonMesh.geometry.dispose();
+    Game.moonMesh.material.dispose();
+    Game.moonMesh = null;
+  }
+  if (Game.starField) {
+    Game.scene.remove(Game.starField);
+    Game.starField.geometry.dispose();
+    Game.starField.material.dispose();
+    Game.starField = null;
+  }
+  for (const cloud of Game.clouds) {
+    Game.scene.remove(cloud);
+    cloud.traverse((child) => {
+      if (child.isMesh) {
+        child.geometry.dispose();
+        child.material.dispose();
+      }
+    });
+  }
+  Game.clouds = [];
 }
 
 export function buildTerrain() {
@@ -1954,6 +2190,11 @@ export function updateGame(dt) {
     Game.camera.position.copy(Game.ball.position).add(offset);
   }
   Game.controls.update();
+
+  // Update sky system (determine night from scene background color)
+  const isNight = Game.scene.background && Game.scene.background.getHex() === 0x0a1828;
+  updateSkySystem(dt, isNight);
+
   checkWin();
 }
 
@@ -1999,5 +2240,6 @@ export function destroyScene() {
   window.removeEventListener('resize', onResize);
   cleanupAimVisuals(Game.scene);
   cleanupVFX(Game.scene);
+  cleanupSkySystem();
   if (Game.renderer) Game.renderer.dispose();
 }

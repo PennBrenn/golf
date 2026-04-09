@@ -27,7 +27,7 @@ export const VFX = {
   // God rays state
   godRays: {
     enabled: true,
-    sunPosition: new THREE.Vector3(80, 120, 60),
+    sunPosition: new THREE.Vector3(80, 120, 60), // Will sync with sky sun
     sunScreenPos: new THREE.Vector3(0.7, 0.85, 1.0),
     maskRenderTarget: null,
     godRayRenderTarget1: null,
