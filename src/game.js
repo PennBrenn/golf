@@ -21,6 +21,7 @@ export const Game = {
   ball: null, ballBody: null, ballColor: BALL_COLORS[0],
   remoteBalls: {},
   courseMeshes: [], courseBodies: [], terrainMesh: null, movingPieces: [],
+  lights: [],
   holePosition: new THREE.Vector3(), holeRadius: 0.6,
   startPosition: new THREE.Vector3(), courseBaseY: 8,
   isDragging: false, dragStart: { x: 0, y: 0 }, dragCurrent: { x: 0, y: 0 },
@@ -912,6 +913,64 @@ export function buildCourseFromJSON(data) {
       mesh = addDecorPiece(p, createTubeGeo(or, p.radiusInner || 0.7, h, p.segments || 16),
         new CANNON.Cylinder(or, or, h, p.segments || 8));
       bodyIdx = Game.courseBodies.length - 1;
+    } else if (p.type === 'pointlight') {
+      const color = parseColor(p.color);
+      const light = new THREE.PointLight(color, p.intensity || 1, p.range || 15);
+      light.position.set(p.position[0], p.position[1], p.position[2]);
+      Game.scene.add(light);
+      Game.lights.push(light);
+      // Visual representation
+      const geo = new THREE.SphereGeometry(0.3, 16, 16);
+      const mat = new THREE.MeshStandardMaterial({
+        color, emissive: color, emissiveIntensity: 0.8,
+        roughness: 0.2, metalness: 0.5
+      });
+      mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(p.position[0], p.position[1], p.position[2]);
+      Game.scene.add(mesh);
+      Game.courseMeshes.push(mesh);
+    } else if (p.type === 'spotlight') {
+      const color = parseColor(p.color);
+      const light = new THREE.SpotLight(color, p.intensity || 1, p.range || 20, p.angle || 0.5, p.penumbra || 0.3);
+      light.position.set(p.position[0], p.position[1], p.position[2]);
+      if (p.rotation) {
+        const dir = new THREE.Vector3(0, 0, -1).applyEuler(new THREE.Euler(p.rotation[0], p.rotation[1], p.rotation[2]));
+        light.target.position.copy(light.position).add(dir);
+        Game.scene.add(light.target);
+      }
+      Game.scene.add(light);
+      Game.lights.push(light, light.target);
+      // Visual representation (cone)
+      const geo = new THREE.ConeGeometry(0.4, 0.8, 16);
+      geo.rotateX(Math.PI / 2);
+      const mat = new THREE.MeshStandardMaterial({
+        color, emissive: color, emissiveIntensity: 0.8,
+        roughness: 0.2, metalness: 0.5
+      });
+      mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(p.position[0], p.position[1], p.position[2]);
+      if (p.rotation) mesh.rotation.set(p.rotation[0], p.rotation[1], p.rotation[2]);
+      Game.scene.add(mesh);
+      Game.courseMeshes.push(mesh);
+    } else if (p.type === 'laser') {
+      const color = parseColor(p.color);
+      // Laser beam visual (emissive cylinder)
+      const geo = new THREE.CylinderGeometry(p.width || 0.1, p.width || 0.1, p.length || 10, 8);
+      geo.rotateX(Math.PI / 2);
+      const mat = new THREE.MeshStandardMaterial({
+        color, emissive: color, emissiveIntensity: 1.0,
+        roughness: 0.1, metalness: 0.8, transparent: true, opacity: 0.8
+      });
+      mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(p.position[0], p.position[1], p.position[2]);
+      if (p.rotation) mesh.rotation.set(p.rotation[0], p.rotation[1], p.rotation[2]);
+      Game.scene.add(mesh);
+      Game.courseMeshes.push(mesh);
+      // Add actual light for glow effect
+      const light = new THREE.PointLight(color, 0.5, 5);
+      light.position.copy(mesh.position);
+      Game.scene.add(light);
+      Game.lights.push(light);
     } else if (p.type === 'cylinder') {
       addCyl(p.radiusTop, p.radiusBottom, p.height, p.segments || 8, parseColor(p.color), p.position);
       bodyIdx = Game.courseBodies.length - 1;
@@ -1110,7 +1169,8 @@ export async function getAllMapData() {
 export function clearCourse() {
   for (const m of Game.courseMeshes) Game.scene.remove(m);
   for (const b of Game.courseBodies) Game.world.removeBody(b);
-  Game.courseMeshes = []; Game.courseBodies = [];
+  for (const l of Game.lights) Game.scene.remove(l);
+  Game.courseMeshes = []; Game.courseBodies = []; Game.lights = [];
 
   // Clear trail
   if (Game.trailLine) {

@@ -67,6 +67,10 @@ const PRESETS = {
   step:       () => ({ type: 'step', size: [4, 1.5, 3], position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#77aa77', steps: 3 }),
   ring:       () => ({ type: 'torus', radius: 1, tube: 0.15, segments: 24, tubeSeg: 8, position: [0, 9.5, 0], color: '#ffaa00' }),
   tube:       () => ({ type: 'tube', radiusOuter: 1, radiusInner: 0.7, height: 3, segments: 16, position: [0, 9.75, 0], color: '#66aacc' }),
+  // ── Lights ──
+  pointlight: () => ({ type: 'pointlight', position: [0, 12, 0], color: '#ffcc44', intensity: 1, range: 15 }),
+  spotlight:  () => ({ type: 'spotlight', position: [0, 12, 0], rotation: [-0.5, 0, 0], color: '#ffffff', intensity: 1, range: 20, angle: 0.5, penumbra: 0.3 }),
+  laser:      () => ({ type: 'laser', position: [0, 9, 0], rotation: [0, 0, 0], color: '#ff0000', length: 10, width: 0.1 }),
 };
 
 // ── Init ─────────────────────────────────────────────────
@@ -329,17 +333,18 @@ function createMeshFromData(data) {
   const color = parseColor(data.color);
 
   // Emissive glow for special types
-  const glowTypes = { teleporter: 0.6, checkpoint: 0.4, speedboost: 0.5, launcher: 0.4, cannon: 0.2, bumper: 0.5, blower: 0.3, magnet: 0.3, conveyor: 0.2 };
+  const glowTypes = { teleporter: 0.6, checkpoint: 0.4, speedboost: 0.5, launcher: 0.4, cannon: 0.2, bumper: 0.5, blower: 0.3, magnet: 0.3, conveyor: 0.2, pointlight: 0.8, spotlight: 0.8, laser: 1.0 };
   const emissiveIntensity = glowTypes[data.type] || 0;
   const isTransparent = data.type === 'water' || data.type === 'teleporter' || data.type === 'glass';
+  const isLight = data.type === 'pointlight' || data.type === 'spotlight' || data.type === 'laser';
   mat = new THREE.MeshStandardMaterial({
-    color, flatShading: data.type !== 'sphere' && data.type !== 'torus' && data.type !== 'glass',
+    color, flatShading: data.type !== 'sphere' && data.type !== 'torus' && data.type !== 'glass' && !isLight,
     emissive: emissiveIntensity > 0 ? color : 0x000000,
     emissiveIntensity,
     transparent: isTransparent,
     opacity: data.type === 'water' ? 0.55 : data.type === 'teleporter' ? 0.7 : data.type === 'glass' ? 0.35 : 1.0,
-    roughness: data.type === 'glass' ? 0.05 : undefined,
-    metalness: data.type === 'glass' ? 0.1 : undefined,
+    roughness: data.type === 'glass' ? 0.05 : isLight ? 0.2 : undefined,
+    metalness: data.type === 'glass' ? 0.1 : isLight ? 0.5 : undefined,
   });
 
   if (data.type === 'cylinder' || data.type === 'bumper') {
@@ -360,6 +365,14 @@ function createMeshFromData(data) {
     geo = createStepGeometry(data.size[0], data.size[1], data.size[2], data.steps || 3);
   } else if (data.type === 'tube') {
     geo = createTubeGeometry(data.radiusOuter || 1, data.radiusInner || 0.7, data.height || 3, data.segments || 16);
+  } else if (data.type === 'pointlight') {
+    geo = new THREE.SphereGeometry(0.3, 16, 16);
+  } else if (data.type === 'spotlight') {
+    geo = new THREE.ConeGeometry(0.4, 0.8, 16);
+    geo.rotateX(Math.PI / 2);
+  } else if (data.type === 'laser') {
+    geo = new THREE.CylinderGeometry(data.width || 0.1, data.width || 0.1, data.length || 10, 8);
+    geo.rotateX(Math.PI / 2);
   } else if (data.type === 'rail') {
     geo = new THREE.BoxGeometry(data.size[0], data.size[1], data.size[2]);
   } else if (data.size) {
