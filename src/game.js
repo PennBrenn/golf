@@ -66,7 +66,7 @@ function fbm(x, z) {
 
 export function initScene(container) {
   Game.scene = new THREE.Scene();
-  Game.scene.fog = new THREE.FogExp2(0xffeedd, 0.006);
+  Game.scene.fog = new THREE.Fog(0x87ceeb, 100, 350);
 
   const aspect = window.innerWidth / window.innerHeight;
   Game.camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
@@ -77,6 +77,9 @@ export function initScene(container) {
   Game.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   Game.renderer.shadowMap.enabled = true;
   Game.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  Game.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  Game.renderer.toneMappingExposure = 1.1;
+  Game.renderer.outputColorSpace = THREE.SRGBColorSpace;
   Game.renderer.setClearColor(0x000000, 0); // Transparent
   container.appendChild(Game.renderer.domElement);
 
@@ -88,7 +91,7 @@ export function initScene(container) {
   container.appendChild(Game.labelRenderer.domElement);
 
   Game.scene = new THREE.Scene();
-  Game.scene.fog = new THREE.FogExp2(0xffeedd, 0.006);
+  Game.scene.fog = new THREE.Fog(0x87ceeb, 100, 350);
   Game.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300);
   Game.camera.position.set(0, 15, 20);
 
@@ -101,7 +104,7 @@ export function initScene(container) {
   Game.controls.touches = { ONE: THREE.MOUSE.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE };
 
   // Improved Lighting
-  const sun = new THREE.DirectionalLight(0xffddaa, 1.5);
+  const sun = new THREE.DirectionalLight(0xfff8e8, 2.4);
   sun.position.set(80, 120, 60);
   sun.castShadow = true;
   sun.shadow.mapSize.width = 2048;
@@ -115,14 +118,14 @@ export function initScene(container) {
   sun.shadow.bias = -0.001;
   Game.scene.add(sun);
 
-  const ambientLight = new THREE.AmbientLight(0xffeedd, 0.6);
+  const ambientLight = new THREE.AmbientLight(0xd0e8ff, 1.4);
   Game.scene.add(ambientLight);
 
-  const fillLight = new THREE.DirectionalLight(0xffcc88, 0.4);
+  const fillLight = new THREE.DirectionalLight(0xb8d8ff, 0.9);
   fillLight.position.set(-40, 30, -40);
   Game.scene.add(fillLight);
 
-  const groundBounce = new THREE.HemisphereLight(0xffdd99, 0x886644, 0.5);
+  const groundBounce = new THREE.HemisphereLight(0xffe8a0, 0x88cc55, 1.0);
   Game.scene.add(groundBounce);
 
   Game.clock = new THREE.Clock();
@@ -458,7 +461,9 @@ export function applyDayNightCycle(timeOfDay) {
   // Sky color — set scene.background so post-processing captures it
   const skyColor = isNight ? 0x0a1828 : 0x87ceeb;
   Game.scene.background = new THREE.Color(skyColor);
-  Game.scene.fog.color.setHex(isNight ? 0x0a1828 : 0x87ceeb);
+  Game.scene.fog.color.setHex(isNight ? 0x0d1b2a : 0x87ceeb);
+  Game.scene.fog.near = isNight ? 60 : 100;
+  Game.scene.fog.far = isNight ? 200 : 350;
 
   // Update CSS background for sky gradient
   const bg = document.getElementById('game-container');
@@ -501,7 +506,7 @@ export function applyDayNightCycle(timeOfDay) {
   }
 
   // Update post-processing color grading
-  setColorGrade(isNight);
+  setColorGrade(isNight, Game.renderer, Game.scene);
 }
 
 export function applyWindFromMapData(mapData) {
@@ -538,8 +543,9 @@ function mt(color, type, rotation) {
     return new THREE.MeshStandardMaterial({ 
       color: 0xffffff,
       map: createShinyTexture(),
-      roughness: 0.2,
-      metalness: 0.8
+      roughness: 0.15,
+      metalness: 0.85,
+      envMapIntensity: 1.0,
     });
   }
   
@@ -704,7 +710,8 @@ function mt(color, type, rotation) {
       color: 0xffffff,
       map: createGrassTexture(),
       roughness: 0.8,
-      metalness: 0.0
+      metalness: 0.0,
+      envMapIntensity: 0.3,
     });
   }
   
@@ -857,8 +864,9 @@ export function buildCourseFromJSON(data) {
       bodyIdx = Game.courseBodies.length - 1;
       // Override material for glass
       mesh.material = new THREE.MeshPhysicalMaterial({
-        color: parseColor(p.color), roughness: 0.05, metalness: 0.1,
-        transparent: true, opacity: 0.35, clearcoat: 1.0, clearcoatRoughness: 0.05,
+        color: parseColor(p.color), roughness: 0.02, metalness: 0.1,
+        transparent: true, opacity: 0.35, clearcoat: 1.0, clearcoatRoughness: 0.02,
+        envMapIntensity: 1.8, transmission: 0.6, ior: 1.45,
       });
     } else if (p.type === 'rail' && p.size) {
       mesh = addPiece(p.size, parseColor(p.color), p.position, p.rotation || [0, 0, 0], 'rail');
@@ -1063,10 +1071,10 @@ export function buildCourseFromJSON(data) {
       if (p.type === 'water') {
         const geo = new THREE.BoxGeometry(p.size[0], 0.05, p.size[2]);
         const mat = new THREE.MeshPhysicalMaterial({
-          color: 0x1e8cff, transparent: true, opacity: 0.55,
-          roughness: 0.1, metalness: 0.2,
-          clearcoat: 1.0, clearcoatRoughness: 0.05,
-          reflectivity: 0.9,
+          color: 0x1e8cff, transparent: true, opacity: 0.6,
+          roughness: 0.05, metalness: 0.0,
+          clearcoat: 1.0, clearcoatRoughness: 0.0,
+          reflectivity: 1.0, envMapIntensity: 1.2,
           side: THREE.DoubleSide,
         });
         const waterMesh = new THREE.Mesh(geo, mat);
@@ -1260,8 +1268,8 @@ export async function buildCourseByIndex(idx) {
 export function renderMapThumbnail(mapData) {
   const w = 320, h = 200;
   const thumbScene = new THREE.Scene();
-  thumbScene.fog = new THREE.FogExp2(0xffeedd, 0.012);
-  thumbScene.background = new THREE.Color(0xffeedd);
+  thumbScene.fog = new THREE.Fog(0x87ceeb, 80, 280);
+  thumbScene.background = new THREE.Color(0x87ceeb);
   
   const sun = new THREE.DirectionalLight(0xffddaa, 1.5);
   sun.position.set(15, 35, 15);
@@ -1972,7 +1980,7 @@ function spawnSplashParticles(pos) {
 }
 
 export function renderGame() {
-  renderWithPostProcessing();
+  renderWithPostProcessing(Game.renderer, Game.scene, Game.camera);
   Game.labelRenderer.render(Game.scene, Game.camera);
 }
 

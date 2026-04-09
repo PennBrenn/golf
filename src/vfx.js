@@ -3,6 +3,13 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { FullScreenQuad } from 'three/examples/jsm/postprocessing/Pass.js';
+import {
+  GodRaysDepthMaskShader,
+  GodRaysGenerateShader,
+  GodRaysCombineShader,
+  GodRaysFakeSunShader,
+} from 'three/examples/jsm/shaders/GodRaysShader.js';
 
 // ── VFX State ────────────────────────────────────────────
 export const VFX = {
@@ -17,6 +24,27 @@ export const VFX = {
   speedLinesMat: null,
   isNight: false,
   time: 0,
+  // God rays state
+  godRays: {
+    enabled: true,
+    sunPosition: new THREE.Vector3(80, 120, 60),
+    sunScreenPos: new THREE.Vector3(0.7, 0.85, 1.0),
+    maskRenderTarget: null,
+    godRayRenderTarget1: null,
+    godRayRenderTarget2: null,
+    colorRenderTarget: null,
+    depthMaterial: null,
+    generateMat1: null,
+    generateMat2: null,
+    generateMat3: null,
+    combineMat: null,
+    fsQuad: null,
+    intensity: 0.35,
+    stepSize: 0.15,
+  },
+  // Environment reflection
+  pmremGenerator: null,
+  envTexture: null,
 };
 
 // ── Color Grading Shader ─────────────────────────────────
@@ -27,6 +55,7 @@ const ColorGradeShader = {
     contrast: { value: 1.0 },
     saturation: { value: 1.0 },
     warmth: { value: 0.0 },
+    time: { value: 0.0 },
   },
   vertexShader: `
     varying vec2 vUv;
@@ -41,33 +70,45 @@ const ColorGradeShader = {
     uniform float contrast;
     uniform float saturation;
     uniform float warmth;
+    uniform float time;
     varying vec2 vUv;
+
+    float rand(vec2 co) {
+      return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+    }
 
     void main() {
       vec4 color = texture2D(tDiffuse, vUv);
-      
+
       // Brightness
       color.rgb += brightness;
-      
+
       // Contrast
       color.rgb = (color.rgb - 0.5) * contrast + 0.5;
-      
+
       // Saturation
       float grey = dot(color.rgb, vec3(0.299, 0.587, 0.114));
       color.rgb = mix(vec3(grey), color.rgb, saturation);
-      
-      // Warmth (shift red up, blue down for warm; opposite for cool)
-      color.r += warmth * 0.08;
+
+      // Warmth
+      color.r += warmth * 0.07;
       color.g += warmth * 0.02;
-      color.b -= warmth * 0.06;
-      
-      // Subtle vignette
-      vec2 uv = vUv * (1.0 - vUv);
-      float vig = uv.x * uv.y * 15.0;
-      vig = pow(vig, 0.15);
+      color.b -= warmth * 0.05;
+
+      // Subtle film grain
+      float grain = rand(vUv + fract(time)) * 0.018 - 0.009;
+      color.rgb += grain;
+
+      // Vignette — soft, not dramatic
+      vec2 uv2 = vUv * (1.0 - vUv);
+      float vig = uv2.x * uv2.y * 18.0;
+      vig = pow(vig, 0.18);
       color.rgb *= vig;
-      
-      gl_FragColor = color;
+
+      // Lift blacks slightly (prevents crushed shadows on grass)
+      color.rgb = max(color.rgb, vec3(0.012));
+
+      gl_FragColor = clamp(color, 0.0, 1.0);
     }
   `,
 };
@@ -131,31 +172,110 @@ const SpeedLinesShader = {
   `,
 };
 
+// ── Environment Map Helper ───────────────────────────────
+function _rebuildEnvMap(renderer, scene, isNight) {
+  if (!VFX.pmremGenerator) return;
+
+  const skyCanvas = document.createElement('canvas');
+  skyCanvas.width = 256; skyCanvas.height = 128;
+  const ctx = skyCanvas.getContext('2d');
+
+  if (isNight) {
+    const grad = ctx.createLinearGradient(0, 0, 0, 128);
+    grad.addColorStop(0, '#0a1828');
+    grad.addColorStop(1, '#1a2a3a');
+    ctx.fillStyle = grad;
+  } else {
+    const grad = ctx.createLinearGradient(0, 0, 0, 128);
+    grad.addColorStop(0, '#87ceeb');
+    grad.addColorStop(0.5, '#c8e8ff');
+    grad.addColorStop(1, '#f0f8ff');
+    ctx.fillStyle = grad;
+  }
+  ctx.fillRect(0, 0, 256, 128);
+
+  const tex = new THREE.CanvasTexture(skyCanvas);
+  tex.mapping = THREE.EquirectangularReflectionMapping;
+
+  if (VFX.envTexture) VFX.envTexture.dispose();
+  VFX.envTexture = VFX.pmremGenerator.fromEquirectangular(tex).texture;
+  tex.dispose();
+
+  scene.environment = VFX.envTexture;
+}
+
 // ── Post-Processing Init ─────────────────────────────────
 export function initPostProcessing(renderer, scene, camera) {
   const size = new THREE.Vector2();
   renderer.getSize(size);
+  const W = size.x, H = size.y;
 
+  // ── Environment map for reflections ──────────────────
+  VFX.pmremGenerator = new THREE.PMREMGenerator(renderer);
+  VFX.pmremGenerator.compileEquirectangularShader();
+  _rebuildEnvMap(renderer, scene, false);
+
+  // ── God ray render targets ────────────────────────────
+  const rtOpts = {
+    minFilter: THREE.NearestFilter,
+    magFilter: THREE.NearestFilter,
+    format: THREE.RGBAFormat,
+    type: THREE.HalfFloatType,
+  };
+  const W4 = Math.floor(W / 4), H4 = Math.floor(H / 4);
+
+  VFX.godRays.maskRenderTarget    = new THREE.WebGLRenderTarget(W4, H4, rtOpts);
+  VFX.godRays.godRayRenderTarget1 = new THREE.WebGLRenderTarget(W4, H4, rtOpts);
+  VFX.godRays.godRayRenderTarget2 = new THREE.WebGLRenderTarget(W4, H4, rtOpts);
+  VFX.godRays.colorRenderTarget   = new THREE.WebGLRenderTarget(W, H, {
+    ...rtOpts,
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+  });
+
+  VFX.godRays.depthMaterial = new THREE.MeshDepthMaterial();
+  VFX.godRays.depthMaterial.depthPacking = THREE.RGBADepthPacking;
+  VFX.godRays.depthMaterial.blending = THREE.NoBlending;
+
+  VFX.godRays.fsQuad = new FullScreenQuad();
+
+  const makeGenMat = () => new THREE.ShaderMaterial({
+    uniforms: THREE.UniformsUtils.clone(GodRaysGenerateShader.uniforms),
+    vertexShader: GodRaysGenerateShader.vertexShader,
+    fragmentShader: GodRaysGenerateShader.fragmentShader,
+  });
+  VFX.godRays.generateMat1 = makeGenMat();
+  VFX.godRays.generateMat2 = makeGenMat();
+  VFX.godRays.generateMat3 = makeGenMat();
+
+  VFX.godRays.combineMat = new THREE.ShaderMaterial({
+    uniforms: THREE.UniformsUtils.clone(GodRaysCombineShader.uniforms),
+    vertexShader: GodRaysCombineShader.vertexShader,
+    fragmentShader: GodRaysCombineShader.fragmentShader,
+  });
+  VFX.godRays.combineMat.uniforms.fGodRayIntensity.value = VFX.godRays.intensity;
+
+  // ── Main composer (bloom + color grade) ──────────────
   VFX.composer = new EffectComposer(renderer);
 
   const renderPass = new RenderPass(scene, camera);
   renderPass.clearAlpha = 0;
   VFX.composer.addPass(renderPass);
 
-  // Bloom pass
+  // Bloom — dialed back, god rays handle sun glow
   VFX.bloomPass = new UnrealBloomPass(
-    new THREE.Vector2(size.x, size.y),
-    0.4,   // strength
-    0.6,   // radius
-    0.85   // threshold
+    new THREE.Vector2(W, H),
+    0.22,   // strength — subtle
+    0.45,   // radius
+    0.88    // threshold — only emissive objects
   );
   VFX.composer.addPass(VFX.bloomPass);
 
-  // Speed lines pass
+  // Speed lines
   VFX.speedLinesPass = new ShaderPass(SpeedLinesShader);
   VFX.composer.addPass(VFX.speedLinesPass);
 
-  // Color grading pass (last)
+  // Color grade — last pass
   VFX.colorGradePass = new ShaderPass(ColorGradeShader);
   VFX.composer.addPass(VFX.colorGradePass);
 
@@ -164,27 +284,49 @@ export function initPostProcessing(renderer, scene, camera) {
 }
 
 // ── Color Grading ────────────────────────────────────────
-export function setColorGrade(isNight) {
+export function setColorGrade(isNight, rendererRef, sceneRef) {
   VFX.isNight = isNight;
   if (!VFX.colorGradePass) return;
 
   const u = VFX.colorGradePass.uniforms;
   if (isNight) {
-    u.brightness.value = 0.0;
-    u.contrast.value = 1.08;
-    u.saturation.value = 0.85;
-    u.warmth.value = -0.35;
+    u.brightness.value  = 0.0;
+    u.contrast.value    = 1.08;
+    u.saturation.value  = 0.8;
+    u.warmth.value      = -0.4;
+    VFX.godRays.enabled = false;
+    if (VFX.bloomPass) {
+      VFX.bloomPass.strength = 0.6;
+      VFX.bloomPass.threshold = 0.75;
+    }
   } else {
-    u.brightness.value = 0.02;
-    u.contrast.value = 1.05;
-    u.saturation.value = 1.15;
-    u.warmth.value = 0.4;
+    u.brightness.value  = 0.03;
+    u.contrast.value    = 1.03;
+    u.saturation.value  = 1.12;
+    u.warmth.value      = 0.12;
+    VFX.godRays.enabled = true;
+    VFX.godRays.intensity = 0.35;
+    if (VFX.bloomPass) {
+      VFX.bloomPass.strength = 0.22;
+      VFX.bloomPass.threshold = 0.88;
+    }
+  }
+
+  if (rendererRef && sceneRef) {
+    _rebuildEnvMap(rendererRef, sceneRef, isNight);
   }
 }
 
 // ── Resize Handler ───────────────────────────────────────
 export function resizePostProcessing(w, h) {
   if (VFX.composer) VFX.composer.setSize(w, h);
+
+  const gr = VFX.godRays;
+  const W4 = Math.floor(w / 4), H4 = Math.floor(h / 4);
+  if (gr.maskRenderTarget)    gr.maskRenderTarget.setSize(W4, H4);
+  if (gr.godRayRenderTarget1) gr.godRayRenderTarget1.setSize(W4, H4);
+  if (gr.godRayRenderTarget2) gr.godRayRenderTarget2.setSize(W4, H4);
+  if (gr.colorRenderTarget)   gr.colorRenderTarget.setSize(w, h);
 }
 
 // ── Particle Systems ─────────────────────────────────────
@@ -313,7 +455,6 @@ export function updateDynamicFOV(camera, ballSpeed, dt) {
 
 // ── Speed Lines ──────────────────────────────────────────
 export function updateSpeedLines(ballSpeed, dt) {
-  VFX.time += dt;
   if (!VFX.speedLinesPass) return;
 
   const targetIntensity = ballSpeed > 8 ? Math.min((ballSpeed - 8) / 15, 1.0) : 0;
@@ -482,6 +623,10 @@ export function cleanupAimVisuals(scene) {
 
 // ── Master Update ────────────────────────────────────────
 export function updateAllVFX(dt, scene, camera, ballSpeed) {
+  VFX.time += dt;
+  if (VFX.colorGradePass) {
+    VFX.colorGradePass.uniforms.time.value = VFX.time;
+  }
   updateParticles(dt, scene);
   updateCameraShake(camera, dt);
   updateDynamicFOV(camera, ballSpeed, dt);
@@ -489,10 +634,54 @@ export function updateAllVFX(dt, scene, camera, ballSpeed) {
 }
 
 // ── Render ───────────────────────────────────────────────
-export function renderWithPostProcessing() {
-  if (VFX.composer) {
-    VFX.composer.render();
-  }
+export function renderWithPostProcessing(renderer, scene, camera) {
+  // Step 1: Normal composer render (scene → bloom → color grade → screen)
+  if (VFX.composer) VFX.composer.render();
+
+  // Step 2: God ray overlay (additive blend on top)
+  const gr = VFX.godRays;
+  if (!gr.enabled || !gr.maskRenderTarget || !gr.fsQuad || !renderer || !scene || !camera) return;
+
+  const sunProj = gr.sunPosition.clone().project(camera);
+  if (sunProj.z >= 1.0) return; // sun behind camera, skip
+
+  gr.sunScreenPos.set((sunProj.x + 1) * 0.5, (sunProj.y + 1) * 0.5, sunProj.z);
+
+  // Render occluder depth mask at quarter res
+  scene.overrideMaterial = gr.depthMaterial;
+  renderer.setRenderTarget(gr.maskRenderTarget);
+  renderer.clear();
+  renderer.render(scene, camera);
+  scene.overrideMaterial = null;
+  renderer.setRenderTarget(null);
+
+  const sunVec = new THREE.Vector3(gr.sunScreenPos.x, gr.sunScreenPos.y, 0);
+
+  const runGen = (mat, inputTex, outputRT, step) => {
+    mat.uniforms.tInput.value = inputTex;
+    mat.uniforms.vSunPositionScreenSpace.value.copy(sunVec);
+    mat.uniforms.fStepSize.value = step;
+    gr.fsQuad.material = mat;
+    renderer.setRenderTarget(outputRT);
+    renderer.clear();
+    gr.fsQuad.render(renderer);
+    renderer.setRenderTarget(null);
+  };
+
+  runGen(gr.generateMat1, gr.maskRenderTarget.texture,    gr.godRayRenderTarget1, gr.stepSize);
+  runGen(gr.generateMat2, gr.godRayRenderTarget1.texture, gr.godRayRenderTarget2, gr.stepSize * 0.5);
+  runGen(gr.generateMat3, gr.godRayRenderTarget2.texture, gr.godRayRenderTarget1, gr.stepSize * 0.25);
+
+  // Additive blend god rays over screen
+  gr.combineMat.uniforms.tGodRays.value = gr.godRayRenderTarget1.texture;
+  gr.combineMat.uniforms.fGodRayIntensity.value = gr.intensity;
+  gr.fsQuad.material = gr.combineMat;
+  gr.combineMat.blending = THREE.AdditiveBlending;
+  gr.combineMat.depthWrite = false;
+  gr.combineMat.depthTest = false;
+  gr.combineMat.transparent = true;
+  gr.fsQuad.render(renderer);
+  gr.combineMat.blending = THREE.NormalBlending;
 }
 
 // ── Cleanup ──────────────────────────────────────────────
@@ -504,4 +693,21 @@ export function cleanupVFX(scene) {
   }
   VFX.particles = [];
   VFX.cameraShake.intensity = 0;
+
+  // Dispose god ray render targets
+  const gr = VFX.godRays;
+  if (gr.maskRenderTarget)    { gr.maskRenderTarget.dispose();    gr.maskRenderTarget = null; }
+  if (gr.godRayRenderTarget1) { gr.godRayRenderTarget1.dispose(); gr.godRayRenderTarget1 = null; }
+  if (gr.godRayRenderTarget2) { gr.godRayRenderTarget2.dispose(); gr.godRayRenderTarget2 = null; }
+  if (gr.colorRenderTarget)   { gr.colorRenderTarget.dispose();   gr.colorRenderTarget = null; }
+  if (gr.depthMaterial)       { gr.depthMaterial.dispose();       gr.depthMaterial = null; }
+  if (gr.generateMat1)        { gr.generateMat1.dispose();        gr.generateMat1 = null; }
+  if (gr.generateMat2)        { gr.generateMat2.dispose();        gr.generateMat2 = null; }
+  if (gr.generateMat3)        { gr.generateMat3.dispose();        gr.generateMat3 = null; }
+  if (gr.combineMat)          { gr.combineMat.dispose();          gr.combineMat = null; }
+  if (gr.fsQuad)              { gr.fsQuad.dispose();              gr.fsQuad = null; }
+
+  // Dispose env map
+  if (VFX.envTexture)         { VFX.envTexture.dispose();         VFX.envTexture = null; }
+  if (VFX.pmremGenerator)     { VFX.pmremGenerator.dispose();     VFX.pmremGenerator = null; }
 }

@@ -84,11 +84,11 @@ function init() {
   B.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   B.renderer.shadowMap.enabled = true;
   B.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  B.renderer.setClearColor(0xffeedd);
+  B.renderer.setClearColor(0x87ceeb);
   viewport.appendChild(B.renderer.domElement);
 
   B.scene = new THREE.Scene();
-  B.scene.fog = new THREE.FogExp2(0xffeedd, 0.006);
+  B.scene.fog = new THREE.Fog(0x87ceeb, 80, 280);
 
   B.camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 300);
   B.camera.position.set(10, 18, 25);
@@ -226,15 +226,15 @@ function onResize() {
 
 function applyDayNightCycle() {
   if (B.timeOfDay === 'night') {
-    B.renderer.setClearColor(0x0a1828);
-    B.scene.fog.color.setHex(0x0a1828);
+    B.renderer.setClearColor(0x0d1b2a);
+    B.scene.fog.color.setHex(0x0d1b2a);
     B.ambientLight.intensity = 0.25;
     B.ambientLight.color.setHex(0x6688bb);
     B.directionalLight.intensity = 0.4;
     B.directionalLight.color.setHex(0xaaccff);
   } else {
-    B.renderer.setClearColor(0xffeedd);
-    B.scene.fog.color.setHex(0xffeedd);
+    B.renderer.setClearColor(0x87ceeb);
+    B.scene.fog.color.setHex(0x87ceeb);
     B.ambientLight.intensity = 0.6;
     B.ambientLight.color.setHex(0xffeedd);
     B.directionalLight.intensity = 1.5;
