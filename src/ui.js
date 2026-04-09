@@ -132,7 +132,7 @@ export function initUI() {
 
   // ESC menu buttons
   document.getElementById('btn-esc-kick').addEventListener('click', () => {
-    if (UI.showKickPlayers) UI.showKickPlayers(); else showKickPlayers();
+    if (UI.showKickPlayers) UI.showKickPlayers(); else showKickPlayers([], false);
   });
 
   document.getElementById('btn-esc-reset').addEventListener('click', () => {
@@ -367,7 +367,7 @@ export function hideESCMenu() {
   UI.screens.escMenu.classList.add('hidden');
 }
 
-export function showKickPlayers(players) {
+export function showKickPlayers(players, isHost = false) {
   hideAll();
   UI.screens.kickPlayers.classList.remove('hidden');
 
@@ -384,7 +384,7 @@ export function showKickPlayers(players) {
           ${escapeHtml(p.name)}${p.isHost ? ' (Host)' : ''}
         </span>
       `;
-      if (!p.isHost) {
+      if (isHost && !p.isHost) {
         const kickBtn = document.createElement('button');
         kickBtn.className = 'kick-btn';
         kickBtn.textContent = 'Kick';

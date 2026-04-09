@@ -69,8 +69,8 @@ async function init() {
   // Apply saved settings now (loadSettings ran inside initUI before this callback was wired up)
   applySettings(getSettings());
 
-  // Override showKickPlayers to pass current players
-  UI.showKickPlayers = () => showKickPlayers(MP.players);
+  // Override showKickPlayers to pass current players and host status
+  UI.showKickPlayers = () => showKickPlayers(MP.players, MP.isHost);
 
   // Override showESCMenu to pass host status
   UI.showESCMenu = () => showESCMenu(MP.isHost);
