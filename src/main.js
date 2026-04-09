@@ -23,6 +23,7 @@ import {
   showToast, loadSettings, getSettings, UI,
   showESCMenu, hideESCMenu, showKickPlayers, hideKickPlayers,
 } from './ui.js';
+import { initCommands, handleCommand } from './commands.js';
 
 // ── App State ────────────────────────────────────────────
 
@@ -85,6 +86,9 @@ async function init() {
   // Chat input
   setupChatInput();
 
+  // Command system
+  initCommands(showSystemMsg, handleKickPlayer);
+
   // Check for builder test mode
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('test') === 'builder') {
@@ -104,6 +108,29 @@ async function init() {
 
 // ── Chat ─────────────────────────────────────────────────
 
+function showSystemMsg(text, color = '#aaffcc') {
+  const log = document.getElementById('chat-log');
+  if (!log) return;
+  const div = document.createElement('div');
+  div.className = 'chat-log-msg';
+  div.style.color = color;
+  div.style.fontStyle = 'italic';
+  div.textContent = text;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+  // also keep the chat log visible briefly
+  const container = document.getElementById('chat-input-container');
+  if (container) {
+    container.classList.add('visible');
+    clearTimeout(container._sysTimeout);
+    container._sysTimeout = setTimeout(() => {
+      if (!document.activeElement || document.activeElement.id !== 'chat-input') {
+        container.classList.remove('visible');
+      }
+    }, 4000);
+  }
+}
+
 function setupChatInput() {
   const container = document.getElementById('chat-input-container');
   const input = document.getElementById('chat-input');
@@ -118,12 +145,17 @@ function setupChatInput() {
         e.preventDefault();
       } else {
         const text = input.value.trim();
-        if (text && MP.ably) {
-          sendChat(text);
-          const local = getLocalPlayer();
-          const colorHex = local ? playerColorHex(local.colorIndex) : '#ffffff';
-          showChatBubble('local', text, colorHex);
-          addChatLogMsg(MP.localName, text, colorHex);
+        if (text) {
+          if (text.startsWith('/')) {
+            // Command
+            handleCommand(text);
+          } else if (MP.ably) {
+            sendChat(text);
+            const local = getLocalPlayer();
+            const colorHex = local ? playerColorHex(local.colorIndex) : '#ffffff';
+            showChatBubble('local', text, colorHex);
+            addChatLogMsg(MP.localName, text, colorHex);
+          }
         }
         input.value = '';
         container.classList.remove('visible');
