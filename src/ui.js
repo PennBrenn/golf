@@ -98,6 +98,11 @@ export function initUI() {
     showSettings();
   });
 
+  // Main menu map builder button
+  document.getElementById('btn-map-builder').addEventListener('click', () => {
+    window.location.href = '/builder.html';
+  });
+
   // Settings screen buttons
   document.getElementById('btn-back-from-settings').addEventListener('click', () => {
     showMainMenu();
