@@ -376,6 +376,24 @@ async function startVotingPhase() {
 
   showMapVote(allMaps, allThumbnails);
 
+  // Show debug button for host
+  const debugBtn = document.getElementById('btn-debug-map');
+  if (debugBtn) {
+    debugBtn.style.display = MP.isHost ? 'inline-block' : 'none';
+    debugBtn.onclick = async () => {
+      // Find debug_showcase.json index
+      const debugIdx = mapManifest.indexOf('debug_showcase.json');
+      if (debugIdx === -1) {
+        showToast('debug_showcase.json not found');
+        return;
+      }
+      // Cancel timer
+      if (voteTimer) { clearTimeout(voteTimer); voteTimer = null; }
+      // Broadcast debug map as winner
+      hostBroadcastVoteResult(debugIdx);
+    };
+  }
+
   // Host starts 10-second timer then resolves
   if (MP.isHost) {
     if (voteTimer) clearTimeout(voteTimer);
