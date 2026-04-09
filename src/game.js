@@ -752,7 +752,10 @@ function getDragDir() {
   const forward = new THREE.Vector3();
   Game.camera.getWorldDirection(forward); forward.y = 0; forward.normalize();
   const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
-  const worldDir = new THREE.Vector3().addScaledVector(forward, dy / 200).addScaledVector(right, dx / 200);
+  
+  // INVERT dx and dy here so dragging down/back pulls the power back, 
+  // and the ball shoots forward (like a slingshot)
+  const worldDir = new THREE.Vector3().addScaledVector(forward, -dy / 200).addScaledVector(right, -dx / 200);
   worldDir.y = 0;
   return { ratio, worldDir: worldDir.length() > 0.01 ? worldDir.normalize() : null };
 }
@@ -770,6 +773,9 @@ function updateDragVis() {
   const baseRadius = BALL_RADIUS; // Cone base diameter = ball diameter
   
   const geo = new THREE.ConeGeometry(baseRadius, length, 16);
+  // Shift geometry so the base is at the origin instead of the center
+  geo.translate(0, length / 2, 0);
+
   const mat = new THREE.MeshBasicMaterial({ 
     color: 0xffffff, 
     transparent: true, 
@@ -779,15 +785,14 @@ function updateDragVis() {
   
   Game.dragArrow = new THREE.Mesh(geo, mat);
   
-  // Position cone: base at ball, tip points away
-  // Cone geometry is centered at origin with tip at +Y
-  // We need to offset it so base is at ball position
-  Game.dragArrow.position.copy(bp).add(worldDir.clone().multiplyScalar(length / 2));
+  // Position cone: base exactly at ball
+  Game.dragArrow.position.copy(bp);
   
-  // Align cone with shoot direction (tip points away from camera)
+  // Align cone with shoot direction
+  // The translated Cone points exactly along +Y, so we align +Y with worldDir
   const up = new THREE.Vector3(0, 1, 0);
   const quaternion = new THREE.Quaternion();
-  quaternion.setFromUnitVectors(up, worldDir.clone().negate());
+  quaternion.setFromUnitVectors(up, worldDir);
   Game.dragArrow.setRotationFromQuaternion(quaternion);
   
   Game.scene.add(Game.dragArrow);
