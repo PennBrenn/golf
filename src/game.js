@@ -1245,9 +1245,9 @@ export async function buildCourseByIndex(idx) {
   const holeHitbox = new CANNON.Body({
     mass: 0,
     isTrigger: true, // Sensor body - no physical collision
-    position: new CANNON.Vec3(Game.holePosition.x, Game.holePosition.y + 2, Game.holePosition.z)
+    position: new CANNON.Vec3(Game.holePosition.x, Game.holePosition.y + 0.83, Game.holePosition.z)
   });
-  holeHitbox.addShape(new CANNON.Cylinder(2.5, 2.5, 5, 8));
+  holeHitbox.addShape(new CANNON.Cylinder(0.83, 0.83, 1.67, 8));
   Game.world.addBody(holeHitbox);
   Game.courseBodies.push(holeHitbox);
   holeHitbox.addEventListener('collide', (e) => {
