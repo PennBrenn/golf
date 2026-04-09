@@ -8,7 +8,11 @@ const PEER_CONFIG = {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun3.l.google.com:19302' },
+      { urls: 'stun:stun4.l.google.com:19302' },
       { urls: 'stun:global.stun.twilio.com:3478' },
+      { urls: 'stun:stun.mit.edu:3478' },
     ]
   }
 };
@@ -267,15 +271,8 @@ export function joinGame(name, code) {
 
       conn.on('error', (err) => {
         console.error('Guest connection error:', err);
-        let errorMsg = 'Connection failed';
-        if (err.type === 'peer-unavailable') {
-          errorMsg = 'Room not found - check room code';
-        } else if (err.type === 'network') {
-          errorMsg = 'Network error - check your connection';
-        } else if (err.type === 'server-error') {
-          errorMsg = 'PeerJS server error - try again';
-        }
-        reject(new Error(errorMsg));
+        // Don't reject immediately - let timeout handle it
+        // Connection errors can happen during ICE negotiation
       });
 
       // Timeout if no connection after 15s (increased for cross-device NAT traversal)
