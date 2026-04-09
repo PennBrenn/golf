@@ -77,9 +77,13 @@ export function initScene(container) {
   Game.camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
 
   // Allow transparent background so CSS sky gradient shows through
-  Game.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  Game.renderer = new THREE.WebGLRenderer({ 
+    antialias: true, 
+    alpha: true,
+    powerPreference: 'high-performance'
+  });
   Game.renderer.setSize(window.innerWidth, window.innerHeight);
-  Game.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  Game.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3));
   Game.renderer.shadowMap.enabled = true;
   Game.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   Game.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -1546,8 +1550,13 @@ export function renderMapThumbnail(mapData) {
   cam.position.set(cx + dist * 0.4, cy + dist * 0.5, cz + dist * 0.6);
   cam.lookAt(cx, cy - 2, cz);
 
-  const thumbRenderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  const thumbRenderer = new THREE.WebGLRenderer({ 
+    antialias: true, 
+    preserveDrawingBuffer: true,
+    powerPreference: 'high-performance'
+  });
   thumbRenderer.setSize(w, h);
+  thumbRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 3));
   thumbRenderer.setClearColor(0x87ceeb);
   thumbRenderer.render(thumbScene, cam);
   const dataUrl = thumbRenderer.domElement.toDataURL('image/png');

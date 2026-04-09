@@ -79,9 +79,12 @@ function init() {
   const viewport = document.getElementById('viewport');
   const w = viewport.clientWidth, h = viewport.clientHeight;
 
-  B.renderer = new THREE.WebGLRenderer({ antialias: true });
+  B.renderer = new THREE.WebGLRenderer({ 
+    antialias: true,
+    powerPreference: 'high-performance'
+  });
   B.renderer.setSize(w, h);
-  B.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  B.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3));
   B.renderer.shadowMap.enabled = true;
   B.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   B.renderer.setClearColor(0x87ceeb);
