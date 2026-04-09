@@ -922,9 +922,9 @@
     /* ── Loading Screen ──────────────────────────── */
 
     #screen-loading {
-      background: rgba(0, 50, 65, 0.85);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: rgba(0, 50, 65, 0.5);
+      backdrop-filter: blur(6px) saturate(1.4);
+      -webkit-backdrop-filter: blur(6px) saturate(1.4);
       z-index: 200;
     }
 
@@ -932,8 +932,25 @@
       font-family: 'Nunito', sans-serif;
       font-size: 1.4rem;
       font-weight: 600;
-      color: rgba(255, 255, 255, 0.85);
+      color: rgba(255, 255, 255, 0.9);
       text-shadow: 0 2px 8px rgba(0, 194, 204, 0.3);
+    }
+
+    #loading-progress-container {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px) saturate(1.4);
+      -webkit-backdrop-filter: blur(12px) saturate(1.4);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 12px;
+    }
+
+    #loading-progress-bar {
+      background: linear-gradient(90deg, #00c8f0, #a8d400);
+      border-radius: 12px;
+    }
+
+    #loading-progress-text {
+      color: rgba(255, 255, 255, 0.7);
     }
 
     .spinner {
@@ -1170,10 +1187,10 @@
   <div id="screen-loading" class="screen hidden">
     <div id="loading-text">Loading...</div>
     <div class="spinner"></div>
-    <div id="loading-progress-container" style="display:none;width:280px;height:6px;background:rgba(255,255,255,0.2);border-radius:3px;margin-top:16px;overflow:hidden;">
-      <div id="loading-progress-bar" style="height:100%;background:#a8d400;border-radius:3px;transition:width 0.2s ease-out;width:0%;"></div>
+    <div id="loading-progress-container" style="display:none;width:280px;height:6px;margin-top:16px;overflow:hidden;">
+      <div id="loading-progress-bar" style="height:100%;transition:width 0.2s ease-out;width:0%;"></div>
     </div>
-    <div id="loading-progress-text" style="display:none;margin-top:8px;font-size:0.85rem;color:rgba(255,255,255,0.7);">0%</div>
+    <div id="loading-progress-text" style="display:none;margin-top:8px;font-size:0.85rem;">0%</div>
   </div>
 
   <!-- Settings Screen -->
