@@ -65,6 +65,9 @@ async function init() {
   UI.onKickPlayer = handleKickPlayer;
   UI.onResetBall = handleResetBall;
 
+  // Apply saved settings now (loadSettings ran inside initUI before this callback was wired up)
+  applySettings(getSettings());
+
   // Override showKickPlayers to pass current players
   UI.showKickPlayers = () => showKickPlayers(MP.players);
 
