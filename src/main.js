@@ -333,7 +333,7 @@ function wireNetworkCallbacks() {
     // Ignore updates from self
     if (playerId === MP.localId) return;
     const player = getPlayerById(playerId);
-    if (player && !Game.remoteBalls[playerId]) {
+    if (player && !Game.remoteBalls[playerId] && !Game.addingPlayers.has(playerId)) {
       addRemoteBall(playerId, PLAYER_COLORS[player.colorIndex] || 0x4488ff, player.name);
     }
     updateRemoteBallState(playerId, position, velocity, timestamp);
@@ -594,13 +594,15 @@ function startNextRound(mapIndex) {
 }
 
 function syncRemoteBalls(players) {
+  const processedIds = new Set();
   for (const p of players) {
-    if (p.id !== MP.localId && !Game.remoteBalls[p.id]) {
+    if (p.id !== MP.localId && !Game.remoteBalls[p.id] && !processedIds.has(p.id)) {
+      processedIds.add(p.id);
       addRemoteBall(p.id, PLAYER_COLORS[p.colorIndex] || 0x4488ff, p.name);
     }
   }
   const ids = new Set(players.map(p => p.id));
-  for (const pid of Object.keys(Game.remoteBalls)) {
+  for ( const pid of Object.keys(Game.remoteBalls)) {
     if (!ids.has(pid)) removeRemoteBall(pid);
   }
 }
