@@ -80,11 +80,10 @@ export function initScene(container) {
   Game.controls = new OrbitControls(Game.camera, Game.renderer.domElement);
   Game.controls.enableDamping = true;
   Game.controls.dampingFactor = 0.1;
-  Game.controls.maxPolarAngle = Math.PI / 2 - 0.05;
-  Game.controls.minDistance = 3;
-  Game.controls.maxDistance = 35;
-  Game.controls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
-  Game.controls.touches = { ONE: null, TWO: THREE.TOUCH.DOLLY_ROTATE };
+  Game.controls.minDistance = 2;
+  Game.controls.maxDistance = 50;
+  Game.controls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+  Game.controls.touches = { ONE: THREE.MOUSE.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE };
 
   // Improved Lighting
   const sun = new THREE.DirectionalLight(0xfff5e0, 1.2);
