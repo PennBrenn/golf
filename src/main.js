@@ -70,7 +70,7 @@ function loop() {
 function wireNetworkCallbacks() {
   MP.onPlayerListChanged = (players) => {
     updatePlayerList(players);
-    if (MP.isHost) updateStartButton(players.length >= 2);
+    if (MP.isHost) updateStartButton(players.length >= 1);
     if (gameRunning) syncRemoteBalls(players);
   };
 
@@ -243,7 +243,7 @@ function handleReturnToLobby() {
   MP.leaderboard = [];
   showLobby(MP.roomCode, MP.isHost);
   updatePlayerList(MP.players);
-  if (MP.isHost) updateStartButton(MP.players.length >= 2);
+  if (MP.isHost) updateStartButton(MP.players.length >= 1);
 }
 
 // ── Go ───────────────────────────────────────────────────
