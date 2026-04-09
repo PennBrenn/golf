@@ -1,4 +1,4 @@
-import { BALL_COLORS, getAllMapData, renderMapThumbnail } from './game.js';
+import { BALL_COLORS, getAllMapData, renderMapThumbnail, fetchMapManifest, fetchMap, mapManifest } from './game.js';
 
 // ── Settings Defaults ────────────────────────────────────
 
@@ -321,7 +321,18 @@ export async function showMapLibrary() {
   grid.innerHTML = '';
 
   try {
-    const maps = await getAllMapData();
+    showLoading('Loading maps...', 0);
+    await fetchMapManifest();
+    const maps = [];
+    const total = mapManifest.length;
+    for (let i = 0; i < total; i++) {
+      const mapData = await fetchMap(mapManifest[i]);
+      maps.push(mapData);
+      const progress = ((i + 1) / total) * 100;
+      showLoading('Loading maps...', progress);
+    }
+    hideLoading();
+
     maps.forEach((mapData) => {
       const card = document.createElement('div');
       card.className = 'library-map-card';
@@ -342,9 +353,10 @@ export async function showMapLibrary() {
       card.appendChild(info);
       grid.appendChild(card);
     });
-  } catch (err) {
-    console.error('Failed to load maps:', err);
-    grid.innerHTML = '<div style="color:white;grid-column:1/-1;text-align:center;">Failed to load maps</div>';
+  } catch (e) {
+    console.error('Failed to load map library:', e);
+    hideLoading();
+    grid.innerHTML = '<div style="color:#fff;padding:20px;">Failed to load maps</div>';
   }
 }
 

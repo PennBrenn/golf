@@ -92,6 +92,7 @@ async function init() {
 
   // Load menu background
   showLoading('Loading...');
+  await fetchMapManifest();
   await loadMenuBackground();
   hideLoading();
   showMainMenu();
@@ -351,8 +352,22 @@ function wireNetworkCallbacks() {
 
 async function startVotingPhase() {
   // Load 3 random maps for voting (optimized - no longer loads all maps)
-  allMaps = await getRandomMaps(3);
+  showLoading('Loading maps...', 0);
+  await fetchMapManifest();
+  const indices = [];
+  while (indices.length < Math.min(3, mapManifest.length)) {
+    const idx = Math.floor(Math.random() * mapManifest.length);
+    if (!indices.includes(idx)) indices.push(idx);
+  }
+  allMaps = [];
+  for (let i = 0; i < indices.length; i++) {
+    const mapData = await fetchMap(mapManifest[indices[i]]);
+    allMaps.push({ ...mapData, _originalIndex: indices[i] });
+    const progress = ((i + 1) / indices.length) * 100;
+    showLoading('Loading maps...', progress);
+  }
   allThumbnails = allMaps.map(m => renderMapThumbnail(m));
+  hideLoading();
 
   // Reset vote state
   votes = {};
@@ -398,8 +413,10 @@ function resolveVotes() {
 
 async function handleVoteResult(winnerIndex) {
   // winnerIndex is the original manifest index
+  showLoading('Loading map...');
   if (mapManifest.length === 0) await fetchMapManifest();
   const data = await fetchMap(mapManifest[winnerIndex]);
+  hideLoading();
   const mapName = data.name || 'Map ' + (winnerIndex + 1);
   showVoteWinner(mapName);
 
