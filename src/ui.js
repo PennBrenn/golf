@@ -1,3 +1,5 @@
+import { BALL_COLORS } from './game.js';
+
 // ── UI State ─────────────────────────────────────────────
 
 export const UI = {
@@ -6,18 +8,20 @@ export const UI = {
   onJoinGame: null,      // callback(name, code)
   onStartGame: null,     // callback()
   onPlayAgain: null,     // callback()
+  onColorPick: null,     // callback(colorHex)
+  onNextRound: null,     // callback()
 };
 
 // ── Init ─────────────────────────────────────────────────
 
 export function initUI() {
-  // Cache screen references
   UI.screens = {
     mainMenu: document.getElementById('screen-main-menu'),
     lobby: document.getElementById('screen-lobby'),
     countdown: document.getElementById('screen-countdown'),
     hud: document.getElementById('screen-hud'),
-    win: document.getElementById('screen-win'),
+    leaderboard: document.getElementById('screen-leaderboard'),
+    loading: document.getElementById('screen-loading'),
     toast: document.getElementById('toast'),
   };
 
@@ -30,10 +34,7 @@ export function initUI() {
   document.getElementById('btn-join').addEventListener('click', () => {
     const name = document.getElementById('input-name').value.trim() || 'Player';
     const code = document.getElementById('input-code').value.trim().toUpperCase();
-    if (!code) {
-      showToast('Please enter a room code');
-      return;
-    }
+    if (!code) { showToast('Please enter a room code'); return; }
     if (UI.onJoinGame) UI.onJoinGame(name, code);
   });
 
@@ -45,15 +46,46 @@ export function initUI() {
   // Copy room code
   document.getElementById('btn-copy-code').addEventListener('click', () => {
     const code = document.getElementById('lobby-code').textContent;
-    navigator.clipboard.writeText(code).then(() => {
-      showToast('Code copied!');
-    });
+    navigator.clipboard.writeText(code).then(() => showToast('Code copied!'));
   });
 
-  // Win screen play again
+  // Leaderboard next-round / play-again
+  document.getElementById('btn-next-round').addEventListener('click', () => {
+    if (UI.onNextRound) UI.onNextRound();
+  });
   document.getElementById('btn-play-again').addEventListener('click', () => {
     if (UI.onPlayAgain) UI.onPlayAgain();
   });
+
+  // Settings toggle
+  document.getElementById('btn-settings').addEventListener('click', () => {
+    const panel = document.getElementById('settings-panel');
+    panel.classList.toggle('hidden');
+  });
+
+  // Ball color picker
+  buildColorPicker();
+}
+
+// ── Color Picker ─────────────────────────────────────────
+
+function buildColorPicker() {
+  const grid = document.getElementById('color-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  for (const c of BALL_COLORS) {
+    const swatch = document.createElement('div');
+    swatch.className = 'color-swatch';
+    swatch.style.background = '#' + c.toString(16).padStart(6, '0');
+    swatch.addEventListener('click', () => {
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+      swatch.classList.add('selected');
+      if (UI.onColorPick) UI.onColorPick(c);
+    });
+    grid.appendChild(swatch);
+  }
+  // Select first by default
+  if (grid.children[0]) grid.children[0].classList.add('selected');
 }
 
 // ── Screen Management ────────────────────────────────────
@@ -62,11 +94,26 @@ function hideAll() {
   for (const screen of Object.values(UI.screens)) {
     if (screen) screen.classList.add('hidden');
   }
+  const sp = document.getElementById('settings-panel');
+  if (sp) sp.classList.add('hidden');
+  const sb = document.getElementById('spectator-banner');
+  if (sb) sb.classList.add('hidden');
 }
 
 export function showMainMenu() {
   hideAll();
   UI.screens.mainMenu.classList.remove('hidden');
+}
+
+export function showLoading(msg) {
+  hideAll();
+  UI.screens.loading.classList.remove('hidden');
+  const el = document.getElementById('loading-text');
+  if (el) el.textContent = msg || 'Loading...';
+}
+
+export function hideLoading() {
+  UI.screens.loading.classList.add('hidden');
 }
 
 export function showLobby(roomCode, isHost) {
@@ -83,9 +130,7 @@ export function updatePlayerList(players) {
   list.innerHTML = '';
   for (const p of players) {
     const li = document.createElement('li');
-    const colorHex = '#' + (p.colorIndex !== undefined
-      ? [0xff4444, 0x4488ff, 0xffcc00, 0x44cc44][p.colorIndex]?.toString(16).padStart(6, '0')
-      : 'ffffff');
+    const colorHex = playerColorHex(p.colorIndex);
     li.innerHTML = `<span class="player-dot" style="background:${colorHex}"></span> ${escapeHtml(p.name)}${p.isHost ? ' (Host)' : ''}`;
     list.appendChild(li);
   }
@@ -96,9 +141,7 @@ export function updatePlayerList(players) {
     hudList.innerHTML = '';
     for (const p of players) {
       const div = document.createElement('div');
-      const colorHex = '#' + (p.colorIndex !== undefined
-        ? [0xff4444, 0x4488ff, 0xffcc00, 0x44cc44][p.colorIndex]?.toString(16).padStart(6, '0')
-        : 'ffffff');
+      const colorHex = playerColorHex(p.colorIndex);
       div.innerHTML = `<span class="player-dot" style="background:${colorHex}"></span> ${escapeHtml(p.name)}`;
       hudList.appendChild(div);
     }
@@ -114,10 +157,8 @@ export function showCountdown(onComplete) {
   hideAll();
   UI.screens.countdown.classList.remove('hidden');
   const el = document.getElementById('countdown-text');
-
   const steps = ['3', '2', '1', 'GO!'];
   let i = 0;
-
   el.textContent = steps[0];
   el.className = 'countdown-number countdown-animate';
 
@@ -134,7 +175,6 @@ export function showCountdown(onComplete) {
     }
     el.textContent = steps[i];
     el.className = 'countdown-number';
-    // Force reflow for animation restart
     void el.offsetWidth;
     el.className = 'countdown-number countdown-animate';
   }, 1000);
@@ -146,28 +186,76 @@ export function showHUD() {
 
 export function hideHUD() {
   UI.screens.hud.classList.add('hidden');
+  const sb = document.getElementById('spectator-banner');
+  if (sb) sb.classList.add('hidden');
 }
 
-export function updateChargeBar(ratio) {
-  const bar = document.getElementById('charge-fill');
+// ── HUD Updates ──────────────────────────────────────────
+
+export function updateTimer(seconds) {
+  const el = document.getElementById('hud-timer');
+  if (el) {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    el.textContent = m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
+  }
+}
+
+export function updateSwings(count) {
+  const el = document.getElementById('hud-swings');
+  if (el) el.textContent = 'Swings: ' + count;
+}
+
+export function updateDragIndicator(ratio, active) {
+  const bar = document.getElementById('drag-fill');
   if (bar) {
     bar.style.width = (ratio * 100) + '%';
-    // Color gradient: green → yellow → red
     if (ratio < 0.5) {
       bar.style.background = `rgb(${Math.floor(ratio * 2 * 255)}, 200, 50)`;
     } else {
       bar.style.background = `rgb(255, ${Math.floor((1 - ratio) * 2 * 200)}, 50)`;
     }
   }
+  const container = document.getElementById('drag-bar-container');
+  if (container) container.style.opacity = active ? '1' : '0.3';
 }
 
-export function showWinScreen(winnerName, isHost) {
-  hideHUD();
-  UI.screens.win.classList.remove('hidden');
-  document.getElementById('winner-name').textContent = winnerName + ' wins!';
-  document.getElementById('btn-play-again').style.display = isHost ? 'inline-block' : 'none';
-  document.getElementById('win-waiting').style.display = isHost ? 'none' : 'block';
+export function showSpectatorBanner() {
+  const sb = document.getElementById('spectator-banner');
+  if (sb) sb.classList.remove('hidden');
 }
+
+export function hideSpectatorBanner() {
+  const sb = document.getElementById('spectator-banner');
+  if (sb) sb.classList.add('hidden');
+}
+
+// ── Leaderboard ──────────────────────────────────────────
+
+export function showLeaderboard(entries, round, totalRounds, isHost) {
+  hideHUD();
+  UI.screens.leaderboard.classList.remove('hidden');
+  const body = document.getElementById('lb-body');
+  body.innerHTML = '';
+  const sorted = [...entries].sort((a, b) => a.time - b.time);
+  sorted.forEach((e, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i + 1}</td><td>${escapeHtml(e.name)}</td><td>${e.swings}</td><td>${e.time.toFixed(1)}s</td>`;
+    body.appendChild(tr);
+  });
+  document.getElementById('lb-round').textContent = `Round ${round} / ${totalRounds}`;
+
+  const isLastRound = round >= totalRounds;
+  document.getElementById('btn-next-round').style.display = (!isLastRound && isHost) ? 'inline-block' : 'none';
+  document.getElementById('btn-play-again').style.display = (isLastRound && isHost) ? 'inline-block' : 'none';
+  document.getElementById('lb-waiting').style.display = isHost ? 'none' : 'block';
+}
+
+export function hideLeaderboard() {
+  UI.screens.leaderboard.classList.add('hidden');
+}
+
+// ── Toast ────────────────────────────────────────────────
 
 export function showToast(message, duration = 3000) {
   const toast = UI.screens.toast;
@@ -186,4 +274,10 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+function playerColorHex(colorIndex) {
+  const colors = [0xff4444, 0x4488ff, 0xffcc00, 0x44cc44];
+  const c = colors[colorIndex] ?? 0xffffff;
+  return '#' + c.toString(16).padStart(6, '0');
 }

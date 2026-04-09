@@ -211,16 +211,40 @@
       padding: 2px 0;
     }
 
-    .charge-bar-container {
+    .hud-top-left {
+      position: fixed;
+      top: 16px; left: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      pointer-events: none;
+    }
+
+    #hud-timer {
+      font-size: 1.6rem;
+      font-weight: 700;
+      font-family: monospace;
+      color: #fff;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+    }
+
+    #hud-swings {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .drag-bar-container {
       width: 220px;
       height: 16px;
       background: rgba(0,0,0,0.6);
       border-radius: 8px;
       overflow: hidden;
       border: 2px solid rgba(255,255,255,0.2);
+      opacity: 0.3;
+      transition: opacity 0.15s;
     }
 
-    #charge-fill {
+    #drag-fill {
       height: 100%;
       width: 0%;
       background: #44cc44;
@@ -235,25 +259,138 @@
       pointer-events: none;
     }
 
-    /* ── Win Screen ───────────────────────────────── */
+    #btn-settings {
+      position: fixed;
+      top: 16px; left: 50%;
+      transform: translateX(-50%);
+      pointer-events: auto;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #ccc;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    #btn-settings:hover { background: rgba(0,0,0,0.7); color:#fff; }
 
-    #screen-win {
+    /* ── Settings Panel ──────────────────────────── */
+
+    #settings-panel {
+      position: fixed;
+      top: 50px; left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15,15,35,0.95);
+      border-radius: 12px;
+      padding: 20px 28px;
+      z-index: 160;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      pointer-events: auto;
+    }
+
+    #settings-panel h3 { margin-bottom: 12px; font-size: 1rem; color:#ddd; }
+
+    #color-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .color-swatch {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .color-swatch:hover { transform: scale(1.15); }
+    .color-swatch.selected { border-color: #fff; }
+
+    /* ── Spectator Banner ────────────────────────── */
+
+    #spectator-banner {
+      position: fixed;
+      top: 50px; left: 50%;
+      transform: translateX(-50%);
       background: rgba(0,0,0,0.7);
+      color: #ffcc00;
+      padding: 8px 24px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      z-index: 60;
+      pointer-events: none;
+    }
+
+    /* ── Leaderboard ─────────────────────────────── */
+
+    #screen-leaderboard {
+      background: rgba(0,0,0,0.75);
       z-index: 150;
     }
 
-    #winner-name {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: #ffcc00;
-      margin-bottom: 20px;
+    #lb-round {
+      font-size: 1rem;
+      color: #aaa;
+      margin-bottom: 12px;
     }
 
-    .win-waiting {
+    #lb-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+    }
+
+    #lb-table th, #lb-table td {
+      padding: 8px 14px;
+      text-align: center;
+    }
+
+    #lb-table th {
+      color: #aaa;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    #lb-table td {
+      font-size: 1rem;
+    }
+
+    #lb-table tr:nth-child(1) td { color: #ffcc00; font-weight: 700; }
+    #lb-table tr:nth-child(2) td { color: #ccc; }
+    #lb-table tr:nth-child(3) td { color: #b87333; }
+
+    .lb-waiting {
       color: #888;
       font-style: italic;
       margin-top: 12px;
     }
+
+    /* ── Loading Screen ──────────────────────────── */
+
+    #screen-loading {
+      background: rgba(10,10,30,0.95);
+      z-index: 200;
+    }
+
+    #loading-text {
+      font-size: 1.4rem;
+      color: #aaa;
+    }
+
+    .spinner {
+      width: 40px; height: 40px;
+      border: 4px solid rgba(255,255,255,0.15);
+      border-top-color: #4488ff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 16px auto 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── Toast ────────────────────────────────────── */
 
@@ -285,7 +422,7 @@
       pointer-events: none;
     }
   </style>
-  <script type="module" crossorigin src="/assets/index-Aut_qigP.js"></script>
+  <script type="module" crossorigin src="/assets/index-O-U9kA8M.js"></script>
 </head>
 <body>
   <div id="game-container"></div>
@@ -324,20 +461,46 @@
 
   <!-- HUD -->
   <div id="screen-hud" class="screen hidden">
-    <div id="hud-players"></div>
-    <div class="charge-bar-container">
-      <div id="charge-fill"></div>
+    <div class="hud-top-left">
+      <div id="hud-timer">00:00</div>
+      <div id="hud-swings">Swings: 0</div>
     </div>
-    <div class="hud-hint">Hold SPACE to charge &middot; Release to shoot &middot; W to jump</div>
+    <div id="hud-players"></div>
+    <button id="btn-settings">Settings</button>
+    <div class="drag-bar-container" id="drag-bar-container">
+      <div id="drag-fill"></div>
+    </div>
+    <div class="hud-hint">Click &amp; drag to aim &middot; Release to shoot &middot; Right-click to orbit</div>
   </div>
 
-  <!-- Win Screen -->
-  <div id="screen-win" class="screen hidden">
+  <!-- Spectator Banner -->
+  <div id="spectator-banner" class="hidden">Spectating &mdash; waiting for others to finish</div>
+
+  <!-- Settings Panel -->
+  <div id="settings-panel" class="hidden">
+    <h3>Ball Color</h3>
+    <div id="color-grid"></div>
+  </div>
+
+  <!-- Leaderboard -->
+  <div id="screen-leaderboard" class="screen hidden">
     <div class="screen-panel">
-      <div id="winner-name">Player wins!</div>
-      <button id="btn-play-again" class="btn btn-green">Play Again</button>
-      <div id="win-waiting" class="win-waiting" style="display:none;">Waiting for host...</div>
+      <h1>Round Complete</h1>
+      <div id="lb-round">Round 1 / 3</div>
+      <table id="lb-table">
+        <thead><tr><th>#</th><th>Player</th><th>Swings</th><th>Time</th></tr></thead>
+        <tbody id="lb-body"></tbody>
+      </table>
+      <button id="btn-next-round" class="btn btn-green" style="display:none;">Next Round</button>
+      <button id="btn-play-again" class="btn btn-primary" style="display:none;">Back to Lobby</button>
+      <div id="lb-waiting" class="lb-waiting" style="display:none;">Waiting for host...</div>
     </div>
+  </div>
+
+  <!-- Loading Screen -->
+  <div id="screen-loading" class="screen hidden">
+    <div id="loading-text">Loading...</div>
+    <div class="spinner"></div>
   </div>
 
   <!-- Toast -->

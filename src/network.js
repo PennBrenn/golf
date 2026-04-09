@@ -10,7 +10,8 @@ export const MSG = {
   GAME_START: 'gameStart',
   BALL_UPDATE: 'ballUpdate',
   REMOTE_BALL_UPDATE: 'remoteBallUpdate',
-  WIN: 'win',
+  FINISH: 'finish',
+  NEXT_ROUND: 'nextRound',
   PLAY_AGAIN: 'playAgain',
   CHAT: 'chat',
 };
@@ -36,8 +37,10 @@ export const MP = {
   onPlayerListChanged: null,  // callback
   onGameStart: null,          // callback
   onRemoteBallUpdate: null,   // callback
-  onWin: null,                // callback
+  onFinish: null,             // callback(playerId, playerName, swings, time)
+  onNextRound: null,          // callback()
   onPlayAgain: null,          // callback
+  leaderboard: [],            // [{ id, name, swings, time }]
   onDisconnect: null,         // callback(message)
   onChat: null,               // callback(name, text)
 };
@@ -175,10 +178,10 @@ function handleHostReceive(peerId, data) {
       }
       break;
 
-    case MSG.WIN:
-      // Relay win to all guests
-      broadcast({ type: MSG.WIN, playerId: data.playerId, playerName: data.playerName });
-      if (MP.onWin) MP.onWin(data.playerId, data.playerName);
+    case MSG.FINISH:
+      // Relay finish to all guests
+      broadcast({ type: MSG.FINISH, playerId: data.playerId, playerName: data.playerName, swings: data.swings, time: data.time });
+      if (MP.onFinish) MP.onFinish(data.playerId, data.playerName, data.swings, data.time);
       break;
 
     case MSG.CHAT:
@@ -301,8 +304,12 @@ function handleGuestReceive(data) {
       }
       break;
 
-    case MSG.WIN:
-      if (MP.onWin) MP.onWin(data.playerId, data.playerName);
+    case MSG.FINISH:
+      if (MP.onFinish) MP.onFinish(data.playerId, data.playerName, data.swings, data.time);
+      break;
+
+    case MSG.NEXT_ROUND:
+      if (MP.onNextRound) MP.onNextRound();
       break;
 
     case MSG.PLAY_AGAIN:
@@ -354,19 +361,27 @@ export function sendBallUpdate(position, velocity) {
   }
 }
 
-export function sendWin() {
+export function sendFinish(swings, time) {
   const payload = {
-    type: MSG.WIN,
+    type: MSG.FINISH,
     playerId: MP.localId,
     playerName: MP.localName,
+    swings,
+    time,
   };
 
   if (MP.isHost) {
     broadcast(payload);
-    if (MP.onWin) MP.onWin(MP.localId, MP.localName);
+    if (MP.onFinish) MP.onFinish(MP.localId, MP.localName, swings, time);
   } else {
     sendToHost(payload);
   }
+}
+
+export function hostNextRound() {
+  if (!MP.isHost) return;
+  broadcast({ type: MSG.NEXT_ROUND });
+  if (MP.onNextRound) MP.onNextRound();
 }
 
 export function hostPlayAgain() {
@@ -408,6 +423,7 @@ export function cleanupMultiplayer() {
   MP.players = [];
   MP.gameActive = false;
   MP.syncTimer = 0;
+  MP.leaderboard = [];
   if (MP.peer) {
     try { MP.peer.destroy(); } catch (e) { /* ignore */ }
     MP.peer = null;
