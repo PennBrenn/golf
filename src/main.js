@@ -20,7 +20,7 @@ import {
   showSpectatorBanner, hideSpectatorBanner,
   showLeaderboard, hideLeaderboard,
   showMapVote, updateMapVotes, showVoteWinner, hideMapVote,
-  showToast, loadSettings, getSettings, UI,
+  showToast, loadSettings, getSettings, saveSettings, UI,
   showESCMenu, hideESCMenu, showKickPlayers, hideKickPlayers,
 } from './ui.js';
 import { initCommands, handleCommand } from './commands.js';
@@ -59,9 +59,9 @@ async function init() {
   UI.onStartGame = handleStartGame;
   UI.onPlayAgain = handlePlayAgain;
   UI.onNextRound = handleNextRound;
-  UI.onColorPick = (color) => { Game.ballColor = color; };
+  UI.onColorPick = (color) => { Game.ballColor = color; UI.saveSettings(); };
   UI.onMapVote = (mapIndex) => { sendVote(mapIndex); };
-  UI.onSettingsChanged = (s) => applySettings(s);
+  UI.onSettingsChanged = (s) => { applySettings(s); UI.saveSettings(); };
   UI.onReturnToMenu = handleReturnToMenuFromGame;
   UI.onKickPlayer = handleKickPlayer;
   UI.onResetBall = handleResetBall;
@@ -240,6 +240,9 @@ async function startBuilderTestMode() {
 // ── Apply Settings ───────────────────────────────────────
 
 function applySettings(s) {
+  // Update UI currentSettings object so saveSettings will save the right values
+  Object.assign(UI.getSettings(), s);
+
   // Ball color
   Game.ballColor = s.ballColor;
 
