@@ -756,7 +756,7 @@ function addCyl(rt, rb, h, seg, c, p) {
   Game.world.addBody(body); Game.courseBodies.push(body);
 }
 
-let mapManifest = [];
+export let mapManifest = [];
 
 function parseColor(c) {
   if (typeof c === 'number') return c;
@@ -1083,6 +1083,27 @@ export async function fetchMapManifest() {
 export async function fetchMap(filename) {
   const res = await fetch('/maps/' + filename);
   return res.json();
+}
+
+export async function getRandomMaps(count = 3) {
+  if (mapManifest.length === 0) await fetchMapManifest();
+  showLoading('Loading maps...', 0);
+  const maps = [];
+  const indices = [];
+  // Pick random indices
+  while (indices.length < Math.min(count, mapManifest.length)) {
+    const idx = Math.floor(Math.random() * mapManifest.length);
+    if (!indices.includes(idx)) indices.push(idx);
+  }
+  // Fetch only those maps
+  for (let i = 0; i < indices.length; i++) {
+    const mapData = await fetchMap(mapManifest[indices[i]]);
+    maps.push({ ...mapData, _originalIndex: indices[i] });
+    const progress = ((i + 1) / indices.length) * 100;
+    showLoading('Loading maps...', progress);
+  }
+  hideLoading();
+  return maps;
 }
 
 export async function getAllMapData() {

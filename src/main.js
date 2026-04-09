@@ -1,6 +1,6 @@
 import {
-  initScene, buildCourseByIndex, buildCourseFromJSON, buildTerrain, fetchMapManifest,
-  getAllMapData, renderMapThumbnail, loadMenuBackground, updateMenuCamera,
+  initScene, buildCourseByIndex, buildCourseFromJSON, buildTerrain, fetchMapManifest, fetchMap, mapManifest,
+  getRandomMaps, getAllMapData, renderMapThumbnail, loadMenuBackground, updateMenuCamera,
   createLocalBall, resetLocalBall, updateBallAppearance, clearCourse,
   addRemoteBall, removeRemoteBall, updateRemoteBallState,
   setupInput, updateGame, renderGame, resetGameState, enterSpectator,
@@ -350,11 +350,9 @@ function wireNetworkCallbacks() {
 // ── Map Voting ───────────────────────────────────────────
 
 async function startVotingPhase() {
-  // Generate thumbnails if not yet done
-  if (allMaps.length === 0) {
-    allMaps = await getAllMapData();
-    allThumbnails = allMaps.map(m => renderMapThumbnail(m));
-  }
+  // Load 3 random maps for voting (optimized - no longer loads all maps)
+  allMaps = await getRandomMaps(3);
+  allThumbnails = allMaps.map(m => renderMapThumbnail(m));
 
   // Reset vote state
   votes = {};
@@ -383,7 +381,7 @@ function resolveVotes() {
 
   let candidates = [];
   if (maxVotes === 0) {
-    // No votes: pick random
+    // No votes: pick random from the 3 options
     candidates = allMaps.map((_, i) => i);
   } else {
     for (const [idx, count] of Object.entries(votes)) {
@@ -392,11 +390,17 @@ function resolveVotes() {
   }
 
   const winnerIndex = candidates[Math.floor(Math.random() * candidates.length)];
-  hostBroadcastVoteResult(winnerIndex);
+  const winnerMap = allMaps[winnerIndex];
+  // Use the original manifest index for loading the full map
+  const originalIndex = winnerMap._originalIndex !== undefined ? winnerMap._originalIndex : winnerIndex;
+  hostBroadcastVoteResult(originalIndex);
 }
 
-function handleVoteResult(winnerIndex) {
-  const mapName = allMaps[winnerIndex] ? allMaps[winnerIndex].name : 'Map ' + (winnerIndex + 1);
+async function handleVoteResult(winnerIndex) {
+  // winnerIndex is the original manifest index
+  if (mapManifest.length === 0) await fetchMapManifest();
+  const data = await fetchMap(mapManifest[winnerIndex]);
+  const mapName = data.name || 'Map ' + (winnerIndex + 1);
   showVoteWinner(mapName);
 
   setTimeout(() => {
