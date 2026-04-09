@@ -1,0 +1,493 @@
+{
+  "name": "Zigzag",
+  "timeLimit": 90,
+  "timeOfDay": "day",
+  "rain": false,
+  "start": [
+    -3,
+    8.8,
+    0
+  ],
+  "hole": [
+    3,
+    8.5,
+    -24
+  ],
+  "pieces": [
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        6
+      ],
+      "position": [
+        -3,
+        8.25,
+        -2
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        -5.15,
+        8.65,
+        -2
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        -0.85,
+        8.65,
+        -2
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        8,
+        0.5,
+        3
+      ],
+      "position": [
+        0,
+        8.25,
+        -6.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        3
+      ],
+      "position": [
+        -4.15,
+        8.65,
+        -6.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        3
+      ],
+      "position": [
+        4.15,
+        8.65,
+        -6.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        3,
+        8.25,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        0.85,
+        8.65,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        5.15,
+        8.65,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        0.85,
+        8.65,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        5.15,
+        8.65,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        8,
+        0.5,
+        3
+      ],
+      "position": [
+        0,
+        8.25,
+        -13.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        3
+      ],
+      "position": [
+        -4.15,
+        8.65,
+        -13.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        3
+      ],
+      "position": [
+        4.15,
+        8.65,
+        -13.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -3,
+        8.25,
+        -17
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        -5.15,
+        8.65,
+        -17
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        -0.85,
+        8.65,
+        -17
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        -5.15,
+        8.65,
+        -17
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        -0.85,
+        8.65,
+        -17
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        8,
+        0.5,
+        3
+      ],
+      "position": [
+        0,
+        8.25,
+        -20.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        3
+      ],
+      "position": [
+        -4.15,
+        8.65,
+        -20.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        3
+      ],
+      "position": [
+        4.15,
+        8.65,
+        -20.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        3
+      ],
+      "position": [
+        3,
+        8.25,
+        -23.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        3
+      ],
+      "position": [
+        0.85,
+        8.65,
+        -23.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        3
+      ],
+      "position": [
+        5.15,
+        8.65,
+        -23.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "name": "Short and Sweet",
+  "timeLimit": 45,
+  "timeOfDay": "day",
+  "rain": false,
+  "start": [
+    0,
+    8.8,
+    0
+  ],
+  "hole": [
+    0,
+    8.5,
+    -10
+  ],
+  "pieces": [
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        8
+      ],
+      "position": [
+        0,
+        8.25,
+        -2.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        8
+      ],
+      "position": [
+        -2.15,
+        8.65,
+        -2.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        8
+      ],
+      "position": [
+        2.15,
+        8.65,
+        -2.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8.25,
+        -8.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    }
+  ]
+}

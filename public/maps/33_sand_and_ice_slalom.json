@@ -1,0 +1,444 @@
+{
+  "name": "Sand and Ice Slalom",
+  "timeLimit": 150,
+  "timeOfDay": "day",
+  "rain": false,
+  "start": [
+    0,
+    8.8,
+    0
+  ],
+  "hole": [
+    0,
+    8.5,
+    -36
+  ],
+  "pieces": [
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        8
+      ],
+      "position": [
+        0,
+        8.25,
+        -3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        8
+      ],
+      "position": [
+        -2.15,
+        8.65,
+        -3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        8
+      ],
+      "position": [
+        2.15,
+        8.65,
+        -3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "sand",
+      "size": [
+        4,
+        0.5,
+        5
+      ],
+      "position": [
+        0,
+        8.25,
+        -9.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#e6d5a8"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        5
+      ],
+      "position": [
+        -2.15,
+        8.65,
+        -9.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        5
+      ],
+      "position": [
+        2.15,
+        8.65,
+        -9.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "cylinder",
+      "radiusTop": 0.3,
+      "radiusBottom": 0.3,
+      "height": 1.2,
+      "segments": 8,
+      "position": [
+        1.5,
+        8.85,
+        -9
+      ],
+      "color": "#5588cc"
+    },
+    {
+      "type": "cylinder",
+      "radiusTop": 0.3,
+      "radiusBottom": 0.3,
+      "height": 1.2,
+      "segments": 8,
+      "position": [
+        -1.5,
+        8.85,
+        -10.5
+      ],
+      "color": "#5588cc"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8.25,
+        -15
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        -2.15,
+        8.65,
+        -15
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        2.15,
+        8.65,
+        -15
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        6
+      ],
+      "position": [
+        0,
+        8.25,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        -2.15,
+        8.65,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        2.15,
+        8.65,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "cylinder",
+      "radiusTop": 0.3,
+      "radiusBottom": 0.3,
+      "height": 1.2,
+      "segments": 8,
+      "position": [
+        1.5,
+        8.85,
+        -18.5
+      ],
+      "color": "#5588cc"
+    },
+    {
+      "type": "cylinder",
+      "radiusTop": 0.3,
+      "radiusBottom": 0.3,
+      "height": 1.2,
+      "segments": 8,
+      "position": [
+        -1.5,
+        8.85,
+        -20
+      ],
+      "color": "#5588cc"
+    },
+    {
+      "type": "cylinder",
+      "radiusTop": 0.3,
+      "radiusBottom": 0.3,
+      "height": 1.2,
+      "segments": 8,
+      "position": [
+        1,
+        8.85,
+        -22
+      ],
+      "color": "#5588cc"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        6
+      ],
+      "position": [
+        0,
+        8.25,
+        -26
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        -2.15,
+        8.65,
+        -26
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        2.15,
+        8.65,
+        -26
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "sand",
+      "size": [
+        4,
+        0.5,
+        5
+      ],
+      "position": [
+        0,
+        8.25,
+        -31.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#e6d5a8"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        5
+      ],
+      "position": [
+        -2.15,
+        8.65,
+        -31.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        5
+      ],
+      "position": [
+        2.15,
+        8.65,
+        -31.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8.25,
+        -36
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    }
+  ]
+}

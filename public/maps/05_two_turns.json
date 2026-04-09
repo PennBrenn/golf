@@ -1,0 +1,360 @@
+{
+  "name": "Two Turns",
+  "timeLimit": 90,
+  "timeOfDay": "day",
+  "rain": false,
+  "start": [
+    0,
+    8.8,
+    0
+  ],
+  "hole": [
+    0,
+    8.5,
+    -24
+  ],
+  "pieces": [
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        10
+      ],
+      "position": [
+        0,
+        8.25,
+        -3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        10
+      ],
+      "position": [
+        -2.15,
+        8.65,
+        -3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        10
+      ],
+      "position": [
+        2.15,
+        8.65,
+        -3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        6,
+        0.5,
+        4
+      ],
+      "position": [
+        3,
+        8.25,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        -0.15,
+        8.65,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        6.15,
+        8.65,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        6,
+        8.25,
+        -14
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        3.85,
+        8.65,
+        -14
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        8.15,
+        8.65,
+        -14
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        3.85,
+        8.65,
+        -14
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        8.15,
+        8.65,
+        -14
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        6,
+        0.5,
+        4
+      ],
+      "position": [
+        3,
+        8.25,
+        -18
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        -0.15,
+        8.65,
+        -18
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        6.15,
+        8.65,
+        -18
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8.25,
+        -22
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        -2.15,
+        8.65,
+        -22
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        4
+      ],
+      "position": [
+        2.15,
+        8.65,
+        -22
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        2
+      ],
+      "position": [
+        0,
+        8.25,
+        -25
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    }
+  ]
+}

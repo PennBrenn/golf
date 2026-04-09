@@ -1,0 +1,354 @@
+{
+  "name": "Boost Jump Ice",
+  "timeLimit": 180,
+  "timeOfDay": "day",
+  "rain": false,
+  "start": [
+    0,
+    8.8,
+    0
+  ],
+  "hole": [
+    0,
+    8.5,
+    -34
+  ],
+  "pieces": [
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        8
+      ],
+      "position": [
+        0,
+        8.25,
+        -3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        8
+      ],
+      "position": [
+        -2.15,
+        8.65,
+        -3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        8
+      ],
+      "position": [
+        2.15,
+        8.65,
+        -3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8.25,
+        -9
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "speedboost",
+      "size": [
+        2,
+        0.15,
+        3
+      ],
+      "position": [
+        0,
+        8.33,
+        -9
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#44ff44",
+      "boostForce": 14
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        6
+      ],
+      "position": [
+        0,
+        8.25,
+        -14
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        -2.15,
+        8.65,
+        -14
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        2.15,
+        8.65,
+        -14
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        5,
+        0.5,
+        6
+      ],
+      "position": [
+        0,
+        8.25,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "blower",
+      "size": [
+        1,
+        1.5,
+        1
+      ],
+      "position": [
+        2.65,
+        9,
+        -19
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#88ddff",
+      "blowForce": 8,
+      "blowDir": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "blower",
+      "size": [
+        1,
+        1.5,
+        1
+      ],
+      "position": [
+        -2.65,
+        9,
+        -22
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#88ddff",
+      "blowForce": 8,
+      "blowDir": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        -2.65,
+        8.65,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        2.65,
+        8.65,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        6
+      ],
+      "position": [
+        0,
+        8.25,
+        -26
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        -2.15,
+        8.65,
+        -26
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        2.15,
+        8.65,
+        -26
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        6
+      ],
+      "position": [
+        0,
+        8.25,
+        -32
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    }
+  ]
+}

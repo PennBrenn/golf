@@ -1,0 +1,355 @@
+{
+  "name": "Double Spinner",
+  "timeLimit": 150,
+  "timeOfDay": "day",
+  "rain": false,
+  "start": [
+    0,
+    8.8,
+    0
+  ],
+  "hole": [
+    0,
+    8.5,
+    -30
+  ],
+  "pieces": [
+    {
+      "type": "box",
+      "size": [
+        5,
+        0.5,
+        8
+      ],
+      "position": [
+        0,
+        8.25,
+        -3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        8
+      ],
+      "position": [
+        -2.65,
+        8.65,
+        -3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        8
+      ],
+      "position": [
+        2.65,
+        8.65,
+        -3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        5,
+        0.5,
+        6
+      ],
+      "position": [
+        0,
+        8.25,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        -2.65,
+        8.65,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        2.65,
+        8.65,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "spinner",
+      "size": [
+        4.5,
+        0.4,
+        0.6
+      ],
+      "position": [
+        0,
+        8.45,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#4488ff",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 180,
+        "speed": 0.3,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        5,
+        0.5,
+        6
+      ],
+      "position": [
+        0,
+        8.25,
+        -16
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        -2.65,
+        8.65,
+        -16
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        2.65,
+        8.65,
+        -16
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        -2.65,
+        8.65,
+        -16
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        2.65,
+        8.65,
+        -16
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        5,
+        0.5,
+        6
+      ],
+      "position": [
+        0,
+        8.25,
+        -22
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        -2.65,
+        8.65,
+        -22
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [
+        0.3,
+        0.8,
+        6
+      ],
+      "position": [
+        2.65,
+        8.65,
+        -22
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "spinner",
+      "size": [
+        4.5,
+        0.4,
+        0.6
+      ],
+      "position": [
+        0,
+        8.45,
+        -22
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#4488ff",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 180,
+        "speed": 0.4,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        6
+      ],
+      "position": [
+        0,
+        8.25,
+        -28
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    }
+  ]
+}
