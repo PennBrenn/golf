@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>⛳ Mini Golf Multiplayer</title>
+  <title>⛳ PicoGolf</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -726,6 +726,132 @@
       color: rgba(255,255,255,0.6);
     }
 
+    /* ── Map Library ─────────────────────────────── */
+
+    #screen-map-library {
+      background: rgba(0, 50, 65, 0.5);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 150;
+    }
+
+    #map-library-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 900px;
+      max-height: 60vh;
+      overflow-y: auto;
+      margin: 0 auto;
+      padding: 12px;
+    }
+    #map-library-grid::-webkit-scrollbar {
+      width: 8px;
+    }
+    #map-library-grid::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+    }
+    #map-library-grid::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+    #map-library-grid::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .library-map-card {
+      background: rgba(255,255,255,0.14);
+      backdrop-filter: blur(12px) saturate(1.4);
+      -webkit-backdrop-filter: blur(12px) saturate(1.4);
+      border: 2px solid rgba(255,255,255,0.25);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .library-map-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.5);
+      box-shadow: 0 8px 24px rgba(0,194,204,0.2);
+    }
+
+    .library-map-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      display: block;
+      border-bottom: 1.5px solid rgba(255,255,255,0.2);
+    }
+
+    .library-map-card-info {
+      padding: 12px 14px;
+    }
+
+    .library-map-card-name {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 1px 3px rgba(0,50,65,0.3);
+    }
+
+    /* ── ESC Menu ───────────────────────────────── */
+
+    #screen-esc-menu {
+      background: rgba(0, 50, 65, 0.5);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 180;
+    }
+
+    #screen-kick-players {
+      background: rgba(0, 50, 65, 0.5);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 190;
+    }
+
+    #kick-player-list li {
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.25);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 20px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #003040;
+      box-shadow: 0 2px 8px rgba(0,180,210,0.1);
+    }
+
+    .kick-btn {
+      padding: 6px 16px;
+      background: linear-gradient(180deg, #ff4444 0%, #cc0000 100%);
+      border: 1.5px solid rgba(255,255,255,0.4);
+      border-radius: 20px;
+      color: white;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: transform 0.12s, filter 0.12s;
+    }
+    .kick-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+    .kick-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     /* ── Leaderboard ─────────────────────────────── */
 
     #screen-leaderboard {
@@ -953,8 +1079,8 @@
       opacity: 0.85;
     }
   </style>
-  <script type="module" crossorigin src="/assets/main-BQZkEOBC.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/OrbitControls-56E_Y0Sb.js">
+  <script type="module" crossorigin src="/assets/main-ClxQi6ie.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/OrbitControls-BtcE7MZu.js">
 </head>
 <body>
   <div id="game-container"></div>
@@ -962,7 +1088,7 @@
   <!-- Main Menu -->
   <div id="screen-main-menu" class="screen hidden">
     <div class="screen-panel">
-      <h1>⛳ Mini Golf</h1>
+      <h1>⛳ PicoGolf</h1>
       <h2>Play with friends online</h2>
       <input type="text" id="input-name" placeholder="Your name" maxlength="16" />
       <input type="text" id="input-code" placeholder="Room code (to join)" maxlength="4"
@@ -973,6 +1099,7 @@
       </div>
       <div class="btn-row" style="margin-top:16px;">
         <button id="btn-settings-main" class="btn btn-small">Settings</button>
+        <button id="btn-map-library" class="btn btn-small">Map Library</button>
         <button id="btn-map-builder" class="btn btn-small">Map Builder</button>
       </div>
     </div>
@@ -1061,6 +1188,17 @@
             <input type="text" id="settings-hex" placeholder="#ff4444" maxlength="7"
                    style="width:90px;text-align:center;font-size:0.85rem;" />
           </div>
+          <label class="settings-label">Trail Color</label>
+          <input type="color" id="settings-trail-color" value="#ffffff" style="width:100%;height:36px;border:none;border-radius:8px;cursor:pointer;" />
+          <label class="settings-label">Hat</label>
+          <div class="settings-radio-row" id="settings-hat">
+            <button class="settings-radio active" data-val="none">None</button>
+            <button class="settings-radio" data-val="tophat">Top Hat</button>
+            <button class="settings-radio" data-val="baseball">Baseball</button>
+            <button class="settings-radio" data-val="beanie">Beanie</button>
+          </div>
+          <label class="settings-label">Glow Intensity</label>
+          <input type="range" id="settings-glow" min="0" max="100" value="0" class="settings-slider" />
         </div>
         <div class="settings-section">
           <h3>Graphics</h3>
@@ -1102,6 +1240,42 @@
           <button id="btn-save-settings" class="btn btn-green">Save</button>
           <button id="btn-back-from-settings" class="btn btn-primary">Back</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Library -->
+  <div id="screen-map-library" class="screen hidden">
+    <div class="screen-panel" style="max-width:960px;">
+      <h1>Map Library</h1>
+      <div id="map-library-grid"></div>
+      <div class="btn-row" style="margin-top:20px;">
+        <button id="btn-back-from-library" class="btn btn-primary">Back to Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESC Menu -->
+  <div id="screen-esc-menu" class="screen hidden">
+    <div class="screen-panel" style="max-width:400px;">
+      <h1>Pause Menu</h1>
+      <div class="btn-row" style="flex-direction:column;gap:12px;">
+        <button id="btn-esc-settings" class="btn btn-primary">Settings</button>
+        <button id="btn-esc-kick" class="btn btn-primary hidden">Kick Players</button>
+        <button id="btn-esc-reset" class="btn btn-primary">Reset Ball</button>
+        <button id="btn-esc-return-menu" class="btn btn-green">Return to Main Menu</button>
+        <button id="btn-esc-resume" class="btn btn-small">Resume</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kick Players Modal -->
+  <div id="screen-kick-players" class="screen hidden">
+    <div class="screen-panel" style="max-width:480px;">
+      <h1>Kick Players</h1>
+      <ul id="kick-player-list" style="list-style:none;padding:0;margin:20px 0;max-height:300px;overflow-y:auto;"></ul>
+      <div class="btn-row">
+        <button id="btn-back-from-kick" class="btn btn-primary">Back</button>
       </div>
     </div>
   </div>

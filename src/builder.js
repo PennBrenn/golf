@@ -17,6 +17,7 @@ const B = {
   ambientLight: null, directionalLight: null,
   unsavedChanges: false,  // track unsaved changes
   rainEnabled: false, rainSystem: null, rainDrops: [],
+  snapEnabled: false, snapGridSize: 0.5,
 };
 
 // ── Piece Defaults ───────────────────────────────────────
@@ -65,6 +66,31 @@ function init() {
   B.transform.addEventListener('objectChange', () => {
     if (B.selected) {
       syncDataFromMesh(B.selected);
+
+      // Apply snap if enabled
+      if (B.snapEnabled) {
+        const mesh = B.selected.mesh;
+        const grid = B.snapGridSize;
+
+        // Snap position
+        mesh.position.x = Math.round(mesh.position.x / grid) * grid;
+        mesh.position.y = Math.round(mesh.position.y / grid) * grid;
+        mesh.position.z = Math.round(mesh.position.z / grid) * grid;
+
+        // Snap rotation (to 45 degrees by default, or grid size if it's small)
+        const snapAngle = grid < 0.5 ? Math.PI / 12 : Math.PI / 4; // 15° or 45°
+        mesh.rotation.x = Math.round(mesh.rotation.x / snapAngle) * snapAngle;
+        mesh.rotation.y = Math.round(mesh.rotation.y / snapAngle) * snapAngle;
+        mesh.rotation.z = Math.round(mesh.rotation.z / snapAngle) * snapAngle;
+
+        // Snap scale (only for scale mode)
+        if (B.transform.getMode() === 'scale') {
+          mesh.scale.x = Math.max(0.1, Math.round(mesh.scale.x / grid) * grid);
+          mesh.scale.y = Math.max(0.1, Math.round(mesh.scale.y / grid) * grid);
+          mesh.scale.z = Math.max(0.1, Math.round(mesh.scale.z / grid) * grid);
+        }
+      }
+
       markUnsaved();
     }
     updatePropsUI();
@@ -500,6 +526,16 @@ function setupToolbar() {
     markUnsaved();
   });
 
+  document.getElementById('btn-toggle-snap').addEventListener('click', () => {
+    B.snapEnabled = !B.snapEnabled;
+    const btn = document.getElementById('btn-toggle-snap');
+    btn.classList.toggle('active', B.snapEnabled);
+  });
+
+  document.getElementById('snap-grid-size').addEventListener('input', (e) => {
+    B.snapGridSize = parseFloat(e.target.value) || 0.5;
+  });
+
   document.getElementById('btn-export').addEventListener('click', exportJSON);
   document.getElementById('btn-import').addEventListener('click', () => {
     document.getElementById('file-input').click();
@@ -882,6 +918,11 @@ function newMap() {
   const rainBtn = document.getElementById('btn-toggle-rain');
   rainBtn.classList.remove('active');
   destroyRainSystem();
+
+  // Reset snap
+  B.snapEnabled = false;
+  const snapBtn = document.getElementById('btn-toggle-snap');
+  snapBtn.classList.remove('active');
 
   B.unsavedChanges = false;
 }
