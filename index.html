@@ -88,6 +88,12 @@
       text-align: center;
       max-width: 420px;
       width: 90%;
+      animation: panelEnter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes panelEnter {
+      from { opacity: 0; transform: scale(0.92) translateY(12px); }
+      to   { opacity: 1; transform: scale(1.0)  translateY(0);    }
     }
 
     .screen-panel h1 {
@@ -156,7 +162,8 @@
       font-size: 1rem;
       letter-spacing: 0.03em;
       cursor: pointer;
-      transition: transform 0.12s, filter 0.12s, box-shadow 0.12s;
+      transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  filter 0.12s ease, box-shadow 0.12s ease;
       margin: 6px;
     }
 
@@ -175,12 +182,12 @@
     }
 
     .btn:hover { 
-      transform: translateY(-2px);
+      transform: translateY(-3px) scale(1.03);
       filter: brightness(1.08);
     }
     
     .btn:active { 
-      transform: translateY(1px); 
+      transform: translateY(1px) scale(0.97); 
       filter: brightness(0.95);
     }
     
@@ -327,12 +334,13 @@
     }
 
     .countdown-animate {
-      animation: countdownPop 0.3s ease-out;
+      animation: countdownPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     @keyframes countdownPop {
-      0% { transform: scale(1.4); opacity: 0.3; }
-      100% { transform: scale(1.0); opacity: 1; }
+      0%   { transform: scale(2.2); opacity: 0; filter: blur(8px); }
+      60%  { transform: scale(0.92); opacity: 1; filter: blur(0px); }
+      100% { transform: scale(1.0);  opacity: 1; filter: blur(0px); }
     }
 
     /* ── HUD ──────────────────────────────────────── */
@@ -408,7 +416,8 @@
       width: 0%;
       height: 100%;
       background: linear-gradient(90deg, #a8d400 0%, #ffcc00 50%, #ff4422 100%);
-      transition: width 0.05s linear;
+      background-size: 200% 100%;
+      transition: width 0.05s linear, background-position 0.1s ease;
       position: relative;
     }
     
@@ -969,12 +978,13 @@
       z-index: 200;
       pointer-events: none;
       box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      animation: slideInRight 0.3s ease, fadeOut 0.4s ease 2.6s forwards;
+      animation: toastEnter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), fadeOut 0.4s ease 2.6s forwards;
     }
 
-    @keyframes slideInRight {
-      from { opacity: 0; transform: translateX(20px); }
-      to { opacity: 1; transform: translateX(-50%); }
+    @keyframes toastEnter {
+      0%   { opacity: 0; transform: translateX(-50%) translateY(16px) scale(0.92); }
+      70%  { transform: translateX(-50%) translateY(-3px) scale(1.02); }
+      100% { opacity: 1; transform: translateX(-50%) translateY(0)    scale(1.0);  }
     }
 
     @keyframes fadeOut {
@@ -1021,6 +1031,11 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.15);
     }
     .chat-bubble-fade { opacity: 0; }
+
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-20px); }
+      to   { opacity: 1; transform: translateX(0);     }
+    }
 
     /* ── Chat Input & Log ────────────────────────── */
 

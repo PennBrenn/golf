@@ -28,6 +28,14 @@ export const Game = {
   rainEnabled: false, rainDrops: [],
   onSwingCountChanged: null, onTimeUpdate: null, onTimeUp: null,
   onFinishHole: null, onDragChanged: null, onWaterSplash: null,
+  // Animation state
+  ballSquash: { x: 1, y: 1, z: 1 },
+  screenShake: { intensity: 0, decay: 8, x: 0, y: 0 },
+  hitParticles: [],
+  confettiParticles: [],
+  camTarget: null,
+  camVelocity: null,
+  flagMesh: null,
 };
 
 const BALL_RADIUS = 0.2;
@@ -669,6 +677,7 @@ function buildCourseFromJSON(data) {
         });
         const waterMesh = new THREE.Mesh(geo, mat);
         waterMesh.position.set(p.position[0], p.position[1], p.position[2]);
+        waterMesh.userData.baseY = p.position[1];
         waterMesh.receiveShadow = true;
         Game.scene.add(waterMesh);
         Game.courseMeshes.push(waterMesh);
@@ -806,6 +815,7 @@ export async function buildCourseByIndex(idx) {
   );
   flag.position.copy(Game.holePosition).add(new THREE.Vector3(0.3, 1.8, 0));
   flag.castShadow = true; Game.scene.add(flag); Game.courseMeshes.push(flag);
+  Game.flagMesh = flag;
 
   buildTerrain();
   
@@ -931,6 +941,19 @@ export function createLocalBall(color) {
   Game.lastSafePosition.copy(Game.startPosition);
   Game.lastSwingPosition.copy(Game.startPosition);
   Game.waterSplashed = false;
+
+  // Init spring camera target
+  Game.camTarget = new THREE.Vector3().copy(Game.startPosition);
+  Game.camVelocity = new THREE.Vector3();
+
+  // Init squash state
+  Game.ballSquash = { x: 1, y: 1, z: 1 };
+
+  // Collision listener for hit particles
+  Game.ballBody.addEventListener('collide', (e) => {
+    const impact = e.contact.getImpactVelocityAlongNormal();
+    if (Math.abs(impact) > 3) spawnHitParticles(Game.ballBody.position, impact);
+  });
 }
 
 function createHatMesh(hatType, ballColor) {
@@ -1109,7 +1132,10 @@ export function addRemoteBall(playerId, color, playerName) {
   Game.remoteBalls[playerId] = {
     mesh, label,
     targetPos: new THREE.Vector3().copy(Game.startPosition),
-    targetVel: new THREE.Vector3(), lastUpdate: Date.now(),
+    targetVel: new THREE.Vector3(),
+    renderPos: new THREE.Vector3().copy(Game.startPosition),
+    renderVel: new THREE.Vector3(),
+    lastUpdate: Date.now(),
   };
 }
 
@@ -1130,7 +1156,15 @@ function interpolateRemoteBalls(dt) {
   for (const rb of Object.values(Game.remoteBalls)) {
     const elapsed = (now - rb.lastUpdate) / 1000;
     const predicted = rb.targetPos.clone().add(rb.targetVel.clone().multiplyScalar(elapsed));
-    rb.mesh.position.lerp(predicted, Math.min(1, dt * 12));
+    const err = predicted.clone().sub(rb.renderPos);
+    const errLen = err.length();
+    if (errLen > 5) {
+      rb.renderPos.copy(predicted);
+    } else {
+      const catchUp = Math.min(1, dt * (6 + errLen * 2));
+      rb.renderPos.lerp(predicted, catchUp);
+    }
+    rb.mesh.position.copy(rb.renderPos);
   }
 }
 
@@ -1231,6 +1265,14 @@ function fireDrag() {
   Game.ballBody.velocity.z += worldDir.z * power;
   Game.swings++;
   if (Game.onSwingCountChanged) Game.onSwingCountChanged(Game.swings);
+
+  // Squash on hit
+  Game.ballSquash = { x: 1.3, y: 0.7, z: 1.3 };
+
+  // Screen shake on hard shots
+  if (ratio > 0.5) {
+    Game.screenShake = { intensity: ratio * 0.15, decay: 8, x: 0, y: 0 };
+  }
 }
 
 function checkWin() {
@@ -1249,6 +1291,7 @@ function checkWin() {
     }
     Game.trailPoints = [];
 
+    triggerHoleCelebration();
     if (Game.onFinishHole) Game.onFinishHole();
   }
 }
@@ -1438,9 +1481,173 @@ export function updateGame(dt) {
     }
   }
   interpolateRemoteBalls(dt);
-  if (Game.ball && !Game.spectatorMode) Game.controls.target.lerp(Game.ball.position, 0.1);
+
+  // ── Spring-follow camera ──
+  if (Game.ball && !Game.spectatorMode && Game.camTarget) {
+    const stiffness = 8;
+    const damping = 0.85;
+    const diff = Game.ball.position.clone().sub(Game.camTarget);
+    Game.camVelocity.add(diff.multiplyScalar(stiffness * dt));
+    Game.camVelocity.multiplyScalar(damping);
+    Game.camTarget.add(Game.camVelocity.clone().multiplyScalar(dt));
+    Game.controls.target.copy(Game.camTarget);
+  } else if (Game.ball && !Game.spectatorMode) {
+    Game.controls.target.lerp(Game.ball.position, 0.1);
+  }
+
+  // ── Screen shake ──
+  if (Game.screenShake.intensity > 0.001) {
+    Game.screenShake.x = (Math.random() - 0.5) * Game.screenShake.intensity;
+    Game.screenShake.y = (Math.random() - 0.5) * Game.screenShake.intensity;
+    Game.screenShake.intensity *= Math.exp(-Game.screenShake.decay * dt);
+    Game.camera.position.x += Game.screenShake.x;
+    Game.camera.position.y += Game.screenShake.y;
+  }
+
+  // ── Squash & stretch spring + rolling wobble ──
+  if (Game.ball) {
+    const lf = Math.min(1, dt * 18);
+    Game.ballSquash.x += (1 - Game.ballSquash.x) * lf;
+    Game.ballSquash.y += (1 - Game.ballSquash.y) * lf;
+    Game.ballSquash.z += (1 - Game.ballSquash.z) * lf;
+
+    const speed = Game.ballBody ? Game.ballBody.velocity.length() : 0;
+    const wobble = speed > 4 ? Math.sin(Date.now() * 0.02) * 0.04 : 0;
+    Game.ball.scale.set(
+      Game.ballSquash.x + wobble,
+      Game.ballSquash.y,
+      Game.ballSquash.z - wobble
+    );
+  }
+
+  // ── Hit particles ──
+  for (let i = Game.hitParticles.length - 1; i >= 0; i--) {
+    const hp = Game.hitParticles[i];
+    hp.life -= dt;
+    if (hp.life <= 0) {
+      Game.scene.remove(hp.mesh);
+      hp.mesh.geometry.dispose();
+      hp.mesh.material.dispose();
+      Game.hitParticles.splice(i, 1);
+      continue;
+    }
+    hp.mesh.position.x += hp.vel.x * dt;
+    hp.mesh.position.y += hp.vel.y * dt;
+    hp.mesh.position.z += hp.vel.z * dt;
+    hp.vel.y -= 12 * dt;
+    hp.mesh.material.opacity = hp.life / hp.maxLife;
+  }
+
+  // ── Confetti particles ──
+  for (let i = Game.confettiParticles.length - 1; i >= 0; i--) {
+    const cp = Game.confettiParticles[i];
+    cp.life -= dt;
+    if (cp.life <= 0) {
+      Game.scene.remove(cp.mesh);
+      cp.mesh.geometry.dispose();
+      cp.mesh.material.dispose();
+      Game.confettiParticles.splice(i, 1);
+      continue;
+    }
+    cp.mesh.position.x += cp.vel.x * dt;
+    cp.mesh.position.y += cp.vel.y * dt;
+    cp.mesh.position.z += cp.vel.z * dt;
+    cp.vel.y -= 12 * dt;
+    cp.mesh.rotation.x += cp.angVel.x * dt;
+    cp.mesh.rotation.y += cp.angVel.y * dt;
+    cp.mesh.rotation.z += cp.angVel.z * dt;
+    cp.mesh.material.opacity = cp.life / cp.maxLife;
+  }
+
+  // ── Flag wave ──
+  if (Game.flagMesh) {
+    const t = Game.clock.elapsedTime;
+    Game.flagMesh.rotation.z = Math.sin(t * 3) * 0.15;
+    Game.flagMesh.rotation.y = Math.sin(t * 2.1) * 0.08;
+  }
+
+  // ── Water shimmer ──
+  for (const wz of Game.waterZones) {
+    const t = Game.clock.elapsedTime;
+    wz.mesh.material.opacity = 0.45 + Math.sin(t * 2.5) * 0.1;
+    if (wz.mesh.userData.baseY !== undefined) {
+      wz.mesh.position.y = wz.mesh.userData.baseY + Math.sin(t * 1.8) * 0.02;
+    }
+  }
+
   Game.controls.update();
   checkWin();
+}
+
+function spawnHitParticles(pos, impact) {
+  const count = 6 + Math.floor(Math.random() * 5);
+  const color = Game.ball ? Game.ball.material.color.getHex() : 0xffffff;
+  for (let i = 0; i < count; i++) {
+    const geo = new THREE.SphereGeometry(0.06, 4, 4);
+    const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 1 });
+    const p = new THREE.Mesh(geo, mat);
+    p.position.set(pos.x, pos.y, pos.z);
+    Game.scene.add(p);
+    const speed = Math.abs(impact) * 0.3;
+    Game.hitParticles.push({
+      mesh: p,
+      vel: {
+        x: (Math.random() - 0.5) * speed,
+        y: Math.random() * speed * 0.8 + 0.5,
+        z: (Math.random() - 0.5) * speed,
+      },
+      life: 0.5,
+      maxLife: 0.5,
+    });
+  }
+}
+
+function triggerHoleCelebration() {
+  // Camera zoom tween
+  if (Game.camTarget) {
+    const startY = Game.camTarget.y;
+    const startCamY = Game.camera.position.y;
+    const startTime = Date.now();
+    function tweenCam() {
+      const t = Math.min(1, (Date.now() - startTime) / 500);
+      const ease = t * (2 - t); // ease-out quad
+      Game.camTarget.y = startY + 3 * ease;
+      Game.camera.position.y = startCamY + 2 * ease;
+      if (t < 1) requestAnimationFrame(tweenCam);
+    }
+    tweenCam();
+  }
+
+  // Ball scale pulse: grow then shrink into hole
+  Game.ballSquash = { x: 1.4, y: 1.4, z: 1.4 };
+  setTimeout(() => { Game.ballSquash = { x: 0, y: 0, z: 0 }; }, 300);
+
+  // Confetti particles
+  const holePos = Game.holePosition;
+  const confettiColors = [0xff4444, 0x4488ff, 0xffcc00, 0x44cc44, 0xff88cc, 0xff8800, 0x8844ff, 0x00cccc];
+  for (let i = 0; i < 30; i++) {
+    const geo = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+    const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 1 });
+    const p = new THREE.Mesh(geo, mat);
+    p.position.set(holePos.x, holePos.y + 0.5, holePos.z);
+    Game.scene.add(p);
+    Game.confettiParticles.push({
+      mesh: p,
+      vel: {
+        x: (Math.random() - 0.5) * 4,
+        y: Math.random() * 6 + 3,
+        z: (Math.random() - 0.5) * 4,
+      },
+      angVel: {
+        x: (Math.random() - 0.5) * 10,
+        y: (Math.random() - 0.5) * 10,
+        z: (Math.random() - 0.5) * 10,
+      },
+      life: 1.5,
+      maxLife: 1.5,
+    });
+  }
 }
 
 function spawnSplashParticles(pos) {
@@ -1479,6 +1686,17 @@ export function resetGameState() {
   if (Game.ballBody) { Game.world.removeBody(Game.ballBody); Game.ballBody = null; }
   clearDragVis(); exitSpectator();
   Game.swings = 0; Game.elapsedTime = 0; Game.hasFinished = false;
+
+  // Clean up particles
+  for (const hp of Game.hitParticles) { Game.scene.remove(hp.mesh); hp.mesh.geometry.dispose(); hp.mesh.material.dispose(); }
+  Game.hitParticles = [];
+  for (const cp of Game.confettiParticles) { Game.scene.remove(cp.mesh); cp.mesh.geometry.dispose(); cp.mesh.material.dispose(); }
+  Game.confettiParticles = [];
+  Game.flagMesh = null;
+  Game.camTarget = null;
+  Game.camVelocity = null;
+  Game.ballSquash = { x: 1, y: 1, z: 1 };
+  Game.screenShake = { intensity: 0, decay: 8, x: 0, y: 0 };
 }
 
 export function destroyScene() {
