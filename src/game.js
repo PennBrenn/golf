@@ -1950,16 +1950,12 @@ export function updateGame(dt) {
 
   interpolateRemoteBalls(dt);
   if (Game.ball && !Game.spectatorMode) {
-    Game.controls.target.lerp(Game.ball.position, 1.0);
-    // Smoothly adjust camera distance to follow ball
-    const desiredDist = 12;
-    const currentDist = Game.camera.position.distanceTo(Game.ball.position);
-    if (Math.abs(currentDist - desiredDist) > 1) {
-      const lerpFactor = 0.05;
-      const dir = new THREE.Vector3().subVectors(Game.camera.position, Game.ball.position).normalize();
-      const targetPos = new THREE.Vector3().copy(Game.ball.position).addScaledVector(dir, desiredDist);
-      Game.camera.position.lerp(targetPos, lerpFactor);
-    }
+    // Compute current offset from target to camera (preserves user's orbit angle)
+    const offset = new THREE.Vector3().subVectors(Game.camera.position, Game.controls.target);
+    // Snap target to ball
+    Game.controls.target.copy(Game.ball.position);
+    // Move camera by same offset so it stays locked at same angle/distance
+    Game.camera.position.copy(Game.ball.position).add(offset);
   }
   Game.controls.update();
   checkWin();
