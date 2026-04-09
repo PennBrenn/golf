@@ -1,6 +1,18 @@
 import Peer from 'peerjs';
 import { generateRoomCode } from './words.js';
 
+// PeerJS configuration with STUN servers for cross-device connectivity
+const PEER_CONFIG = {
+  debug: 1,
+  config: {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:global.stun.twilio.com:3478' },
+    ]
+  }
+};
+
 // Message type constants
 export const MSG = {
   WELCOME: 'welcome',
@@ -88,7 +100,7 @@ export function createGame(name) {
 
   return new Promise((resolve, reject) => {
     const peerId = 'golf-' + MP.roomCode;
-    MP.peer = new Peer(peerId);
+    MP.peer = new Peer(peerId, PEER_CONFIG);
 
     MP.peer.on('open', (id) => {
       MP.localId = id;
@@ -109,7 +121,15 @@ export function createGame(name) {
 
     MP.peer.on('error', (err) => {
       console.error('PeerJS host error:', err);
-      reject(err);
+      let errorMsg = 'Could not create game';
+      if (err.type === 'peer-unavailable') {
+        errorMsg = 'Room code already in use';
+      } else if (err.type === 'network') {
+        errorMsg = 'Network error - check your connection';
+      } else if (err.type === 'server-error') {
+        errorMsg = 'PeerJS server error - try again';
+      }
+      reject(new Error(errorMsg));
     });
   });
 }
@@ -224,7 +244,7 @@ export function joinGame(name, code) {
   MP.gameActive = false;
 
   return new Promise((resolve, reject) => {
-    MP.peer = new Peer(undefined);
+    MP.peer = new Peer(undefined, PEER_CONFIG);
 
     MP.peer.on('open', (id) => {
       MP.localId = id;
@@ -247,21 +267,37 @@ export function joinGame(name, code) {
 
       conn.on('error', (err) => {
         console.error('Guest connection error:', err);
-        reject(err);
+        let errorMsg = 'Connection failed';
+        if (err.type === 'peer-unavailable') {
+          errorMsg = 'Room not found - check room code';
+        } else if (err.type === 'network') {
+          errorMsg = 'Network error - check your connection';
+        } else if (err.type === 'server-error') {
+          errorMsg = 'PeerJS server error - try again';
+        }
+        reject(new Error(errorMsg));
       });
 
-      // Timeout if no connection after 8s
+      // Timeout if no connection after 15s (increased for cross-device NAT traversal)
       setTimeout(() => {
         if (!MP.connections['host']) {
           reject(new Error('Could not connect to room ' + MP.roomCode));
           cleanupMultiplayer();
         }
-      }, 8000);
+      }, 15000);
     });
 
     MP.peer.on('error', (err) => {
       console.error('PeerJS guest error:', err);
-      reject(err);
+      let errorMsg = 'Could not connect to game';
+      if (err.type === 'peer-unavailable') {
+        errorMsg = 'Room not found - check room code';
+      } else if (err.type === 'network') {
+        errorMsg = 'Network error - check your connection';
+      } else if (err.type === 'server-error') {
+        errorMsg = 'PeerJS server error - try again';
+      }
+      reject(new Error(errorMsg));
     });
 
     // resolve is called when we receive welcome
