@@ -128,10 +128,6 @@ export function initUI() {
   });
 
   // ESC menu buttons
-  document.getElementById('btn-esc-settings').addEventListener('click', () => {
-    showSettings();
-  });
-
   document.getElementById('btn-esc-kick').addEventListener('click', () => {
     if (UI.showKickPlayers) UI.showKickPlayers(); else showKickPlayers();
   });
@@ -177,12 +173,7 @@ export function initUI() {
     saveSettings();
     if (UI.onSettingsChanged) UI.onSettingsChanged(currentSettings);
     showToast('Settings saved!');
-    // Return to ESC menu if it was open, otherwise main menu
-    if (!UI.screens.escMenu.classList.contains('hidden')) {
-      showESCMenu();
-    } else {
-      showMainMenu();
-    }
+    // Don't navigate - stay on settings screen
   });
 
   // Settings radio buttons

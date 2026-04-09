@@ -715,8 +715,14 @@ export async function fetchMapManifest() {
     const res = await fetch('/api/maps');
     mapManifest = await res.json();
   } catch (e) {
-    console.warn('Could not load map list, using fallback');
-    mapManifest = ['straight_fairway.json', 'dogleg_right.json', 'zigzag.json'];
+    // Fallback for production: try fetching manifest.json
+    try {
+      const res = await fetch('/maps/manifest.json');
+      mapManifest = await res.json();
+    } catch (e2) {
+      console.warn('Could not load map list, using fallback');
+      mapManifest = ['straight_fairway.json', 'dogleg_right.json', 'zigzag.json'];
+    }
   }
   return mapManifest;
 }

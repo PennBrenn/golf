@@ -2,6 +2,36 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import fs from 'fs';
 
+function copyMapsPlugin() {
+  return {
+    name: 'copy-maps',
+    closeBundle() {
+      const mapsDir = resolve(__dirname, 'public/maps');
+      const distMapsDir = resolve(__dirname, 'dist/maps');
+
+      if (fs.existsSync(mapsDir)) {
+        if (!fs.existsSync(distMapsDir)) {
+          fs.mkdirSync(distMapsDir, { recursive: true });
+        }
+
+        const files = fs.readdirSync(mapsDir).filter(f => f.endsWith('.json'));
+        for (const file of files) {
+          const src = resolve(mapsDir, file);
+          const dest = resolve(distMapsDir, file);
+          fs.copyFileSync(src, dest);
+        }
+
+        // Generate manifest.json for production
+        const manifest = files.filter(f => f !== 'manifest.json');
+        fs.writeFileSync(
+          resolve(distMapsDir, 'manifest.json'),
+          JSON.stringify(manifest)
+        );
+      }
+    }
+  };
+}
+
 function mapListAPI() {
   return {
     name: 'map-list-api',
@@ -34,7 +64,7 @@ function mapListAPI() {
 }
 
 export default defineConfig({
-  plugins: [mapListAPI()],
+  plugins: [copyMapsPlugin(), mapListAPI()],
   build: {
     rollupOptions: {
       input: {
