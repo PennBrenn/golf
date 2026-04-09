@@ -179,6 +179,160 @@ function createTerrainTexture() {
   return texture;
 }
 
+function createGrassTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+
+  // Base grass green
+  ctx.fillStyle = '#5cb85c';
+  ctx.fillRect(0, 0, 256, 256);
+
+  // Small grass blades
+  ctx.fillStyle = '#4a9c4a';
+  for (let i = 0; i < 2000; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    ctx.fillRect(x, y, 2, 4);
+  }
+
+  // Lighter highlights
+  ctx.fillStyle = '#6bc86b';
+  for (let i = 0; i < 500; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    ctx.fillRect(x, y, 3, 3);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.magFilter = THREE.NearestFilter;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  
+  return texture;
+}
+
+function createWoodTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+
+  // Base wood color
+  ctx.fillStyle = '#c8a96e';
+  ctx.fillRect(0, 0, 256, 256);
+
+  // Wood grain lines
+  ctx.strokeStyle = '#a07850';
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 30; i++) {
+    const y = Math.random() * 256;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(256, y + Math.random() * 10 - 5);
+    ctx.stroke();
+  }
+
+  // Darker grain lines
+  ctx.strokeStyle = '#7a5030';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 20; i++) {
+    const y = Math.random() * 256;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(256, y + Math.random() * 8 - 4);
+    ctx.stroke();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.magFilter = THREE.NearestFilter;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  
+  return texture;
+}
+
+function createLeafTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+
+  // Base leaf color (slightly desaturated green)
+  ctx.fillStyle = '#6bb86b';
+  ctx.fillRect(0, 0, 256, 256);
+
+  // Leaf shapes
+  ctx.fillStyle = '#5aa85a';
+  for (let i = 0; i < 150; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 8, 4, Math.random() * Math.PI, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Lighter leaf highlights
+  ctx.fillStyle = '#7cc87c';
+  for (let i = 0; i < 80; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 6, 3, Math.random() * Math.PI, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.magFilter = THREE.NearestFilter;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  
+  return texture;
+}
+
+function createShinyTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+
+  // Base metallic color
+  ctx.fillStyle = '#cccccc';
+  ctx.fillRect(0, 0, 256, 256);
+
+  // Shiny highlights
+  ctx.fillStyle = '#ffffff';
+  for (let i = 0; i < 100; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 20, 8, Math.random() * Math.PI, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Darker reflections
+  ctx.fillStyle = '#999999';
+  for (let i = 0; i < 60; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 15, 6, Math.random() * Math.PI, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.magFilter = THREE.LinearFilter;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  
+  return texture;
+}
+
 export function buildTerrain() {
   if (Game.terrainMesh) {
     Game.scene.remove(Game.terrainMesh);
@@ -333,25 +487,47 @@ export function applyWindFromMapData(mapData) {
   }
 }
 
-function mt(color) {
-  // Check if it's a specific color to assign different materials
+function mt(color, type, rotation) {
   const hex = color.toString(16).toLowerCase();
   
-  // Fairway / Grass (#5cb85c or close to original #55aa55/#7ec87e)
-  if (hex === '5cb85c' || hex === '55aa55' || hex === '7ec87e') {
+  // Cylinders get shiny/metal texture
+  if (type === 'cylinder') {
     return new THREE.MeshStandardMaterial({ 
-      color: 0x5cb85c, 
-      roughness: 0.8, 
-      metalness: 0.0 
+      color: 0xffffff,
+      map: createShinyTexture(),
+      roughness: 0.2,
+      metalness: 0.8
     });
   }
   
-  // Wall / Barrier (warm sandy brown)
-  if (hex === '885533' || hex === 'a06a44' || hex === 'c8a96e') {
+  // Boxes
+  if (type === 'box') {
+    // Wall / Barrier (warm sandy brown colors) - wood texture
+    if (hex === '885533' || hex === 'a06a44' || hex === 'c8a96e') {
+      return new THREE.MeshStandardMaterial({ 
+        color: 0xffffff,
+        map: createWoodTexture(),
+        roughness: 0.9,
+        metalness: 0.0
+      });
+    }
+    
+    // Ramp (has rotation on X or Z) - leaf texture
+    if (rotation && (rotation[0] !== 0 || rotation[2] !== 0)) {
+      return new THREE.MeshStandardMaterial({ 
+        color: 0xffffff,
+        map: createLeafTexture(),
+        roughness: 0.85,
+        metalness: 0.0
+      });
+    }
+    
+    // Default box (fairway/grass) - grass texture
     return new THREE.MeshStandardMaterial({ 
-      color: 0xc8a96e, 
-      roughness: 0.9, 
-      metalness: 0.0 
+      color: 0xffffff,
+      map: createGrassTexture(),
+      roughness: 0.8,
+      metalness: 0.0
     });
   }
   
@@ -365,14 +541,7 @@ function mt(color) {
 
 function addPiece(g, c, p, r) {
   const geo = new THREE.BoxGeometry(g[0], g[1], g[2]);
-  
-  // Custom material assignment based on geometry size for ramps/walls if color isn't exact
-  let mat = mt(c);
-  if (c === 0x55aa55 && r && r[0] !== 0) {
-    // It's a ramp, make slightly desaturated
-    mat = new THREE.MeshStandardMaterial({ color: 0x6bb86b, roughness: 0.8, metalness: 0.0 });
-  }
-
+  const mat = mt(c, 'box', r);
   const mesh = new THREE.Mesh(geo, mat);
   mesh.position.set(p[0], p[1], p[2]);
   if (r) mesh.rotation.set(r[0], r[1], r[2]);
@@ -391,7 +560,7 @@ function addPiece(g, c, p, r) {
 
 function addCyl(rt, rb, h, seg, c, p) {
   const geo = new THREE.CylinderGeometry(rt, rb, h, seg);
-  const mesh = new THREE.Mesh(geo, mt(c));
+  const mesh = new THREE.Mesh(geo, mt(c, 'cylinder', null));
   mesh.position.set(p[0], p[1], p[2]);
   mesh.castShadow = true; mesh.receiveShadow = true;
   Game.scene.add(mesh); Game.courseMeshes.push(mesh);
@@ -591,10 +760,7 @@ export function renderMapThumbnail(mapData) {
 
   for (const p of mapData.pieces) {
     let geo, color = parseColor(p.color);
-    let mat = mt(color);
-    if (color === 0x55aa55 && p.rotation && p.rotation[0] !== 0) {
-      mat = new THREE.MeshStandardMaterial({ color: 0x6bb86b, roughness: 0.8, metalness: 0.0 });
-    }
+    let mat = mt(color, p.type, p.rotation);
     
     if (p.type === 'box') {
       geo = new THREE.BoxGeometry(p.size[0], p.size[1], p.size[2]);
