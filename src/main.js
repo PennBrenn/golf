@@ -381,8 +381,8 @@ function wireNetworkCallbacks() {
   };
 
   MP.onVoteUpdate = (v) => {
-    votes = v;
-    updateMapVotes(v);
+    votes = v.votes;
+    updateMapVotes(v.votes, v.playerVotes);
   };
 
   MP.onVoteResult = (winnerIndex) => {

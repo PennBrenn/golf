@@ -523,7 +523,7 @@ export function sendVote(mapIndex) {
 
 export function hostBroadcastVoteUpdate(votes) {
   if (!MP.isHost) return;
-  broadcast({ type: MSG.VOTE_UPDATE, votes });
+  broadcast({ type: MSG.VOTE_UPDATE, votes, playerVotes: MP._playerVotes });
 }
 
 export function hostBroadcastVoteResult(winnerIndex) {

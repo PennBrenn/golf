@@ -595,13 +595,32 @@ export function showMapVote(maps, thumbnails) {
     votes.textContent = '0 votes';
     info.appendChild(votes);
 
+    const voters = document.createElement('div');
+    voters.className = 'map-card-voters';
+    voters.id = 'map-voters-' + i;
+    voters.style.display = 'none';
+    info.appendChild(voters);
+
+    const yourVoteBadge = document.createElement('div');
+    yourVoteBadge.className = 'map-card-your-vote';
+    yourVoteBadge.id = 'map-your-vote-' + i;
+    yourVoteBadge.textContent = 'YOUR VOTE';
+    yourVoteBadge.style.display = 'none';
+    info.appendChild(yourVoteBadge);
+
     card.appendChild(info);
 
     card.addEventListener('click', () => {
       if (localVotedIndex === i) return;
       localVotedIndex = i;
-      grid.querySelectorAll('.map-card').forEach(c => c.classList.remove('voted'));
+      grid.querySelectorAll('.map-card').forEach(c => {
+        c.classList.remove('voted');
+        const badge = c.querySelector('.map-card-your-vote');
+        if (badge) badge.style.display = 'none';
+      });
       card.classList.add('voted');
+      const badge = card.querySelector('.map-card-your-vote');
+      if (badge) badge.style.display = 'block';
       if (UI.onMapVote) UI.onMapVote(i);
     });
 
@@ -624,10 +643,34 @@ export function showMapVote(maps, thumbnails) {
   }, 1000);
 }
 
-export function updateMapVotes(voteCounts) {
+export function updateMapVotes(voteCounts, playerVotes) {
   for (const [idx, count] of Object.entries(voteCounts)) {
     const el = document.getElementById('map-votes-' + idx);
     if (el) el.textContent = count + (count === 1 ? ' vote' : ' votes');
+  }
+
+  // Update player names for each map
+  if (playerVotes) {
+    for (const [idx, count] of Object.entries(voteCounts)) {
+      const votersEl = document.getElementById('map-voters-' + idx);
+      if (!votersEl) continue;
+
+      // Find players who voted for this map
+      const voterNames = [];
+      for (const [playerId, mapIndex] of Object.entries(playerVotes)) {
+        if (parseInt(mapIndex) === parseInt(idx)) {
+          const player = MP.players?.find(p => p.id === playerId);
+          if (player) voterNames.push(player.name);
+        }
+      }
+
+      if (voterNames.length > 0) {
+        votersEl.textContent = voterNames.join(', ');
+        votersEl.style.display = 'block';
+      } else {
+        votersEl.style.display = 'none';
+      }
+    }
   }
 }
 
