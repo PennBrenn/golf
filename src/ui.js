@@ -10,6 +10,7 @@ export const UI = {
   onPlayAgain: null,     // callback()
   onColorPick: null,     // callback(colorHex)
   onNextRound: null,     // callback()
+  onMapVote: null,       // callback(mapIndex)
 };
 
 // ── Init ─────────────────────────────────────────────────
@@ -23,6 +24,7 @@ export function initUI() {
     leaderboard: document.getElementById('screen-leaderboard'),
     loading: document.getElementById('screen-loading'),
     settings: document.getElementById('screen-settings'),
+    mapVote: document.getElementById('screen-map-vote'),
     toast: document.getElementById('toast'),
   };
 
@@ -241,6 +243,90 @@ export function showSpectatorBanner() {
 export function hideSpectatorBanner() {
   const sb = document.getElementById('spectator-banner');
   if (sb) sb.classList.add('hidden');
+}
+
+// ── Map Voting ───────────────────────────────────────────
+
+let voteTimerInterval = null;
+let localVotedIndex = -1;
+
+export function showMapVote(maps, thumbnails) {
+  hideAll();
+  UI.screens.mapVote.classList.remove('hidden');
+  localVotedIndex = -1;
+
+  const grid = document.getElementById('map-vote-grid');
+  grid.innerHTML = '';
+
+  maps.forEach((mapData, i) => {
+    const card = document.createElement('div');
+    card.className = 'map-card';
+    card.dataset.index = i;
+
+    const img = document.createElement('img');
+    img.src = thumbnails[i];
+    img.alt = mapData.name;
+    card.appendChild(img);
+
+    const info = document.createElement('div');
+    info.className = 'map-card-info';
+
+    const name = document.createElement('div');
+    name.className = 'map-card-name';
+    name.textContent = mapData.name;
+    info.appendChild(name);
+
+    const votes = document.createElement('div');
+    votes.className = 'map-card-votes';
+    votes.id = 'map-votes-' + i;
+    votes.textContent = '0 votes';
+    info.appendChild(votes);
+
+    card.appendChild(info);
+
+    card.addEventListener('click', () => {
+      if (localVotedIndex === i) return;
+      localVotedIndex = i;
+      grid.querySelectorAll('.map-card').forEach(c => c.classList.remove('voted'));
+      card.classList.add('voted');
+      if (UI.onMapVote) UI.onMapVote(i);
+    });
+
+    grid.appendChild(card);
+  });
+
+  // Start timer
+  let timeLeft = 10;
+  const timerEl = document.getElementById('vote-timer');
+  timerEl.textContent = timeLeft + 's';
+
+  if (voteTimerInterval) clearInterval(voteTimerInterval);
+  voteTimerInterval = setInterval(() => {
+    timeLeft--;
+    timerEl.textContent = timeLeft + 's';
+    if (timeLeft <= 0) {
+      clearInterval(voteTimerInterval);
+      voteTimerInterval = null;
+    }
+  }, 1000);
+}
+
+export function updateMapVotes(voteCounts) {
+  for (const [idx, count] of Object.entries(voteCounts)) {
+    const el = document.getElementById('map-votes-' + idx);
+    if (el) el.textContent = count + (count === 1 ? ' vote' : ' votes');
+  }
+}
+
+export function showVoteWinner(mapName) {
+  const timerEl = document.getElementById('vote-timer');
+  timerEl.textContent = mapName + ' wins!';
+  if (voteTimerInterval) { clearInterval(voteTimerInterval); voteTimerInterval = null; }
+}
+
+export function hideMapVote() {
+  if (voteTimerInterval) { clearInterval(voteTimerInterval); voteTimerInterval = null; }
+  UI.screens.mapVote.classList.add('hidden');
 }
 
 // ── Leaderboard ──────────────────────────────────────────

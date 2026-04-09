@@ -1,5 +1,6 @@
 import {
-  initScene, buildRandomCourse, buildTerrain, fetchMapManifest,
+  initScene, buildCourseByIndex, buildTerrain, fetchMapManifest,
+  getAllMapData, renderMapThumbnail, loadMenuBackground, updateMenuCamera,
   createLocalBall, resetLocalBall,
   addRemoteBall, removeRemoteBall, updateRemoteBallState,
   setupInput, updateGame, renderGame, resetGameState, enterSpectator,
@@ -7,7 +8,8 @@ import {
 } from './game.js';
 import {
   MP, createGame, joinGame, hostStartGame, hostPlayAgain, hostNextRound,
-  sendFinish, updateMultiplayerSync, cleanupMultiplayer,
+  sendFinish, sendVote, hostBroadcastVoteUpdate, hostBroadcastVoteResult,
+  updateMultiplayerSync, cleanupMultiplayer,
   getLocalPlayer, getPlayerById, PLAYER_COLORS,
 } from './network.js';
 import {
@@ -15,19 +17,29 @@ import {
   updatePlayerList, updateStartButton, showCountdown, showHUD, hideHUD,
   updateTimer, updateSwings, updateDragIndicator,
   showSpectatorBanner, hideSpectatorBanner,
-  showLeaderboard, hideLeaderboard, showToast, UI,
+  showLeaderboard, hideLeaderboard,
+  showMapVote, updateMapVotes, showVoteWinner, hideMapVote,
+  showToast, UI,
 } from './ui.js';
 
 // ── App State ────────────────────────────────────────────
 
 let gameRunning = false;
+let menuMode = true;
 const TOTAL_ROUNDS = 3;
 let currentRound = 0;
-let roundFinishEntries = [];   // { id, name, swings, time } per round
+let roundFinishEntries = [];
+
+// Voting state (host only)
+let allMaps = [];
+let allThumbnails = [];
+let votes = {};          // { mapIndex: count }
+let votersThisRound = new Set();
+let voteTimer = null;
 
 // ── Bootstrap ────────────────────────────────────────────
 
-function init() {
+async function init() {
   const container = document.getElementById('game-container');
 
   initScene(container);
@@ -41,6 +53,7 @@ function init() {
   UI.onPlayAgain = handlePlayAgain;
   UI.onNextRound = handleNextRound;
   UI.onColorPick = (color) => { Game.ballColor = color; };
+  UI.onMapVote = (mapIndex) => { sendVote(mapIndex); };
 
   // Wire game callbacks
   Game.onDragChanged = (ratio, active) => updateDragIndicator(ratio, active);
@@ -48,11 +61,15 @@ function init() {
   Game.onSwingCountChanged = (count) => updateSwings(count);
   Game.onTimeUpdate = (t) => updateTimer(t);
 
+  // Load menu background
+  await loadMenuBackground();
   showMainMenu();
   loop();
 }
 
 // ── Game Loop ────────────────────────────────────────────
+
+const menuClock = { start: Date.now() };
 
 function loop() {
   requestAnimationFrame(loop);
@@ -61,6 +78,9 @@ function loop() {
   if (gameRunning) {
     updateGame(dt);
     updateMultiplayerSync(dt, Game.ballBody);
+  } else if (menuMode) {
+    const t = (Date.now() - menuClock.start) / 1000;
+    updateMenuCamera(t);
   }
 
   renderGame();
@@ -78,7 +98,8 @@ function wireNetworkCallbacks() {
   MP.onGameStart = () => {
     currentRound = 0;
     MP.leaderboard = [];
-    startNextRound();
+    menuMode = false;
+    startVotingPhase();
   };
 
   MP.onRemoteBallUpdate = (playerId, position, velocity, timestamp) => {
@@ -95,7 +116,7 @@ function wireNetworkCallbacks() {
 
   MP.onNextRound = () => {
     hideLeaderboard();
-    startNextRound();
+    startVotingPhase();
   };
 
   MP.onPlayAgain = () => {
@@ -104,14 +125,99 @@ function wireNetworkCallbacks() {
 
   MP.onDisconnect = (message) => {
     gameRunning = false;
+    menuMode = true;
     resetGameState();
     showToast(message, 4000);
-    setTimeout(() => showMainMenu(), 1500);
+    setTimeout(async () => { await loadMenuBackground(); showMainMenu(); }, 1500);
   };
 
   MP.onChat = (name, text) => {
     showToast(`${name}: ${text}`, 3000);
   };
+
+  // Vote callbacks (host collects, guests receive updates)
+  MP.onVote = (peerId, mapIndex) => {
+    // Host-side vote collection
+    if (!votersThisRound.has(peerId)) {
+      // Remove previous vote if re-voting
+      votersThisRound.add(peerId);
+    }
+    // Recount: track per-player votes
+    if (!MP._playerVotes) MP._playerVotes = {};
+    const prev = MP._playerVotes[peerId];
+    if (prev !== undefined && votes[prev] > 0) votes[prev]--;
+    MP._playerVotes[peerId] = mapIndex;
+    votes[mapIndex] = (votes[mapIndex] || 0) + 1;
+    hostBroadcastVoteUpdate(votes);
+    updateMapVotes(votes);
+  };
+
+  MP.onVoteUpdate = (v) => {
+    votes = v;
+    updateMapVotes(v);
+  };
+
+  MP.onVoteResult = (winnerIndex) => {
+    handleVoteResult(winnerIndex);
+  };
+}
+
+// ── Map Voting ───────────────────────────────────────────
+
+async function startVotingPhase() {
+  // Generate thumbnails if not yet done
+  if (allMaps.length === 0) {
+    allMaps = await getAllMapData();
+    allThumbnails = allMaps.map(m => renderMapThumbnail(m));
+  }
+
+  // Reset vote state
+  votes = {};
+  votersThisRound = new Set();
+  if (MP._playerVotes) MP._playerVotes = {};
+
+  showMapVote(allMaps, allThumbnails);
+
+  // Host starts 10-second timer then resolves
+  if (MP.isHost) {
+    if (voteTimer) clearTimeout(voteTimer);
+    voteTimer = setTimeout(() => {
+      resolveVotes();
+    }, 10000);
+  }
+}
+
+function resolveVotes() {
+  if (voteTimer) { clearTimeout(voteTimer); voteTimer = null; }
+
+  // Find max votes
+  let maxVotes = 0;
+  for (const count of Object.values(votes)) {
+    if (count > maxVotes) maxVotes = count;
+  }
+
+  let candidates = [];
+  if (maxVotes === 0) {
+    // No votes: pick random
+    candidates = allMaps.map((_, i) => i);
+  } else {
+    for (const [idx, count] of Object.entries(votes)) {
+      if (count === maxVotes) candidates.push(parseInt(idx));
+    }
+  }
+
+  const winnerIndex = candidates[Math.floor(Math.random() * candidates.length)];
+  hostBroadcastVoteResult(winnerIndex);
+}
+
+function handleVoteResult(winnerIndex) {
+  const mapName = allMaps[winnerIndex] ? allMaps[winnerIndex].name : 'Map ' + (winnerIndex + 1);
+  showVoteWinner(mapName);
+
+  setTimeout(() => {
+    hideMapVote();
+    startNextRound(winnerIndex);
+  }, 2000);
 }
 
 // ── Create / Join ────────────────────────────────────────
@@ -120,6 +226,7 @@ async function handleCreateGame(name) {
   try {
     wireNetworkCallbacks();
     const code = await createGame(name);
+    menuMode = false;
     showLobby(code, true);
     updatePlayerList(MP.players);
   } catch (err) {
@@ -132,6 +239,7 @@ async function handleJoinGame(name, code) {
   try {
     wireNetworkCallbacks();
     await joinGame(name, code);
+    menuMode = false;
     showLobby(code, false);
   } catch (err) {
     showToast('Failed to join: ' + err.message);
@@ -146,13 +254,13 @@ function handleStartGame() {
   hostStartGame();
 }
 
-function startNextRound() {
+function startNextRound(mapIndex) {
   currentRound++;
   roundFinishEntries = [];
 
   showCountdown(async () => {
     resetGameState();
-    await buildRandomCourse();
+    await buildCourseByIndex(mapIndex);
 
     const local = getLocalPlayer();
     const colorIndex = local ? local.colorIndex : 0;
@@ -188,7 +296,6 @@ function handleLocalFinish() {
   const time = Game.elapsedTime;
   sendFinish(swings, time);
 
-  // Enter spectator mode
   enterSpectator();
   showSpectatorBanner();
   showToast('You finished! Watching others...', 3000);
@@ -205,14 +312,12 @@ function handleRemoteFinish(playerId, playerName, swings, time) {
 }
 
 function checkAllFinished() {
-  // Add local entry if finished and not yet in list
   if (Game.hasFinished && !roundFinishEntries.find(e => e.id === MP.localId)) {
     roundFinishEntries.push({ id: MP.localId, name: MP.localName, swings: Game.swings, time: Game.elapsedTime });
   }
 
   if (roundFinishEntries.length >= MP.players.length) {
     gameRunning = false;
-    // Accumulate to leaderboard
     for (const entry of roundFinishEntries) {
       MP.leaderboard.push(entry);
     }

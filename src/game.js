@@ -186,16 +186,24 @@ export async function fetchMap(filename) {
   return res.json();
 }
 
+export async function getAllMapData() {
+  if (mapManifest.length === 0) await fetchMapManifest();
+  const maps = [];
+  for (const f of mapManifest) {
+    maps.push(await fetchMap(f));
+  }
+  return maps;
+}
+
 export function clearCourse() {
   for (const m of Game.courseMeshes) Game.scene.remove(m);
   for (const b of Game.courseBodies) Game.world.removeBody(b);
   Game.courseMeshes = []; Game.courseBodies = [];
 }
 
-export async function buildRandomCourse() {
+export async function buildCourseByIndex(idx) {
   clearCourse();
   if (mapManifest.length === 0) await fetchMapManifest();
-  const idx = Math.floor(Math.random() * mapManifest.length);
   Game.currentCourseIndex = idx;
   const data = await fetchMap(mapManifest[idx]);
 
@@ -218,6 +226,76 @@ export async function buildRandomCourse() {
   flag.castShadow = true; Game.scene.add(flag); Game.courseMeshes.push(flag);
 
   buildTerrain();
+}
+
+export function renderMapThumbnail(mapData) {
+  const w = 320, h = 200;
+  const thumbScene = new THREE.Scene();
+  thumbScene.fog = new THREE.Fog(0x87ceeb, 50, 150);
+  thumbScene.background = new THREE.Color(0x87ceeb);
+  thumbScene.add(new THREE.AmbientLight(0xffffff, 0.5));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.0);
+  dl.position.set(15, 35, 15);
+  thumbScene.add(dl);
+
+  for (const p of mapData.pieces) {
+    let geo, color = parseColor(p.color);
+    const mat = new THREE.MeshStandardMaterial({ color, flatShading: true });
+    if (p.type === 'box') {
+      geo = new THREE.BoxGeometry(p.size[0], p.size[1], p.size[2]);
+    } else if (p.type === 'cylinder') {
+      geo = new THREE.CylinderGeometry(p.radiusTop, p.radiusBottom, p.height, p.segments || 8);
+    } else continue;
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(p.position[0], p.position[1], p.position[2]);
+    if (p.rotation) mesh.rotation.set(p.rotation[0], p.rotation[1], p.rotation[2]);
+    thumbScene.add(mesh);
+  }
+
+  const cx = (mapData.start[0] + mapData.hole[0]) / 2;
+  const cy = Math.max(mapData.start[1], mapData.hole[1]);
+  const cz = (mapData.start[2] + mapData.hole[2]) / 2;
+  const dist = Math.abs(mapData.start[2] - mapData.hole[2]) * 0.7 + 10;
+
+  const cam = new THREE.PerspectiveCamera(50, w / h, 0.1, 300);
+  cam.position.set(cx + dist * 0.4, cy + dist * 0.5, cz + dist * 0.6);
+  cam.lookAt(cx, cy - 2, cz);
+
+  const thumbRenderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  thumbRenderer.setSize(w, h);
+  thumbRenderer.setClearColor(0x87ceeb);
+  thumbRenderer.render(thumbScene, cam);
+  const dataUrl = thumbRenderer.domElement.toDataURL('image/png');
+  thumbRenderer.dispose();
+  return dataUrl;
+}
+
+export async function loadMenuBackground() {
+  if (mapManifest.length === 0) await fetchMapManifest();
+  const idx = Math.floor(Math.random() * mapManifest.length);
+  const data = await fetchMap(mapManifest[idx]);
+  clearCourse();
+  buildCourseFromJSON(data);
+  buildTerrain();
+
+  const cx = (data.start[0] + data.hole[0]) / 2;
+  const cy = Math.max(data.start[1], data.hole[1]);
+  const cz = (data.start[2] + data.hole[2]) / 2;
+  Game.camera.position.set(cx + 20, cy + 12, cz + 20);
+  Game.controls.target.set(cx, cy - 2, cz);
+  Game.controls.update();
+  Game.menuBgCenter = { x: cx, y: cy, z: cz };
+}
+
+export function updateMenuCamera(time) {
+  if (!Game.menuBgCenter) return;
+  const c = Game.menuBgCenter;
+  const r = 28;
+  Game.camera.position.x = c.x + Math.cos(time * 0.15) * r;
+  Game.camera.position.z = c.z + Math.sin(time * 0.15) * r;
+  Game.camera.position.y = c.y + 14 + Math.sin(time * 0.1) * 3;
+  Game.controls.target.set(c.x, c.y - 2, c.z);
+  Game.controls.update();
 }
 
 export function createLocalBall(color) {

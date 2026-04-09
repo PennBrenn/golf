@@ -14,6 +14,9 @@ export const MSG = {
   NEXT_ROUND: 'nextRound',
   PLAY_AGAIN: 'playAgain',
   CHAT: 'chat',
+  VOTE: 'vote',
+  VOTE_UPDATE: 'voteUpdate',
+  VOTE_RESULT: 'voteResult',
 };
 
 const MAX_PLAYERS = 4;
@@ -43,6 +46,8 @@ export const MP = {
   leaderboard: [],            // [{ id, name, swings, time }]
   onDisconnect: null,         // callback(message)
   onChat: null,               // callback(name, text)
+  onVoteUpdate: null,         // callback(votes)
+  onVoteResult: null,         // callback(winnerIndex)
 };
 
 // ── Helpers ──────────────────────────────────────────────
@@ -190,6 +195,11 @@ function handleHostReceive(peerId, data) {
       if (MP.onChat) MP.onChat(data.name, data.text);
       break;
 
+    case MSG.VOTE:
+      // Host collects votes and rebroadcasts update
+      if (MP.onVote) MP.onVote(peerId, data.mapIndex);
+      break;
+
     default:
       break;
   }
@@ -321,6 +331,14 @@ function handleGuestReceive(data) {
       if (MP.onChat) MP.onChat(data.name, data.text);
       break;
 
+    case MSG.VOTE_UPDATE:
+      if (MP.onVoteUpdate) MP.onVoteUpdate(data.votes);
+      break;
+
+    case MSG.VOTE_RESULT:
+      if (MP.onVoteResult) MP.onVoteResult(data.winnerIndex);
+      break;
+
     default:
       break;
   }
@@ -389,6 +407,26 @@ export function hostPlayAgain() {
   MP.gameActive = false;
   broadcast({ type: MSG.PLAY_AGAIN });
   if (MP.onPlayAgain) MP.onPlayAgain();
+}
+
+export function sendVote(mapIndex) {
+  const payload = { type: MSG.VOTE, mapIndex };
+  if (MP.isHost) {
+    if (MP.onVote) MP.onVote(MP.localId, mapIndex);
+  } else {
+    sendToHost(payload);
+  }
+}
+
+export function hostBroadcastVoteUpdate(votes) {
+  if (!MP.isHost) return;
+  broadcast({ type: MSG.VOTE_UPDATE, votes });
+}
+
+export function hostBroadcastVoteResult(winnerIndex) {
+  if (!MP.isHost) return;
+  broadcast({ type: MSG.VOTE_RESULT, winnerIndex });
+  if (MP.onVoteResult) MP.onVoteResult(winnerIndex);
 }
 
 export function sendChat(text) {
