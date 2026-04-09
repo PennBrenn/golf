@@ -13,6 +13,8 @@ const B = {
   placingStart: false, placingHole: false,
   raycaster: new THREE.Raycaster(),
   mouse: new THREE.Vector2(),
+  timeOfDay: 'day',  // 'day' or 'night'
+  ambientLight: null, directionalLight: null,
 };
 
 // ── Piece Defaults ───────────────────────────────────────
@@ -62,14 +64,15 @@ function init() {
   B.scene.add(B.transform);
 
   // Lights
-  B.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-  const dir = new THREE.DirectionalLight(0xffffff, 1.0);
-  dir.position.set(15, 35, 15);
-  dir.castShadow = true;
-  dir.shadow.mapSize.set(2048, 2048);
-  dir.shadow.camera.left = -50; dir.shadow.camera.right = 50;
-  dir.shadow.camera.top = 50; dir.shadow.camera.bottom = -50;
-  B.scene.add(dir);
+  B.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  B.scene.add(B.ambientLight);
+  B.directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+  B.directionalLight.position.set(15, 35, 15);
+  B.directionalLight.castShadow = true;
+  B.directionalLight.shadow.mapSize.set(2048, 2048);
+  B.directionalLight.shadow.camera.left = -50; B.directionalLight.shadow.camera.right = 50;
+  B.directionalLight.shadow.camera.top = 50; B.directionalLight.shadow.camera.bottom = -50;
+  B.scene.add(B.directionalLight);
 
   // Grid
   const grid = new THREE.GridHelper(80, 80, 0x446677, 0x334455);
@@ -131,6 +134,24 @@ function onResize() {
   B.camera.aspect = w / h;
   B.camera.updateProjectionMatrix();
   B.renderer.setSize(w, h);
+}
+
+function applyDayNightCycle() {
+  if (B.timeOfDay === 'night') {
+    B.renderer.setClearColor(0x0a1828);
+    B.scene.fog.color.setHex(0x0a1828);
+    B.ambientLight.intensity = 0.25;
+    B.ambientLight.color.setHex(0x6688bb);
+    B.directionalLight.intensity = 0.4;
+    B.directionalLight.color.setHex(0xaaccff);
+  } else {
+    B.renderer.setClearColor(0x87ceeb);
+    B.scene.fog.color.setHex(0x87ceeb);
+    B.ambientLight.intensity = 0.5;
+    B.ambientLight.color.setHex(0xffffff);
+    B.directionalLight.intensity = 1.0;
+    B.directionalLight.color.setHex(0xffffff);
+  }
 }
 
 function animate() {
@@ -352,6 +373,13 @@ function setupToolbar() {
     document.getElementById('btn-set-start').classList.remove('active');
   });
 
+  document.getElementById('btn-toggle-time').addEventListener('click', () => {
+    B.timeOfDay = B.timeOfDay === 'day' ? 'night' : 'day';
+    const btn = document.getElementById('btn-toggle-time');
+    btn.textContent = B.timeOfDay === 'day' ? '☀️ Day' : '🌙 Night';
+    applyDayNightCycle();
+  });
+
   document.getElementById('btn-export').addEventListener('click', exportJSON);
   document.getElementById('btn-import').addEventListener('click', () => {
     document.getElementById('file-input').click();
@@ -548,6 +576,7 @@ function exportJSON() {
 
   const mapData = {
     name: document.getElementById('map-name-input').value || 'Untitled',
+    timeOfDay: B.timeOfDay,
     start: [
       parseFloat(document.getElementById('sx').value) || 0,
       parseFloat(document.getElementById('sy').value) || 9,
@@ -598,6 +627,12 @@ function loadMapData(data) {
   while (B.pieces.length > 0) removePiece(B.pieces[0]);
 
   document.getElementById('map-name-input').value = data.name || 'Untitled';
+
+  // Restore time of day
+  B.timeOfDay = data.timeOfDay || 'day';
+  const btn = document.getElementById('btn-toggle-time');
+  btn.textContent = B.timeOfDay === 'day' ? '☀️ Day' : '🌙 Night';
+  applyDayNightCycle();
 
   if (data.start) {
     document.getElementById('sx').value = data.start[0];

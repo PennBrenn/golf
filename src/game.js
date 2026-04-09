@@ -122,6 +122,32 @@ export function buildTerrain() {
   Game.scene.add(Game.terrainMesh);
 }
 
+export function applyDayNightCycle(timeOfDay) {
+  const isNight = timeOfDay === 'night';
+  
+  // Sky color
+  const skyColor = isNight ? 0x0a1828 : 0x87ceeb;
+  Game.renderer.setClearColor(skyColor);
+  Game.scene.fog.color.setHex(skyColor);
+
+  // Find and update lights
+  Game.scene.traverse((obj) => {
+    if (obj.isAmbientLight) {
+      obj.intensity = isNight ? 0.25 : 0.5;
+      obj.color.setHex(isNight ? 0x6688bb : 0xffffff);
+    }
+    if (obj.isDirectionalLight) {
+      obj.intensity = isNight ? 0.4 : 1.0;
+      obj.color.setHex(isNight ? 0xaaccff : 0xffffff);
+    }
+  });
+
+  // Update terrain color for night
+  if (Game.terrainMesh) {
+    Game.terrainMesh.material.color.setHex(isNight ? 0x1a3a2a : 0x3a8c3a);
+  }
+}
+
 function mt(color) { return new THREE.MeshStandardMaterial({ color, flatShading: true }); }
 
 function addPiece(g, c, p, r) {
@@ -279,6 +305,9 @@ export async function buildCourseByIndex(idx) {
   Game.holePosition.set(data.hole[0], data.hole[1], data.hole[2]);
   buildCourseFromJSON(data);
 
+  // Apply day/night cycle
+  applyDayNightCycle(data.timeOfDay || 'day');
+
   const holeMesh = new THREE.Mesh(
     new THREE.CylinderGeometry(Game.holeRadius, Game.holeRadius, 0.02, 32), mt(0x111111)
   );
@@ -345,6 +374,7 @@ export async function loadMenuBackground() {
   clearCourse();
   buildCourseFromJSON(data);
   buildTerrain();
+  applyDayNightCycle(data.timeOfDay || 'day');
 
   const cx = (data.start[0] + data.hole[0]) / 2;
   const cy = Math.max(data.start[1], data.hole[1]);
