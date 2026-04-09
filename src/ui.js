@@ -140,6 +140,11 @@ export function initUI() {
     hideESCMenu();
   });
 
+  // HUD reset button
+  document.getElementById('btn-reset-ball').addEventListener('click', () => {
+    if (UI.onResetBall) UI.onResetBall();
+  });
+
   document.getElementById('btn-esc-return-menu').addEventListener('click', () => {
     if (UI.onReturnToMenu) UI.onReturnToMenu();
   });
