@@ -40,6 +40,8 @@ export const Game = {
   // Sky system
   skyDome: null, sunMesh: null, moonMesh: null, starField: null,
   clouds: [], cloudTime: 0,
+  // Track players being added to prevent duplicates
+  addingPlayers: new Set(),
 };
 
 const BALL_RADIUS = 0.2;
@@ -1784,7 +1786,11 @@ export function resetLocalBall() {
 }
 
 export function addRemoteBall(playerId, color, playerName) {
+  // Prevent duplicate additions due to race conditions
   if (Game.remoteBalls[playerId]) return;
+  if (Game.addingPlayers.has(playerId)) return;
+  Game.addingPlayers.add(playerId);
+
   const c = color || 0x4488ff;
   const mesh = new THREE.Mesh(
     new THREE.SphereGeometry(BALL_RADIUS, 16, 16),
@@ -1803,6 +1809,8 @@ export function addRemoteBall(playerId, color, playerName) {
     targetPos: new THREE.Vector3().copy(Game.startPosition),
     targetVel: new THREE.Vector3(), lastUpdate: Date.now(),
   };
+
+  Game.addingPlayers.delete(playerId);
 }
 
 export function removeRemoteBall(pid) {
@@ -2230,6 +2238,7 @@ export function renderGame() {
 
 export function resetGameState() {
   for (const pid of Object.keys(Game.remoteBalls)) removeRemoteBall(pid);
+  Game.addingPlayers.clear();
   if (Game.ball) { Game.scene.remove(Game.ball); Game.ball = null; }
   if (Game.ballBody) { Game.world.removeBody(Game.ballBody); Game.ballBody = null; }
   clearDragVis(); exitSpectator();
