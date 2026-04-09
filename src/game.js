@@ -160,20 +160,20 @@ function onResize() {
 
 function createTerrainTexture() {
   const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = 512;
+  canvas.width = 1024;
+  canvas.height = 1024;
   const ctx = canvas.getContext('2d');
 
   // Base grass green
   ctx.fillStyle = '#4a8c3f';
-  ctx.fillRect(0, 0, 512, 512);
+  ctx.fillRect(0, 0, 1024, 1024);
 
   // Noise layer 1: darker patches
   ctx.fillStyle = '#2d6b28';
-  for (let i = 0; i < 4000; i++) {
-    const x = Math.random() * 512;
-    const y = Math.random() * 512;
-    const r = Math.random() * 4 + 1;
+  for (let i = 0; i < 8000; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 1024;
+    const r = Math.random() * 5 + 1.5;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fill();
@@ -181,10 +181,10 @@ function createTerrainTexture() {
 
   // Noise layer 2: lighter patches
   ctx.fillStyle = '#6abf5e';
-  for (let i = 0; i < 3000; i++) {
-    const x = Math.random() * 512;
-    const y = Math.random() * 512;
-    const r = Math.random() * 3 + 1;
+  for (let i = 0; i < 6000; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 1024;
+    const r = Math.random() * 4 + 1.5;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fill();
@@ -192,17 +192,17 @@ function createTerrainTexture() {
 
   // Fine grain noise
   ctx.fillStyle = 'rgba(0,0,0,0.15)';
-  for (let i = 0; i < 50000; i++) {
-    const x = Math.random() * 512;
-    const y = Math.random() * 512;
+  for (let i = 0; i < 100000; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 1024;
     ctx.fillRect(x, y, 1, 1);
   }
 
   // Mowing stripe patterns
-  for (let y = 0; y < 512; y++) {
+  for (let y = 0; y < 1024; y++) {
     const stripe = Math.sin(y * 0.12) * 0.5 + 0.5;
     ctx.fillStyle = stripe > 0.5 ? 'rgba(80,160,60,0.12)' : 'rgba(30,80,20,0.08)';
-    ctx.fillRect(0, y, 512, 1);
+    ctx.fillRect(0, y, 1024, 1);
   }
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -210,8 +210,7 @@ function createTerrainTexture() {
   texture.wrapT = THREE.RepeatWrapping;
   texture.repeat.set(12, 12);
   
-  // To avoid blurry look since it's procedural pixel noise
-  texture.magFilter = THREE.NearestFilter;
+  texture.magFilter = THREE.LinearFilter;
   texture.minFilter = THREE.LinearMipmapLinearFilter;
   
   return texture;
