@@ -70,9 +70,19 @@ export function initUI() {
     toast: document.getElementById('toast'),
   };
 
+  // Load settings and populate name input
+  loadSettings();
+  const nameInput = document.getElementById('input-name');
+  if (nameInput && currentSettings.playerName) {
+    nameInput.value = currentSettings.playerName;
+  }
+
   // Main menu buttons
   document.getElementById('btn-create').addEventListener('click', () => {
     const name = document.getElementById('input-name').value.trim() || 'Player 1';
+    // Save the name to settings
+    currentSettings.playerName = name;
+    saveSettings();
     if (UI.onCreateGame) UI.onCreateGame(name);
   });
 
@@ -80,6 +90,9 @@ export function initUI() {
     const name = document.getElementById('input-name').value.trim() || 'Player';
     const code = document.getElementById('input-code').value.trim().toUpperCase();
     if (!code) { showToast('Please enter a room code'); return; }
+    // Save the name to settings
+    currentSettings.playerName = name;
+    saveSettings();
     if (UI.onJoinGame) UI.onJoinGame(name, code);
   });
 
