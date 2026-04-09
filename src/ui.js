@@ -122,7 +122,7 @@ export function initUI() {
 
   // Main menu settings button
   document.getElementById('btn-settings-main').addEventListener('click', () => {
-    if (UI.showSettings) UI.showSettings(MP?.isHost || false, false); else showSettings();
+    if (UI.showSettings) UI.showSettings(MP?.isHost || false, false); else showSettings(false, false);
   });
 
   // Main menu map builder button
