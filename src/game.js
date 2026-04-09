@@ -854,9 +854,10 @@ function getDragDir() {
   Game.camera.getWorldDirection(forward); forward.y = 0; forward.normalize();
   const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
   
-  // INVERT dx and dy here so dragging down/back pulls the power back, 
-  // and the ball shoots forward (like a slingshot)
-  const worldDir = new THREE.Vector3().addScaledVector(forward, -dy / 200).addScaledVector(right, -dx / 200);
+  // Slingshot style: drag down/back to shoot forward
+  // dy > 0 (drag down) → shoot forward (positive forward direction)
+  // dx > 0 (drag right) → shoot left (negative right direction)
+  const worldDir = new THREE.Vector3().addScaledVector(forward, dy / 200).addScaledVector(right, -dx / 200);
   worldDir.y = 0;
   return { ratio, worldDir: worldDir.length() > 0.01 ? worldDir.normalize() : null };
 }
