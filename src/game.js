@@ -78,7 +78,7 @@ export function initScene(container) {
   Game.renderer.shadowMap.enabled = true;
   Game.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   Game.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  Game.renderer.toneMappingExposure = 1.1;
+  Game.renderer.toneMappingExposure = 1.0;
   Game.renderer.outputColorSpace = THREE.SRGBColorSpace;
   Game.renderer.setClearColor(0x000000, 0); // Transparent
   container.appendChild(Game.renderer.domElement);
@@ -118,7 +118,7 @@ export function initScene(container) {
   sun.shadow.bias = -0.001;
   Game.scene.add(sun);
 
-  const ambientLight = new THREE.AmbientLight(0xd0e8ff, 1.4);
+  const ambientLight = new THREE.AmbientLight(0xd0e8ff, 1.0);
   Game.scene.add(ambientLight);
 
   const fillLight = new THREE.DirectionalLight(0xb8d8ff, 0.9);
@@ -676,42 +676,45 @@ function mt(color, type, rotation) {
       });
     }
 
-    // Wall / Barrier (white or warm sandy brown colors) - white
+    // Wall / Barrier (white or warm sandy brown colors) - muted off-white
     if (hex === 'ffffff' || hex === '885533' || hex === 'a06a44' || hex === 'c8a96e') {
-      return new THREE.MeshStandardMaterial({ 
-        color: 0xffffff,
-        roughness: 0.7,
-        metalness: 0.1
+      return new THREE.MeshStandardMaterial({
+        color: 0xe8e8e8,
+        roughness: 0.85,
+        metalness: 0.0,
+        envMapIntensity: 0.15,
       });
     }
     
     // Ramp (has rotation on X or Z) - leaf texture
     if (rotation && (rotation[0] !== 0 || rotation[2] !== 0)) {
       return new THREE.MeshStandardMaterial({
-        color: 0xffffff,
+        color: 0xe8e8e8,
         map: createLeafTexture(),
-        roughness: 0.85,
-        metalness: 0.0
+        roughness: 0.9,
+        metalness: 0.0,
+        envMapIntensity: 0.2,
       });
     }
 
     // Sand (beige color)
     if (hex === 'e6d5a8') {
       return new THREE.MeshStandardMaterial({
-        color: 0xffffff,
+        color: 0xe8e0d0,
         map: createSandTexture(),
         roughness: 0.95,
-        metalness: 0.0
+        metalness: 0.0,
+        envMapIntensity: 0.1,
       });
     }
 
     // Default box (fairway/grass) - grass texture
     return new THREE.MeshStandardMaterial({ 
-      color: 0xffffff,
+      color: 0xd8e8d0,
       map: createGrassTexture(),
-      roughness: 0.8,
+      roughness: 0.85,
       metalness: 0.0,
-      envMapIntensity: 0.3,
+      envMapIntensity: 0.15,
     });
   }
   
