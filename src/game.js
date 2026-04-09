@@ -3,6 +3,12 @@ import * as CANNON from 'cannon-es';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { MP, getPlayerById } from './network.js';
+import {
+  VFX, initPostProcessing, resizePostProcessing, setColorGrade,
+  renderWithPostProcessing, updateAllVFX, cleanupVFX,
+  spawnHitDust, spawnHoleConfetti, spawnWallSparks, triggerCameraShake,
+  createAimVisuals, updateAimVisuals, hideAimVisuals, cleanupAimVisuals,
+} from './vfx.js';
 
 export const BALL_COLORS = [
   0xff4444, 0x4488ff, 0xffcc00, 0x44cc44,
@@ -26,6 +32,7 @@ export const Game = {
   hat: null, hatMesh: null, glowIntensity: 0,
   trailEnabled: false, trailColor: '#ffffff', trailPoints: [], trailLine: null,
   rainEnabled: false, rainDrops: [],
+  prevBallSpeed: 0, vfxTime: 0,
   onSwingCountChanged: null, onTimeUpdate: null, onTimeUp: null,
   onFinishHole: null, onDragChanged: null, onWaterSplash: null,
 };
@@ -122,6 +129,10 @@ export function initScene(container) {
   Game.world.addContactMaterial(new CANNON.ContactMaterial(SAND_MAT, BALL_MAT_C, { friction: 2.5, restitution: 0.1 }));
 
   window.addEventListener('resize', onResize);
+
+  // Initialize post-processing and VFX
+  initPostProcessing(Game.renderer, Game.scene, Game.camera);
+  createAimVisuals(Game.scene);
 }
 
 function onResize() {
@@ -129,6 +140,7 @@ function onResize() {
   Game.camera.updateProjectionMatrix();
   Game.renderer.setSize(window.innerWidth, window.innerHeight);
   Game.labelRenderer.setSize(window.innerWidth, window.innerHeight);
+  resizePostProcessing(window.innerWidth, window.innerHeight);
 }
 
 function createTerrainTexture() {
@@ -171,6 +183,13 @@ function createTerrainTexture() {
     ctx.fillRect(x, y, 1, 1);
   }
 
+  // Mowing stripe patterns
+  for (let y = 0; y < 512; y++) {
+    const stripe = Math.sin(y * 0.12) * 0.5 + 0.5;
+    ctx.fillStyle = stripe > 0.5 ? 'rgba(80,160,60,0.12)' : 'rgba(30,80,20,0.08)';
+    ctx.fillRect(0, y, 512, 1);
+  }
+
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
@@ -207,6 +226,13 @@ function createGrassTexture() {
     const x = Math.random() * 256;
     const y = Math.random() * 256;
     ctx.fillRect(x, y, 3, 3);
+  }
+
+  // Mowing stripe pattern
+  for (let y = 0; y < 256; y++) {
+    const stripe = Math.sin(y * 0.15) * 0.5 + 0.5;
+    ctx.fillStyle = stripe > 0.5 ? 'rgba(90,180,70,0.1)' : 'rgba(40,100,30,0.07)';
+    ctx.fillRect(0, y, 256, 1);
   }
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -466,6 +492,9 @@ export function applyDayNightCycle(timeOfDay) {
   if (Game.terrainMesh) {
     Game.terrainMesh.material.color.setHex(isNight ? 0x1a3a2a : 0x7aad5c);
   }
+
+  // Update post-processing color grading
+  setColorGrade(isNight);
 }
 
 export function applyWindFromMapData(mapData) {
@@ -663,9 +692,12 @@ function buildCourseFromJSON(data) {
     for (const p of data.pieces) {
       if (p.type === 'water') {
         const geo = new THREE.BoxGeometry(p.size[0], 0.05, p.size[2]);
-        const mat = new THREE.MeshStandardMaterial({
+        const mat = new THREE.MeshPhysicalMaterial({
           color: 0x1e8cff, transparent: true, opacity: 0.55,
-          flatShading: true, side: THREE.DoubleSide,
+          roughness: 0.1, metalness: 0.2,
+          clearcoat: 1.0, clearcoatRoughness: 0.05,
+          reflectivity: 0.9,
+          side: THREE.DoubleSide,
         });
         const waterMesh = new THREE.Mesh(geo, mat);
         waterMesh.position.set(p.position[0], p.position[1], p.position[2]);
@@ -754,6 +786,10 @@ export function clearCourse() {
   // Clear rain
   destroyRainSystem();
   Game.rainEnabled = false;
+
+  // Clear VFX particles
+  cleanupVFX(Game.scene);
+  Game.prevBallSpeed = 0;
 }
 
 export async function buildCourseByIndex(idx) {
@@ -784,10 +820,10 @@ export async function buildCourseByIndex(idx) {
   holeMesh.receiveShadow = true;
   Game.scene.add(holeMesh); Game.courseMeshes.push(holeMesh);
 
-  // Add subtle glowing rim to hole
+  // Add glowing rim to hole (bloom-visible)
   const rimMesh = new THREE.Mesh(
-    new THREE.TorusGeometry(Game.holeRadius, 0.03, 16, 32),
-    new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x001a20, emissiveIntensity: 0.5 })
+    new THREE.TorusGeometry(Game.holeRadius, 0.04, 16, 32),
+    new THREE.MeshStandardMaterial({ color: 0x44ffaa, emissive: 0x44ffaa, emissiveIntensity: 1.5 })
   );
   rimMesh.position.copy(Game.holePosition).add(new THREE.Vector3(0, 0.02, 0));
   rimMesh.rotation.x = Math.PI / 2;
@@ -1179,37 +1215,8 @@ function updateDragVis() {
   if (!Game.ballBody || !worldDir || ratio < 0.02) { clearDragVis(); return; }
   const bp = new THREE.Vector3().copy(Game.ballBody.position);
   
-  if (Game.dragArrow) Game.scene.remove(Game.dragArrow);
-  
-  // Create cone - base at ball, tip at power point
-  const length = ratio * 4 + 0.5;
-  const baseRadius = BALL_RADIUS; // Cone base diameter = ball diameter
-  
-  const geo = new THREE.ConeGeometry(baseRadius, length, 16);
-  // Shift geometry so the base is at the origin instead of the center
-  geo.translate(0, length / 2, 0);
-
-  const mat = new THREE.MeshBasicMaterial({ 
-    color: 0xffffff, 
-    transparent: true, 
-    opacity: 0.75,
-    side: THREE.DoubleSide
-  });
-  
-  Game.dragArrow = new THREE.Mesh(geo, mat);
-  
-  // Position cone: base exactly at ball
-  Game.dragArrow.position.copy(bp);
-  
-  // Align cone with shoot direction
-  // The translated Cone points exactly along +Y, so we align +Y with worldDir
-  // Rotate 180 degrees to point opposite to shoot direction (visual only)
-  const up = new THREE.Vector3(0, 1, 0);
-  const quaternion = new THREE.Quaternion();
-  quaternion.setFromUnitVectors(up, worldDir.clone().negate());
-  Game.dragArrow.setRotationFromQuaternion(quaternion);
-  
-  Game.scene.add(Game.dragArrow);
+  // Use VFX aim visuals: dotted pulsing line + ground power ring
+  updateAimVisuals(bp, worldDir, ratio, Game.vfxTime);
 }
 
 function clearDragVis() {
@@ -1217,6 +1224,7 @@ function clearDragVis() {
     Game.scene.remove(Game.dragArrow); 
     Game.dragArrow = null; 
   }
+  hideAimVisuals();
   if (Game.onDragChanged) Game.onDragChanged(0, false);
 }
 
@@ -1231,6 +1239,9 @@ function fireDrag() {
   Game.ballBody.velocity.z += worldDir.z * power;
   Game.swings++;
   if (Game.onSwingCountChanged) Game.onSwingCountChanged(Game.swings);
+
+  // Spawn hit dust particles
+  spawnHitDust(Game.scene, new THREE.Vector3().copy(Game.ballBody.position));
 }
 
 function checkWin() {
@@ -1248,6 +1259,9 @@ function checkWin() {
       Game.trailLine = null;
     }
     Game.trailPoints = [];
+
+    // Spawn hole-in confetti
+    spawnHoleConfetti(Game.scene, new THREE.Vector3().copy(Game.holePosition));
 
     if (Game.onFinishHole) Game.onFinishHole();
   }
@@ -1298,6 +1312,8 @@ export function exitSpectator() {
 }
 
 export function updateGame(dt) {
+  Game.vfxTime += dt;
+
   if (!Game.hasFinished && Game.timerStart) {
     Game.elapsedTime = (Date.now() - Game.timerStart) / 1000;
     Game.remainingTime = Math.max(0, Game.timeLimit - Game.elapsedTime);
@@ -1437,6 +1453,25 @@ export function updateGame(dt) {
       }
     }
   }
+  // Wall collision detection for sparks + camera shake
+  if (Game.ballBody && !Game.hasFinished) {
+    const vel = Game.ballBody.velocity;
+    const currentSpeed = Math.sqrt(vel.x * vel.x + vel.y * vel.y + vel.z * vel.z);
+    
+    // Detect sudden speed drop = wall collision
+    const speedDrop = Game.prevBallSpeed - currentSpeed;
+    if (speedDrop > 4 && Game.prevBallSpeed > 5) {
+      spawnWallSparks(Game.scene, new THREE.Vector3().copy(Game.ballBody.position), speedDrop);
+      triggerCameraShake(Math.min(speedDrop * 0.04, 0.5));
+    }
+    Game.prevBallSpeed = currentSpeed;
+
+    // Update all VFX systems (particles, camera shake, dynamic FOV, speed lines)
+    updateAllVFX(dt, Game.scene, Game.camera, currentSpeed);
+  } else {
+    updateAllVFX(dt, Game.scene, Game.camera, 0);
+  }
+
   interpolateRemoteBalls(dt);
   if (Game.ball && !Game.spectatorMode) Game.controls.target.lerp(Game.ball.position, 0.1);
   Game.controls.update();
@@ -1469,7 +1504,7 @@ function spawnSplashParticles(pos) {
 }
 
 export function renderGame() {
-  Game.renderer.render(Game.scene, Game.camera);
+  renderWithPostProcessing();
   Game.labelRenderer.render(Game.scene, Game.camera);
 }
 
@@ -1483,5 +1518,7 @@ export function resetGameState() {
 
 export function destroyScene() {
   window.removeEventListener('resize', onResize);
+  cleanupAimVisuals(Game.scene);
+  cleanupVFX(Game.scene);
   if (Game.renderer) Game.renderer.dispose();
 }
