@@ -15,7 +15,7 @@ import {
 } from './network.js';
 import {
   initUI, showMainMenu, showLobby, showLoading, hideLoading,
-  updatePlayerList, updateStartButton, showCountdown, showHUD, hideHUD,
+  updatePlayerList, updateStartButton, showHUD, hideHUD,
   updateTimer, updateSwings, updateDragIndicator,
   showSpectatorBanner, hideSpectatorBanner,
   showLeaderboard, hideLeaderboard,
@@ -562,7 +562,8 @@ function startNextRound(mapIndex) {
   currentRound++;
   roundFinishEntries = [];
 
-  showCountdown(async () => {
+  showLoading('Loading course...');
+  (async () => {
     resetGameState();
     const mapData = await buildCourseByIndex(mapIndex);
     updateWindIndicator();
@@ -578,8 +579,10 @@ function startNextRound(mapIndex) {
     }
 
     gameRunning = true;
+    hideLoading();
+    showHUD();
     hideSpectatorBanner();
-  });
+  })();
 }
 
 function syncRemoteBalls(players) {
