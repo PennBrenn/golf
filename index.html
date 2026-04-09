@@ -1282,6 +1282,15 @@
             <input type="checkbox" id="settings-invert-y" /> Invert Camera Y
           </label>
         </div>
+        <div class="settings-section" id="settings-admin-section" style="display:none;">
+          <h3>Admin (Host Only)</h3>
+          <label class="settings-label">
+            <input type="checkbox" id="settings-admin-commands" /> Enable Admin Commands
+          </label>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-top:4px;">
+            Allows use of /fly, /kick, /reset, /wind, /time, /noclip. Only available before match starts.
+          </div>
+        </div>
         <div class="btn-row">
           <button id="btn-save-settings" class="btn btn-green">Save</button>
           <button id="btn-back-from-settings" class="btn btn-primary">Back</button>

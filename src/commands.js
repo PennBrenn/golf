@@ -10,9 +10,14 @@ let _kickPlayer = null; // injected: (id) => void
 let _showSystemMsgFn = null;
 
 export let flyEnabled = false;
+export let adminCommandsEnabled = false;
 const flyKeys = {};
 let flyRafId = null;
 const FLY_SPEED = 0.15;
+
+export function setAdminCommandsEnabled(enabled) {
+  adminCommandsEnabled = enabled;
+}
 
 // ── Init ──────────────────────────────────────────────────
 
@@ -56,6 +61,12 @@ function requireBall() {
 }
 
 function requireHost(cmdName) {
+  if (!MP.isHost) { msg(`/${cmdName} is host-only.`, '#ff8888'); return false; }
+  return true;
+}
+
+function requireAdmin(cmdName) {
+  if (!adminCommandsEnabled) { msg(`/${cmdName} requires admin commands to be enabled.`, '#ff8888'); return false; }
   if (!MP.isHost) { msg(`/${cmdName} is host-only.`, '#ff8888'); return false; }
   return true;
 }
@@ -122,6 +133,7 @@ const COMMANDS = {
     desc: 'Toggle fly/noclip mode (WASD=move, Q/E=up/down)',
     fn() {
       if (!requireBall()) return;
+      if (!requireAdmin('fly')) return;
       flyEnabled = !flyEnabled;
       if (flyEnabled) {
         Game.ballBody.type = CANNON.Body.KINEMATIC;
@@ -141,9 +153,9 @@ const COMMANDS = {
 
   kick: {
     usage: '/kick <name>',
-    desc: 'Kick a player from the lobby (host only)',
+    desc: 'Kick a player from the lobby (admin only)',
     fn([name]) {
-      if (!requireHost('kick')) return;
+      if (!requireAdmin('kick')) return;
       if (!name) { msg('Usage: /kick <name>', '#ff8888'); return; }
       const target = findPlayer(name);
       if (!target) { msg(`Player "${name}" not found.`, '#ff8888'); return; }
@@ -154,10 +166,10 @@ const COMMANDS = {
 
   reset: {
     usage: '/reset [name]',
-    desc: 'Reset your ball (or another player\'s if host)',
+    desc: 'Reset your ball (or another player\'s if admin)',
     fn([name]) {
       if (name) {
-        if (!requireHost('reset')) return;
+        if (!requireAdmin('reset')) return;
         const target = findPlayer(name);
         if (!target) { msg(`Player "${name}" not found.`, '#ff8888'); return; }
         msg(`Reset sent to ${target.name}. (Requires broadcast — coming soon)`, '#ffccaa');
@@ -204,9 +216,9 @@ const COMMANDS = {
 
   wind: {
     usage: '/wind <x> <z>',
-    desc: 'Set wind direction and strength (host only)',
+    desc: 'Set wind direction and strength (admin only)',
     fn([x, z]) {
-      if (!requireHost('wind')) return;
+      if (!requireAdmin('wind')) return;
       const nx = parseFloat(x) || 0, nz = parseFloat(z) || 0;
       Game.wind.x = nx; Game.wind.z = nz;
       msg(`Wind set to x=${nx} z=${nz}`, '#aaffaa');
@@ -278,9 +290,9 @@ const COMMANDS = {
 
   time: {
     usage: '/time <+seconds>',
-    desc: 'Add seconds to the timer (host only)',
+    desc: 'Add seconds to the timer (admin only)',
     fn([val]) {
-      if (!requireHost('time')) return;
+      if (!requireAdmin('time')) return;
       const t = parseInt(val);
       if (isNaN(t)) { msg('Usage: /time <seconds>', '#ff8888'); return; }
       Game.timerStart -= t * 1000;

@@ -23,7 +23,7 @@ import {
   showToast, loadSettings, getSettings, saveSettings, UI,
   showESCMenu, hideESCMenu, showKickPlayers, hideKickPlayers,
 } from './ui.js';
-import { initCommands, handleCommand } from './commands.js';
+import { initCommands, handleCommand, setAdminCommandsEnabled } from './commands.js';
 
 // ── App State ────────────────────────────────────────────
 
@@ -71,6 +71,9 @@ async function init() {
 
   // Override showKickPlayers to pass current players and host status
   UI.showKickPlayers = () => showKickPlayers(MP.players, MP.isHost);
+
+  // Override showSettings to pass host and game running status
+  UI.showSettings = () => showSettings(MP.isHost, gameRunning);
 
   // Override showESCMenu to pass host status
   UI.showESCMenu = () => showESCMenu(MP.isHost);
@@ -242,6 +245,9 @@ async function startBuilderTestMode() {
 function applySettings(s) {
   // Update UI currentSettings object so saveSettings will save the right values
   Object.assign(UI.getSettings(), s);
+
+  // Apply admin commands setting
+  setAdminCommandsEnabled(s.adminCommands || false);
 
   // Ball color
   Game.ballColor = s.ballColor;

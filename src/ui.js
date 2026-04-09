@@ -1,4 +1,7 @@
-import { BALL_COLORS, getAllMapData, renderMapThumbnail, fetchMapManifest, fetchMap, mapManifest } from './game.js';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { MP, getPlayerById } from './network.js';
+import * as Commands from './commands.js';
 
 // ── Settings Defaults ────────────────────────────────────
 
@@ -17,6 +20,7 @@ const DEFAULT_SETTINGS = {
   musicVolume: 50,
   cameraSensitivity: 100,
   invertY: false,
+  adminCommands: false,
 };
 
 let currentSettings = { ...DEFAULT_SETTINGS };
@@ -117,7 +121,7 @@ export function initUI() {
 
   // Main menu settings button
   document.getElementById('btn-settings-main').addEventListener('click', () => {
-    showSettings();
+    if (UI.showSettings) UI.showSettings(MP?.isHost || false, false); else showSettings();
   });
 
   // Main menu map builder button
@@ -179,6 +183,8 @@ export function initUI() {
   document.getElementById('btn-save-settings').addEventListener('click', () => {
     collectSettings();
     saveSettings();
+    // Apply admin commands setting
+    Commands.setAdminCommandsEnabled(currentSettings.adminCommands);
     if (UI.onSettingsChanged) UI.onSettingsChanged(currentSettings);
     showToast('Settings saved!');
     // Don't navigate - stay on settings screen
@@ -235,6 +241,7 @@ function collectSettings() {
   currentSettings.musicVolume = parseInt(document.getElementById('settings-music-vol').value);
   currentSettings.cameraSensitivity = parseInt(document.getElementById('settings-cam-sens').value);
   currentSettings.invertY = document.getElementById('settings-invert-y').checked;
+  currentSettings.adminCommands = document.getElementById('settings-admin-commands').checked;
 }
 
 function populateSettings() {
@@ -257,6 +264,7 @@ function populateSettings() {
   document.getElementById('settings-music-vol').value = currentSettings.musicVolume;
   document.getElementById('settings-cam-sens').value = currentSettings.cameraSensitivity;
   document.getElementById('settings-invert-y').checked = currentSettings.invertY;
+  document.getElementById('settings-admin-commands').checked = currentSettings.adminCommands || false;
 }
 
 function setRadioActive(rowId, val) {
@@ -303,9 +311,21 @@ export function showMainMenu() {
   UI.screens.mainMenu.classList.remove('hidden');
 }
 
-export function showSettings() {
+export function showSettings(isHost = false, gameRunning = false) {
   hideAll();
   UI.screens.settings.classList.remove('hidden');
+
+  const adminSection = document.getElementById('settings-admin-section');
+  const adminToggle = document.getElementById('settings-admin-commands');
+
+  if (adminSection && adminToggle) {
+    if (isHost && !gameRunning) {
+      adminSection.style.display = 'block';
+      adminToggle.disabled = false;
+    } else {
+      adminSection.style.display = 'none';
+    }
+  }
 }
 
 export async function showMapLibrary() {
