@@ -421,6 +421,22 @@ export function applyWindFromMapData(mapData) {
   }
 }
 
+function onBouncePadCollision(e, padBody) {
+  // Check if the colliding body is the local ball
+  if (!Game.ballBody || e.body !== Game.ballBody) return;
+  
+  // Check if the ball is moving downward
+  const vy = Game.ballBody.velocity.y;
+  if (vy >= 0) return; // Only bounce if coming down
+  
+  // Double the downward velocity and send upward
+  const bounceVelocity = -vy * 2;
+  Game.ballBody.velocity.y = bounceVelocity;
+  
+  // Add a small boost to ensure it clears the pad
+  Game.ballBody.position.y += 0.1;
+}
+
 function mt(color, type, rotation) {
   const hex = color.toString(16).toLowerCase();
   
@@ -436,6 +452,17 @@ function mt(color, type, rotation) {
   
   // Boxes
   if (type === 'box') {
+    // Bounce pad (orange color)
+    if (hex === 'ff8800') {
+      return new THREE.MeshStandardMaterial({ 
+        color: 0xff8800,
+        roughness: 0.5,
+        metalness: 0.3,
+        emissive: 0xff4400,
+        emissiveIntensity: 0.2
+      });
+    }
+    
     // Wall / Barrier (white or warm sandy brown colors) - white
     if (hex === 'ffffff' || hex === '885533' || hex === 'a06a44' || hex === 'c8a96e') {
       return new THREE.MeshStandardMaterial({ 
@@ -523,6 +550,13 @@ function buildCourseFromJSON(data) {
       bodyIdx = Game.courseBodies.length - 1;
       mesh = Game.courseMeshes[Game.courseMeshes.length - 1];
     } else continue;
+
+    // Check if this is a bounce pad (orange color #ff8800)
+    const hex = parseColor(p.color).toString(16).toLowerCase();
+    if (hex === 'ff8800') {
+      const body = Game.courseBodies[bodyIdx];
+      body.addEventListener('collide', (e) => onBouncePadCollision(e, body));
+    }
 
     if (p.motion) {
       const body = Game.courseBodies[bodyIdx];
