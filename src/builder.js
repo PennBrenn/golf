@@ -53,7 +53,6 @@ const PRESETS = {
   killbrick:   () => ({ type: 'killbrick', size: [2, 0.3, 2], position: [0, 8.4, 0], rotation: [0, 0, 0], color: '#ff0044' }),
   // ── Decorative / Shapes ──
   glass:      () => ({ type: 'glass', size: [4, 0.5, 4], position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#aaddff' }),
-  wedge:      () => ({ type: 'wedge', size: [3, 1.5, 4], position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#88bb66' }),
   sphere:     () => ({ type: 'sphere', radius: 1, segments: 16, position: [0, 9.25, 0], color: '#dddddd' }),
   cone:       () => ({ type: 'cone', radius: 1, height: 2, segments: 16, position: [0, 9.25, 0], color: '#cc8844' }),
   torus:      () => ({ type: 'torus', radius: 1.5, tube: 0.3, segments: 16, tubeSeg: 12, position: [0, 9, 0], color: '#ffcc44' }),
@@ -356,8 +355,6 @@ function createMeshFromData(data) {
     geo = new THREE.ConeGeometry(data.radius || 1, data.height || 2, data.segments || 16);
   } else if (data.type === 'torus') {
     geo = new THREE.TorusGeometry(data.radius || 1.5, data.tube || 0.3, data.tubeSeg || 12, data.segments || 16);
-  } else if (data.type === 'wedge') {
-    geo = createWedgeGeometry(data.size[0], data.size[1], data.size[2]);
   } else if (data.type === 'halfpipe') {
     geo = createHalfPipeGeometry(data.radius || 3, data.length || 6, data.segments || 16);
   } else if (data.type === 'bridge') {
@@ -392,42 +389,6 @@ function createMeshFromData(data) {
 }
 
 // ── Custom Geometries ─────────────────────────────────────
-
-function createWedgeGeometry(w, h, d) {
-  const geo = new THREE.BufferGeometry();
-  const hw = w / 2, hd = d / 2;
-  // Wedge: full width at bottom, tapers to edge at top on one side
-  const verts = new Float32Array([
-    // Front face (z = +hd)
-    -hw, 0, hd,   hw, 0, hd,   hw, h, hd,
-    -hw, 0, hd,   hw, h, hd,   -hw, 0, hd, // degenerate, replaced below
-    // Back face (z = -hd)
-    hw, 0, -hd,   -hw, 0, -hd,   hw, h, -hd,
-    -hw, 0, -hd,  -hw, 0, -hd,   hw, h, -hd, // degenerate
-  ]);
-  // Use a simpler approach with indexed geometry
-  const positions = [
-    // 0: bottom-left-front, 1: bottom-right-front, 2: top-right-front
-    // 3: bottom-left-back, 4: bottom-right-back, 5: top-right-back
-    -hw, 0, hd,    // 0
-    hw, 0, hd,     // 1
-    hw, h, hd,     // 2
-    -hw, 0, -hd,   // 3
-    hw, 0, -hd,    // 4
-    hw, h, -hd,    // 5
-  ];
-  const indices = [
-    0, 1, 2,  // front
-    4, 3, 5,  // back
-    0, 3, 4,  0, 4, 1,  // bottom
-    1, 4, 5,  1, 5, 2,  // right (tall side)
-    0, 2, 5,  0, 5, 3,  // slope
-  ];
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  geo.setIndex(indices);
-  geo.computeVertexNormals();
-  return geo;
-}
 
 function createHalfPipeGeometry(radius, length, segments) {
   const geo = new THREE.CylinderGeometry(radius, radius, length, segments, 1, true, 0, Math.PI);

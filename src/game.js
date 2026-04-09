@@ -790,17 +790,6 @@ function addDecorPiece(p, threeGeo, cannonShape) {
 }
 
 // ── Custom Geometry Helpers (game) ───────────────────────
-function createWedgeGeo(w, h, d) {
-  const hw = w / 2, hd = d / 2;
-  const positions = [ -hw,0,hd, hw,0,hd, hw,h,hd, -hw,0,-hd, hw,0,-hd, hw,h,-hd ];
-  const indices = [ 0,1,2, 4,3,5, 0,3,4, 0,4,1, 1,4,5, 1,5,2, 0,2,5, 0,5,3 ];
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  geo.setIndex(indices);
-  geo.computeVertexNormals();
-  return geo;
-}
-
 function createStepGeo(width, totalH, depth, n) {
   const geos = [];
   const sH = totalH / n, sD = depth / n;
@@ -873,10 +862,6 @@ export function buildCourseFromJSON(data) {
       });
     } else if (p.type === 'rail' && p.size) {
       mesh = addPiece(p.size, parseColor(p.color), p.position, p.rotation || [0, 0, 0], 'rail');
-      bodyIdx = Game.courseBodies.length - 1;
-    } else if (p.type === 'wedge' && p.size) {
-      mesh = addDecorPiece(p, createWedgeGeo(p.size[0], p.size[1], p.size[2]),
-        new CANNON.Box(new CANNON.Vec3(p.size[0]/2, p.size[1]/2, p.size[2]/2)));
       bodyIdx = Game.courseBodies.length - 1;
     } else if (p.type === 'step' && p.size) {
       mesh = addDecorPiece(p, createStepGeo(p.size[0], p.size[1], p.size[2], p.steps || 3),
