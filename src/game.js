@@ -1592,19 +1592,9 @@ export function updateMenuCamera(time) {
 export function createLocalBall(color) {
   const c = color !== undefined ? color : Game.ballColor;
 
-  // Apply glow effect if enabled
-  const glowMat = Game.glowIntensity > 0
-    ? new THREE.MeshStandardMaterial({
-        color: c,
-        emissive: c,
-        emissiveIntensity: Game.glowIntensity / 100,
-        flatShading: true
-      })
-    : new THREE.MeshStandardMaterial({ color: c, flatShading: true });
-
   Game.ball = new THREE.Mesh(
     new THREE.SphereGeometry(BALL_RADIUS, 16, 16),
-    glowMat
+    new THREE.MeshStandardMaterial({ color: c, flatShading: true })
   );
   Game.ball.castShadow = true; Game.scene.add(Game.ball);
 
@@ -1699,17 +1689,10 @@ export function updateBallAppearance(hat, glowIntensity, trailEnabled, trailColo
   Game.trailColor = trailColor || '#ffffff';
 
   if (Game.ball) {
-    // Update material for glow
+    // Update material
     const c = Game.ball.material.color.getHex();
     Game.ball.material.dispose();
-    Game.ball.material = Game.glowIntensity > 0
-      ? new THREE.MeshStandardMaterial({
-          color: c,
-          emissive: c,
-          emissiveIntensity: Game.glowIntensity / 100,
-          flatShading: true
-        })
-      : new THREE.MeshStandardMaterial({ color: c, flatShading: true });
+    Game.ball.material = new THREE.MeshStandardMaterial({ color: c, flatShading: true });
 
     // Update hat
     if (Game.hatMesh) {
