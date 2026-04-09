@@ -436,13 +436,12 @@ function mt(color, type, rotation) {
   
   // Boxes
   if (type === 'box') {
-    // Wall / Barrier (warm sandy brown colors) - wood texture
-    if (hex === '885533' || hex === 'a06a44' || hex === 'c8a96e') {
+    // Wall / Barrier (white or warm sandy brown colors) - white
+    if (hex === 'ffffff' || hex === '885533' || hex === 'a06a44' || hex === 'c8a96e') {
       return new THREE.MeshStandardMaterial({ 
         color: 0xffffff,
-        map: createWoodTexture(),
-        roughness: 0.9,
-        metalness: 0.0
+        roughness: 0.7,
+        metalness: 0.1
       });
     }
     

@@ -23,7 +23,7 @@ const B = {
 const PRESETS = {
   box:      () => ({ type: 'box', size: [4, 0.5, 4], position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#5ab85a' }),
   cylinder: () => ({ type: 'cylinder', radiusTop: 0.4, radiusBottom: 0.4, height: 1.5, segments: 8, position: [0, 9, 0], color: '#5588cc' }),
-  wall:     () => ({ type: 'box', size: [0.3, 0.8, 8], position: [0, 8.6, 0], rotation: [0, 0, 0], color: '#8B6914' }),
+  wall:     () => ({ type: 'box', size: [0.3, 0.8, 8], position: [0, 8.6, 0], rotation: [0, 0, 0], color: '#ffffff' }),
   ramp:     () => ({ type: 'box', size: [4, 0.5, 6], position: [0, 9.5, 0], rotation: [-0.28, 0, 0], color: '#7ec87e' }),
 };
 
