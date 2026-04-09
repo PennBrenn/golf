@@ -1241,6 +1241,32 @@ export async function buildCourseByIndex(idx) {
   flag.position.copy(Game.holePosition).add(new THREE.Vector3(0.3, 1.8, 0));
   flag.castShadow = true; Game.scene.add(flag); Game.courseMeshes.push(flag);
 
+  // Invisible large hitbox for hole (easier to trigger win)
+  const holeHitbox = new CANNON.Body({
+    mass: 0,
+    isTrigger: true, // Sensor body - no physical collision
+    position: new CANNON.Vec3(Game.holePosition.x, Game.holePosition.y + 2, Game.holePosition.z)
+  });
+  holeHitbox.addShape(new CANNON.Cylinder(2.5, 2.5, 5, 8));
+  Game.world.addBody(holeHitbox);
+  Game.courseBodies.push(holeHitbox);
+  holeHitbox.addEventListener('collide', (e) => {
+    if (e.body === Game.ballBody && !Game.hasFinished) {
+      Game.hasFinished = true;
+      Game.elapsedTime = (Date.now() - Game.timerStart) / 1000;
+
+      if (Game.ball) {
+        Game.ball.visible = false;
+        Game.ballBody.velocity.setZero();
+        Game.ballBody.angularVelocity.setZero();
+      }
+      Game.trailPoints = [];
+
+      spawnHoleConfetti(Game.scene, new THREE.Vector3().copy(Game.holePosition));
+      if (Game.onFinishHole) Game.onFinishHole();
+    }
+  });
+
   buildTerrain();
   
   return data; // Return for wind indicator update
