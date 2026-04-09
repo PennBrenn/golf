@@ -1,28 +1,8 @@
 import Peer from 'peerjs';
 import { generateRoomCode } from './words.js';
 
-// PeerJS configuration with STUN/TURN servers for cross-device connectivity
-const PEER_CONFIG = {
-  debug: 1,
-  config: {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:global.stun.twilio.com:3478' },
-      // Free TURN server from openrelay.metered.ca
-      {
-        urls: 'turn:openrelay.metered.ca:80',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-      },
-      {
-        urls: 'turn:openrelay.metered.ca:443',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-      }
-    ]
-  }
-};
+// Use default PeerJS configuration (no custom STUN/TURN servers)
+// PeerJS cloud server handles STUN automatically
 
 // Message type constants
 export const MSG = {
@@ -111,7 +91,7 @@ export function createGame(name) {
 
   return new Promise((resolve, reject) => {
     const peerId = 'golf-' + MP.roomCode;
-    MP.peer = new Peer(peerId, PEER_CONFIG);
+    MP.peer = new Peer(peerId);
 
     MP.peer.on('open', (id) => {
       MP.localId = id;
@@ -256,7 +236,7 @@ export function joinGame(name, code) {
   MP.gameActive = false;
 
   return new Promise((resolve, reject) => {
-    MP.peer = new Peer(undefined, PEER_CONFIG);
+    MP.peer = new Peer(undefined);
 
     MP.peer.on('open', (id) => {
       MP.localId = id;
