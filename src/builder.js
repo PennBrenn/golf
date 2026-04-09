@@ -540,6 +540,31 @@ function setupProps() {
     markUnsaved();
   });
 
+  // Motion properties
+  ['motion-type', 'motion-axis', 'motion-range', 'motion-speed', 'motion-phase'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      if (!B.selected) return;
+      const type = document.getElementById('motion-type').value;
+      const axis = document.getElementById('motion-axis').value;
+      const range = parseFloat(document.getElementById('motion-range').value) || 0;
+      const speed = parseFloat(document.getElementById('motion-speed').value) || 0;
+      const phase = parseFloat(document.getElementById('motion-phase').value) || 0;
+      
+      if (type) {
+        B.selected.data.motion = {
+          type,
+          axis,
+          range,
+          speed,
+          phase
+        };
+      } else {
+        delete B.selected.data.motion;
+      }
+      markUnsaved();
+    });
+  });
+
   // Delete / Duplicate
   document.getElementById('btn-delete').addEventListener('click', () => {
     if (B.selected) removePiece(B.selected);
@@ -608,6 +633,22 @@ function updatePropsUI() {
   }
 
   document.getElementById('pcolor').value = colorToHex(d.color);
+
+  // Motion properties
+  const motion = d.motion;
+  if (motion) {
+    document.getElementById('motion-type').value = motion.type || '';
+    document.getElementById('motion-axis').value = motion.axis || 'x';
+    document.getElementById('motion-range').value = motion.range || 0;
+    document.getElementById('motion-speed').value = motion.speed || 0;
+    document.getElementById('motion-phase').value = motion.phase || 0;
+  } else {
+    document.getElementById('motion-type').value = '';
+    document.getElementById('motion-axis').value = 'x';
+    document.getElementById('motion-range').value = 0;
+    document.getElementById('motion-speed').value = 0;
+    document.getElementById('motion-phase').value = 0;
+  }
 }
 
 // ── Import / Export ──────────────────────────────────────

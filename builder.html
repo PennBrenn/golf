@@ -331,6 +331,27 @@
         <div class="prop-row"><input type="color" id="pcolor" value="#5ab85a"></div>
       </div>
       <div class="prop-group">
+        <div class="prop-label">Motion</div>
+        <div class="prop-row">
+          <label style="width: 40px; text-align: right;">Type</label>
+          <select id="motion-type" style="flex: 1; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25); border-radius: 6px; color: white; padding: 4px 8px; font-family: 'Nunito', sans-serif; font-size: 0.8rem;">
+            <option value="">None</option>
+            <option value="translate">Translate</option>
+          </select>
+        </div>
+        <div class="prop-row">
+          <label style="width: 40px; text-align: right;">Axis</label>
+          <select id="motion-axis" style="flex: 1; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25); border-radius: 6px; color: white; padding: 4px 8px; font-family: 'Nunito', sans-serif; font-size: 0.8rem;">
+            <option value="x">X</option>
+            <option value="y">Y</option>
+            <option value="z">Z</option>
+          </select>
+        </div>
+        <div class="prop-row"><label style="width: 40px; text-align: right;">Range</label><input type="number" id="motion-range" step="0.1" min="0" style="flex: 1;"></div>
+        <div class="prop-row"><label style="width: 40px; text-align: right;">Speed</label><input type="number" id="motion-speed" step="0.1" min="0" style="flex: 1;"></div>
+        <div class="prop-row"><label style="width: 40px; text-align: right;">Phase</label><input type="number" id="motion-phase" step="0.05" style="flex: 1;"></div>
+      </div>
+      <div class="prop-group">
         <button class="tb-btn" id="btn-duplicate" style="width:100%;margin-bottom:6px;">Duplicate</button>
         <button class="tb-btn" id="btn-delete" style="width:100%;background:rgba(255,80,80,0.25);border-color:rgba(255,80,80,0.4);">Delete</button>
       </div>
