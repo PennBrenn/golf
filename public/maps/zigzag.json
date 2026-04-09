@@ -1,6 +1,7 @@
 {
   "name": "Zigzag",
   "timeOfDay": "night",
+  "timeLimit": 120,
   "start": [-6, 9, 0],
   "hole": [6, 8.5, -36],
   "pieces": [

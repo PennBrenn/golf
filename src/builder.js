@@ -576,6 +576,7 @@ function exportJSON() {
 
   const mapData = {
     name: document.getElementById('map-name-input').value || 'Untitled',
+    timeLimit: parseInt(document.getElementById('map-time-input').value) || 120,
     timeOfDay: B.timeOfDay,
     start: [
       parseFloat(document.getElementById('sx').value) || 0,
@@ -627,6 +628,7 @@ function loadMapData(data) {
   while (B.pieces.length > 0) removePiece(B.pieces[0]);
 
   document.getElementById('map-name-input').value = data.name || 'Untitled';
+  document.getElementById('map-time-input').value = data.timeLimit !== undefined ? data.timeLimit : 120;
 
   // Restore time of day
   B.timeOfDay = data.timeOfDay || 'day';

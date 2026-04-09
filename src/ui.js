@@ -319,7 +319,23 @@ export function updateTimer(seconds) {
   if (el) {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
-    el.textContent = m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
+    el.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    
+    // Add pulsing red style when time is low (< 10s)
+    if (seconds <= 10 && seconds > 0) {
+      el.style.color = '#ff4422';
+      el.style.textShadow = '0 1px 8px rgba(255, 68, 34, 0.6)';
+      el.style.animation = 'pulseGlow 1s ease-in-out infinite';
+    } else if (seconds <= 0) {
+      el.style.color = '#ff4422';
+      el.style.textShadow = '0 1px 8px rgba(255, 68, 34, 0.6)';
+      el.style.animation = 'none';
+      el.textContent = '00:00';
+    } else {
+      el.style.color = '#00B8CC';
+      el.style.textShadow = '0 1px 8px rgba(0, 194, 204, 0.4)';
+      el.style.animation = 'none';
+    }
   }
 }
 

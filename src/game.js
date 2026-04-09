@@ -19,11 +19,11 @@ export const Game = {
   startPosition: new THREE.Vector3(), courseBaseY: 8,
   isDragging: false, dragStart: { x: 0, y: 0 }, dragCurrent: { x: 0, y: 0 },
   dragArrow: null, maxPower: 20,
-  swings: 0, timerStart: 0, elapsedTime: 0,
+  swings: 0, timerStart: 0, elapsedTime: 0, timeLimit: 120, remainingTime: 120,
   hasFinished: false, spectatorMode: false, currentCourseIndex: -1,
   wind: { x: 0, z: 0 },
   waterZones: [], lastSafePosition: new THREE.Vector3(), waterSplashed: false,
-  onSwingCountChanged: null, onTimeUpdate: null,
+  onSwingCountChanged: null, onTimeUpdate: null, onTimeUp: null,
   onFinishHole: null, onDragChanged: null, onWaterSplash: null,
 };
 
@@ -531,6 +531,10 @@ export async function buildCourseByIndex(idx) {
   
   // Apply wind from map data
   applyWindFromMapData(data);
+  
+  // Set time limit
+  Game.timeLimit = data.timeLimit !== undefined ? data.timeLimit : 120;
+  Game.remainingTime = Game.timeLimit;
 
   const holeMesh = new THREE.Mesh(
     new THREE.CylinderGeometry(Game.holeRadius, Game.holeRadius, 0.02, 32), 
@@ -866,7 +870,14 @@ export function exitSpectator() {
 export function updateGame(dt) {
   if (!Game.hasFinished && Game.timerStart) {
     Game.elapsedTime = (Date.now() - Game.timerStart) / 1000;
-    if (Game.onTimeUpdate) Game.onTimeUpdate(Game.elapsedTime);
+    Game.remainingTime = Math.max(0, Game.timeLimit - Game.elapsedTime);
+    
+    if (Game.onTimeUpdate) Game.onTimeUpdate(Game.remainingTime);
+
+    if (Game.remainingTime <= 0 && !Game.hasFinished) {
+      Game.hasFinished = true;
+      if (Game.onTimeUp) Game.onTimeUp();
+    }
   }
 
   // Update god rays

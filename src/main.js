@@ -65,6 +65,7 @@ async function init() {
   Game.onFinishHole = handleLocalFinish;
   Game.onSwingCountChanged = (count) => updateSwings(count);
   Game.onTimeUpdate = (t) => updateTimer(t);
+  Game.onTimeUp = handleTimeUp;
   Game.onWaterSplash = () => showToast('Splash! +1 stroke penalty', 2500);
 
   // Chat input
@@ -425,6 +426,18 @@ function handleLocalFinish() {
   showSpectatorBanner();
   showToast('You finished! Watching others...', 3000);
 
+  checkAllFinished();
+}
+
+function handleTimeUp() {
+  // Player ran out of time
+  const maxSwings = 15; // Default max penalty
+  sendFinish(maxSwings, Game.timeLimit);
+  
+  enterSpectator();
+  showSpectatorBanner();
+  showToast('Time is up! DNF (+15 strokes)', 4000);
+  
   checkAllFinished();
 }
 
