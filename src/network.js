@@ -33,7 +33,9 @@ export const MP = {
   isHost: false,
   roomCode: null,
   localName: 'Player',
-  players: {},          // clientId → { name, colorIndex, isHost }
+  localId: null,        // alias for clientId (for compatibility)
+  players: [],          // [{ id: clientId, name, colorIndex, isHost }]
+  connections: {},      // kept for compatibility (but not used with Ably)
   channels: {
     host: null,         // 'golf-<CODE>-host' (host inbox / guest outbox)
     broadcast: null,    // 'golf-<CODE>-broadcast' (host→all)
@@ -74,16 +76,16 @@ function sendToHost(data) {
 }
 
 function buildPlayerList() {
-  return Object.values(MP.players).map(p => ({ 
-    id: p.clientId, 
-    name: p.name, 
-    colorIndex: p.colorIndex, 
-    isHost: p.isHost 
+  return MP.players.map(p => ({
+    id: p.id,
+    name: p.name,
+    colorIndex: p.colorIndex,
+    isHost: p.isHost
   }));
 }
 
 function nextColorIndex() {
-  const used = new Set(Object.values(MP.players).map(p => p.colorIndex));
+  const used = new Set(MP.players.map(p => p.colorIndex));
   for (let i = 0; i < MAX_PLAYERS; i++) {
     if (!used.has(i)) return i;
   }
@@ -100,11 +102,13 @@ export function createGame(name) {
   MP.localName = name || 'Player 1';
   MP.isHost = true;
   MP.roomCode = generateRoomCode();
-  MP.players = {};
+  MP.players = [];
+  MP.connections = {};
   MP.gameActive = false;
 
   const clientId = MP.localName + '-' + Math.random().toString(36).slice(2, 6);
   MP.clientId = clientId;
+  MP.localId = clientId;
 
   return new Promise(async (resolve, reject) => {
     try {
@@ -128,46 +132,40 @@ export function createGame(name) {
       MP.channels.lobby = MP.ably.channels.get(getChannelName('-lobby'));
 
       // Subscribe to host channel (guest messages)
-      console.log('Subscribing to host channel...');
       MP.channels.host.subscribe('msg', (message) => {
-        console.log('Host received message from:', message.clientId, message.data);
         handleHostReceive(message.clientId, message.data);
       });
 
       // Enter presence
-      console.log('Host entering presence...');
       await MP.channels.lobby.presence.enter({
         name: MP.localName,
         colorIndex: 0,
         isHost: true
       });
-      console.log('Host presence entered');
 
       // Add host as first player
-      MP.players[clientId] = {
-        clientId,
+      MP.players.push({
+        id: clientId,
         name: MP.localName,
         colorIndex: 0,
         isHost: true,
-      };
+      });
 
       // Subscribe to presence events
       MP.channels.lobby.presence.subscribe('enter', (member) => {
-        console.log('Presence enter event:', member.clientId, member.data);
         if (member.clientId !== clientId) {
           // Guest joined via presence, send welcome
-          console.log('Guest joined, sending welcome...');
           const colorIndex = nextColorIndex();
-          MP.players[member.clientId] = {
-            clientId: member.clientId,
+          const newPlayer = {
+            id: member.clientId,
             name: member.data.name,
             colorIndex,
             isHost: false,
           };
+          MP.players.push(newPlayer);
 
           // Send welcome to this guest
           const guestChannel = MP.ably.channels.get(getChannelName(`-guest-${member.clientId}`));
-          console.log('Sending welcome to guest channel:', getChannelName(`-guest-${member.clientId}`));
           guestChannel.publish('msg', {
             type: MSG.WELCOME,
             rejected: false,
@@ -178,7 +176,7 @@ export function createGame(name) {
           // Notify all other guests
           broadcast({
             type: MSG.PLAYER_JOINED,
-            player: MP.players[member.clientId]
+            player: newPlayer
           });
 
           if (MP.onPlayerListChanged) MP.onPlayerListChanged(buildPlayerList());
@@ -194,13 +192,13 @@ export function createGame(name) {
       // Get current presence set for late joiners
       const members = await MP.channels.lobby.presence.get();
       members.forEach(m => {
-        if (m.clientId !== clientId && !MP.players[m.clientId]) {
-          MP.players[m.clientId] = {
-            clientId: m.clientId,
+        if (m.clientId !== clientId && !MP.players.find(p => p.id === m.clientId)) {
+          MP.players.push({
+            id: m.clientId,
             name: m.data.name,
             colorIndex: m.data.colorIndex,
             isHost: m.data.isHost || false,
-          };
+          });
         }
       });
 
@@ -265,7 +263,7 @@ function handleHostReceive(clientId, data) {
 }
 
 function handleHostDisconnect(clientId) {
-  delete MP.players[clientId];
+  MP.players = MP.players.filter(p => p.id !== clientId);
   broadcast({ type: MSG.PLAYER_LEFT, playerId: clientId });
   if (MP.onPlayerListChanged) MP.onPlayerListChanged(buildPlayerList());
 }
@@ -276,11 +274,13 @@ export function joinGame(name, code) {
   MP.localName = name || 'Player';
   MP.isHost = false;
   MP.roomCode = code.toUpperCase().trim();
-  MP.players = {};
+  MP.players = [];
+  MP.connections = {};
   MP.gameActive = false;
 
   const clientId = MP.localName + '-' + Math.random().toString(36).slice(2, 6);
   MP.clientId = clientId;
+  MP.localId = clientId;
 
   return new Promise(async (resolve, reject) => {
     try {
@@ -296,21 +296,11 @@ export function joinGame(name, code) {
         MP.ably.connection.once('failed', rej);
       });
 
-      console.log('Guest Ably connected with clientId:', clientId);
-      console.log('Attempting to join room:', MP.roomCode);
-
       // Set up channels
-      const hostChannelName = getChannelName('-host');
-      const broadcastChannelName = getChannelName('-broadcast');
-      const lobbyChannelName = getChannelName('-lobby');
-      const directChannelName = getChannelName(`-guest-${clientId}`);
-
-      console.log('Channel names:', { hostChannelName, broadcastChannelName, lobbyChannelName, directChannelName });
-
-      MP.channels.host = MP.ably.channels.get(hostChannelName);
-      MP.channels.broadcast = MP.ably.channels.get(broadcastChannelName);
-      MP.channels.lobby = MP.ably.channels.get(lobbyChannelName);
-      MP.channels.direct = MP.ably.channels.get(directChannelName);
+      MP.channels.host = MP.ably.channels.get(getChannelName('-host'));
+      MP.channels.broadcast = MP.ably.channels.get(getChannelName('-broadcast'));
+      MP.channels.lobby = MP.ably.channels.get(getChannelName('-lobby'));
+      MP.channels.direct = MP.ably.channels.get(getChannelName(`-guest-${clientId}`));
 
       // Subscribe to broadcast channel (host messages to all)
       MP.channels.broadcast.subscribe('msg', (message) => {
@@ -323,23 +313,19 @@ export function joinGame(name, code) {
       });
 
       // Enter presence
-      console.log('Entering presence on lobby channel...');
       await MP.channels.lobby.presence.enter({
         name: MP.localName,
         colorIndex: 0,
         isHost: false
       });
-      console.log('Presence entered successfully');
 
       // Send join message to host
-      console.log('Sending join message to host...');
       MP.channels.host.publish('msg', {
         type: 'playerJoined',
         name: MP.localName,
         clientId,
         color: 0,
       });
-      console.log('Join message sent');
 
       // Subscribe to presence events
       MP.channels.lobby.presence.subscribe('leave', (member) => {
@@ -377,28 +363,18 @@ export function joinGame(name, code) {
 }
 
 function handleGuestReceive(data) {
-  console.log('Guest received message type:', data.type);
   switch (data.type) {
     case MSG.WELCOME:
-      console.log('Guest received WELCOME message:', data);
       if (data.rejected) {
         if (MP.onDisconnect) MP.onDisconnect(data.reason || 'Rejected');
         cleanupMultiplayer();
         if (MP._rejectJoin) MP._rejectJoin(new Error(data.reason || 'Rejected'));
         return;
       }
-      // Convert players array to object
-      MP.players = {};
-      data.players.forEach(p => {
-        MP.players[p.id] = {
-          clientId: p.id,
-          name: p.name,
-          colorIndex: p.colorIndex,
-          isHost: p.isHost,
-        };
-      });
+      // Players is already an array from host
+      MP.players = data.players;
       // Find our own entry and tag it
-      const me = MP.players[MP.clientId];
+      const me = MP.players.find(p => p.id === MP.clientId);
       if (me) me.colorIndex = data.yourColorIndex;
       
       // Clear welcome timeout
@@ -414,25 +390,17 @@ function handleGuestReceive(data) {
       break;
 
     case MSG.PLAYER_JOINED:
-      MP.players[data.player.clientId] = data.player;
+      MP.players.push(data.player);
       if (MP.onPlayerListChanged) MP.onPlayerListChanged(buildPlayerList());
       break;
 
     case MSG.PLAYER_LEFT:
-      delete MP.players[data.playerId];
+      MP.players = MP.players.filter(p => p.id !== data.playerId);
       if (MP.onPlayerListChanged) MP.onPlayerListChanged(buildPlayerList());
       break;
 
     case MSG.LOBBY_STATE:
-      MP.players = {};
-      data.players.forEach(p => {
-        MP.players[p.id] = {
-          clientId: p.id,
-          name: p.name,
-          colorIndex: p.colorIndex,
-          isHost: p.isHost,
-        };
-      });
+      MP.players = data.players;
       if (MP.onPlayerListChanged) MP.onPlayerListChanged(buildPlayerList());
       break;
 
@@ -607,21 +575,23 @@ export function cleanupMultiplayer() {
     lobby: null,
     direct: null,
   };
-  MP.players = {};
+  MP.players = [];
+  MP.connections = {};
   MP.gameActive = false;
   MP.syncTimer = 0;
   MP.leaderboard = [];
   MP.isHost = false;
   MP.roomCode = null;
   MP.clientId = null;
+  MP.localId = null;
   MP._resolveJoin = null;
   MP._rejectJoin = null;
 }
 
 export function getLocalPlayer() {
-  return MP.players[MP.clientId] || null;
+  return MP.players.find(p => p.id === MP.clientId) || null;
 }
 
 export function getPlayerById(id) {
-  return MP.players[id] || null;
+  return MP.players.find(p => p.id === id) || null;
 }
