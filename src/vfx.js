@@ -265,9 +265,9 @@ export function initPostProcessing(renderer, scene, camera) {
   // Bloom — dialed back, god rays handle sun glow
   VFX.bloomPass = new UnrealBloomPass(
     new THREE.Vector2(W, H),
-    0.22,   // strength — subtle
-    0.45,   // radius
-    0.88    // threshold — only emissive objects
+    0.18,   // strength — subtle
+    0.4,    // radius
+    0.97    // threshold — only emissive objects bloom
   );
   VFX.composer.addPass(VFX.bloomPass);
 
@@ -296,8 +296,8 @@ export function setColorGrade(isNight, rendererRef, sceneRef) {
     u.warmth.value      = -0.4;
     VFX.godRays.enabled = false;
     if (VFX.bloomPass) {
-      VFX.bloomPass.strength = 0.6;
-      VFX.bloomPass.threshold = 0.75;
+      VFX.bloomPass.strength = 0.45;
+      VFX.bloomPass.threshold = 0.9;
     }
   } else {
     u.brightness.value  = 0.03;
@@ -307,8 +307,8 @@ export function setColorGrade(isNight, rendererRef, sceneRef) {
     VFX.godRays.enabled = true;
     VFX.godRays.intensity = 0.35;
     if (VFX.bloomPass) {
-      VFX.bloomPass.strength = 0.22;
-      VFX.bloomPass.threshold = 0.88;
+      VFX.bloomPass.strength = 0.18;
+      VFX.bloomPass.threshold = 0.97;
     }
   }
 
