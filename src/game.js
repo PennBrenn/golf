@@ -518,41 +518,34 @@ function updateDragVis() {
   const { ratio, worldDir } = getDragDir();
   if (Game.onDragChanged) Game.onDragChanged(ratio, true);
   if (!Game.ballBody || !worldDir || ratio < 0.02) { clearDragVis(); return; }
-  const bp = new THREE.Vector3().copy(Game.ballBody.position); bp.y += 0.1;
+  const bp = new THREE.Vector3().copy(Game.ballBody.position);
   
   if (Game.dragArrow) Game.scene.remove(Game.dragArrow);
   
-  // Create triangle arrow
+  // Create cone - base at ball, tip at power point
   const length = ratio * 4 + 0.5;
-  const baseWidth = 0.4;
-  const tipWidth = 0.05;
+  const baseRadius = BALL_RADIUS; // Cone base diameter = ball diameter
   
-  const geo = new THREE.BufferGeometry();
-  const vertices = new Float32Array([
-    // Base (wider)
-    -baseWidth/2, 0, 0,
-     baseWidth/2, 0, 0,
-    // Tip (point)
-    0, 0, -length
-  ]);
-  const indices = new Uint16Array([0, 1, 2]);
-  
-  geo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-  geo.setIndex(new THREE.BufferAttribute(indices, 1));
-  
+  const geo = new THREE.ConeGeometry(baseRadius, length, 16);
   const mat = new THREE.MeshBasicMaterial({ 
     color: 0xffffff, 
     transparent: true, 
-    opacity: 0.8,
+    opacity: 0.75,
     side: THREE.DoubleSide
   });
   
   Game.dragArrow = new THREE.Mesh(geo, mat);
-  Game.dragArrow.position.copy(bp);
   
-  // Align triangle with shoot direction
-  Game.dragArrow.lookAt(new THREE.Vector3().copy(bp).add(worldDir));
-  Game.dragArrow.rotateX(Math.PI / 2);
+  // Position cone: base at ball, tip points away
+  // Cone geometry is centered at origin with tip at +Y
+  // We need to offset it so base is at ball position
+  Game.dragArrow.position.copy(bp).add(worldDir.clone().multiplyScalar(length / 2));
+  
+  // Align cone with shoot direction (tip points away from camera)
+  const up = new THREE.Vector3(0, 1, 0);
+  const quaternion = new THREE.Quaternion();
+  quaternion.setFromUnitVectors(up, worldDir.clone().negate());
+  Game.dragArrow.setRotationFromQuaternion(quaternion);
   
   Game.scene.add(Game.dragArrow);
 }

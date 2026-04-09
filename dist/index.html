@@ -72,12 +72,18 @@
     .screen.hidden { display: none; }
 
     .screen-panel {
-      background: rgba(255, 255, 255, 0.18);
-      backdrop-filter: blur(18px) saturate(1.6);
-      -webkit-backdrop-filter: blur(18px) saturate(1.6);
-      border: 1.5px solid rgba(255, 255, 255, 0.45);
-      border-radius: 20px;
-      box-shadow: 0 8px 32px rgba(0, 180, 210, 0.18), inset 0 1px 0 rgba(255,255,255,0.6);
+      background: linear-gradient(145deg,
+        rgba(255,255,255,0.22) 0%,
+        rgba(180,240,255,0.12) 50%,
+        rgba(0,200,220,0.10) 100%);
+      backdrop-filter: blur(24px) saturate(1.8) brightness(1.05);
+      -webkit-backdrop-filter: blur(24px) saturate(1.8) brightness(1.05);
+      border: 1.5px solid rgba(255,255,255,0.55);
+      border-radius: 28px;
+      box-shadow:
+        0 8px 48px rgba(0,160,200,0.22),
+        0 2px 0 rgba(255,255,255,0.6) inset,
+        0 -1px 0 rgba(0,160,200,0.15) inset;
       padding: 40px 48px;
       text-align: center;
       max-width: 420px;
@@ -86,67 +92,91 @@
 
     .screen-panel h1 {
       font-family: 'Nunito', sans-serif;
-      font-size: 2.5rem;
+      font-size: 2.6rem;
       font-weight: 700;
       margin-bottom: 8px;
-      color: white;
-      text-shadow: 0 2px 12px rgba(0, 194, 204, 0.5), 0 1px 3px rgba(0,80,100,0.3);
+      background: linear-gradient(180deg, #ffffff 0%, #a8f0ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 8px rgba(0,180,220,0.5));
+      letter-spacing: -0.01em;
     }
 
     .screen-panel h2 {
       font-family: 'Nunito', sans-serif;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 400;
       font-style: italic;
       margin-bottom: 24px;
-      color: rgba(255, 255, 255, 0.75);
+      color: rgba(255,255,255,0.80);
+      text-shadow: 0 1px 4px rgba(0,80,120,0.3);
     }
 
     .screen-panel input {
       width: 100%;
-      padding: 10px 16px;
-      background: rgba(255,255,255,0.3);
-      border: 1.5px solid rgba(255,255,255,0.5);
-      border-radius: 12px;
-      color: #003040;
+      padding: 12px 22px;
+      background: rgba(255,255,255,0.20);
+      border: 1.5px solid rgba(255,255,255,0.45);
+      border-radius: 50px;
+      color: #ffffff;
       font-family: 'Nunito', sans-serif;
       font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
       margin-bottom: 12px;
       outline: none;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.08);
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     .screen-panel input:focus {
-      border-color: #00C2CC;
-      box-shadow: 0 0 0 3px rgba(0, 194, 204, 0.3);
+      border-color: rgba(0,220,255,0.7);
+      box-shadow: 0 0 0 3px rgba(0,200,255,0.25), inset 0 2px 6px rgba(0,0,0,0.08);
     }
 
     .screen-panel input::placeholder { 
-      color: rgba(0, 60, 80, 0.45);
+      color: rgba(255,255,255,0.50);
+    }
+
+    #input-code {
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
     }
 
     .btn {
+      position: relative;
+      overflow: hidden;
       display: inline-block;
-      padding: 10px 28px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.0) 52%, rgba(0,180,210,0.18) 100%);
-      background-color: #00B8CC;
-      border: 1.5px solid rgba(255,255,255,0.6);
+      padding: 12px 28px;
+      border: 1.5px solid rgba(255,255,255,0.55);
       border-radius: 50px;
-      color: white;
-      text-shadow: 0 1px 2px rgba(0,80,100,0.4);
       font-family: 'Nunito', sans-serif;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 1rem;
       letter-spacing: 0.03em;
       cursor: pointer;
-      transition: filter 0.15s, transform 0.1s;
+      transition: transform 0.12s, filter 0.12s, box-shadow 0.12s;
       margin: 6px;
-      box-shadow: 0 4px 12px rgba(0, 184, 204, 0.3);
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 52%;
+      background: linear-gradient(180deg,
+        rgba(255,255,255,0.55) 0%,
+        rgba(255,255,255,0.0) 100%);
+      border-radius: 50px 50px 0 0;
+      pointer-events: none;
     }
 
     .btn:hover { 
-      filter: brightness(1.1); 
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      filter: brightness(1.08);
     }
     
     .btn:active { 
@@ -161,17 +191,47 @@
     }
 
     .btn-primary {
-      background-color: #00B8CC;
+      background: linear-gradient(180deg, #00ddf5 0%, #0099bb 100%);
+      color: #003040;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+      box-shadow: 0 4px 20px rgba(0,180,220,0.45), 0 1px 0 rgba(255,255,255,0.3) inset;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 24px rgba(0,180,220,0.55), 0 1px 0 rgba(255,255,255,0.3) inset;
     }
 
     .btn-green {
-      background-color: #A8D400;
-      box-shadow: 0 4px 12px rgba(168, 212, 0, 0.3);
+      background: linear-gradient(180deg, #c6f000 0%, #7ab800 100%);
+      color: #2d4a00;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+      box-shadow: 0 4px 20px rgba(160,210,0,0.45), 0 1px 0 rgba(255,255,255,0.3) inset;
+    }
+
+    .btn-green:hover {
+      box-shadow: 0 6px 24px rgba(160,210,0,0.55), 0 1px 0 rgba(255,255,255,0.3) inset;
     }
 
     .btn-small {
-      padding: 6px 18px;
+      padding: 8px 20px;
       font-size: 0.85rem;
+      background: linear-gradient(180deg, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.08) 100%);
+      color: #ffffff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.25) inset;
+    }
+
+    .btn-small:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.25) inset;
+    }
+
+    #btn-settings-main, #btn-map-builder {
+      background: linear-gradient(180deg, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.08) 100%);
+      color: #ffffff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.25) inset;
+    }
+
+    #btn-settings-main:hover, #btn-map-builder:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.25) inset;
     }
 
     .btn-row {
@@ -838,8 +898,8 @@
       opacity: 0.85;
     }
   </style>
-  <script type="module" crossorigin src="/assets/main-D47mGheJ.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/OrbitControls-7MwiMwQd.js">
+  <script type="module" crossorigin src="/assets/main-B-lYY4lk.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/OrbitControls-BQXaF17G.js">
 </head>
 <body>
   <div id="game-container"></div>
