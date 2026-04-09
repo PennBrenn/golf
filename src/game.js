@@ -481,20 +481,17 @@ export function applyWindFromMapData(mapData) {
 function onBouncePadCollision(e, padBody) {
   // Check if the colliding body is the local ball
   if (!Game.ballBody || e.body !== Game.ballBody) return;
-  
+
   // Check if the ball is moving downward
   const vy = Game.ballBody.velocity.y;
   if (vy >= 0) return; // Only bounce if coming down
-  
+
   // Double the downward velocity and send upward
   const bounceVelocity = -vy * 2;
   Game.ballBody.velocity.y = bounceVelocity;
-  
+
   // Add a small boost to ensure it clears the pad
   Game.ballBody.position.y += 0.1;
-  
-  // Play sound effect
-  if (Game.onWaterSplash) Game.onWaterSplash();
 }
 
 function mt(color, type, rotation) {
