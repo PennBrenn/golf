@@ -244,7 +244,7 @@ async function startBuilderTestMode() {
 
 function applySettings(s) {
   // Update UI currentSettings object so saveSettings will save the right values
-  Object.assign(UI.getSettings(), s);
+  Object.assign(getSettings(), s);
 
   // Apply admin commands setting
   setAdminCommandsEnabled(s.adminCommands || false);
