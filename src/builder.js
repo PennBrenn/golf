@@ -15,6 +15,7 @@ const B = {
   mouse: new THREE.Vector2(),
   timeOfDay: 'day',  // 'day' or 'night'
   ambientLight: null, directionalLight: null,
+  unsavedChanges: false,  // track unsaved changes
 };
 
 // ── Piece Defaults ───────────────────────────────────────
@@ -58,7 +59,10 @@ function init() {
     B.orbit.enabled = !e.value;
   });
   B.transform.addEventListener('objectChange', () => {
-    if (B.selected) syncDataFromMesh(B.selected);
+    if (B.selected) {
+      syncDataFromMesh(B.selected);
+      markUnsaved();
+    }
     updatePropsUI();
   });
   B.scene.add(B.transform);
@@ -102,12 +106,25 @@ function init() {
   window.addEventListener('resize', onResize);
   B.renderer.domElement.addEventListener('pointerdown', onPointerDown);
   window.addEventListener('keydown', onKeyDown);
+  window.addEventListener('beforeunload', onBeforeUnload);
 
   setupToolbar();
   setupPalette();
   setupProps();
 
   animate();
+}
+
+function markUnsaved() {
+  B.unsavedChanges = true;
+}
+
+function onBeforeUnload(e) {
+  if (B.unsavedChanges) {
+    e.preventDefault();
+    e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+    return e.returnValue;
+  }
 }
 
 function createMarker(color, label) {
@@ -191,6 +208,7 @@ function addPiece(data) {
   B.pieces.push(piece);
   selectPiece(piece);
   refreshPieceList();
+  markUnsaved();
   return piece;
 }
 
@@ -203,6 +221,7 @@ function removePiece(piece) {
     updatePropsUI();
   }
   refreshPieceList();
+  markUnsaved();
 }
 
 function selectPiece(piece) {
@@ -355,6 +374,7 @@ function duplicateSelected() {
 // ── Toolbar ──────────────────────────────────────────────
 
 function setupToolbar() {
+  document.getElementById('btn-back').addEventListener('click', onBackClick);
   document.getElementById('btn-translate').addEventListener('click', () => setMode('translate'));
   document.getElementById('btn-rotate').addEventListener('click', () => setMode('rotate'));
   document.getElementById('btn-scale').addEventListener('click', () => setMode('scale'));
@@ -378,6 +398,7 @@ function setupToolbar() {
     const btn = document.getElementById('btn-toggle-time');
     btn.textContent = B.timeOfDay === 'day' ? '☀️ Day' : '🌙 Night';
     applyDayNightCycle();
+    markUnsaved();
   });
 
   document.getElementById('btn-export').addEventListener('click', exportJSON);
@@ -386,6 +407,20 @@ function setupToolbar() {
   });
   document.getElementById('file-input').addEventListener('change', importJSON);
   document.getElementById('btn-new').addEventListener('click', newMap);
+
+  // Map name and time limit inputs
+  document.getElementById('map-name-input').addEventListener('input', markUnsaved);
+  document.getElementById('map-time-input').addEventListener('input', markUnsaved);
+}
+
+function onBackClick() {
+  if (B.unsavedChanges) {
+    if (confirm('You have unsaved changes. Are you sure you want to leave?')) {
+      window.location.href = '/';
+    }
+  } else {
+    window.location.href = '/';
+  }
 }
 
 // ── Palette ──────────────────────────────────────────────
@@ -451,6 +486,7 @@ function setupProps() {
         parseFloat(document.getElementById('pz').value) || 0,
       );
       syncDataFromMesh(B.selected);
+      markUnsaved();
     });
   });
 
@@ -464,6 +500,7 @@ function setupProps() {
         parseFloat(document.getElementById('rz').value) || 0,
       );
       syncDataFromMesh(B.selected);
+      markUnsaved();
     });
   });
 
@@ -477,6 +514,7 @@ function setupProps() {
         parseFloat(document.getElementById('sd').value) || 1,
       ];
       rebuildMesh(B.selected);
+      markUnsaved();
     });
   });
 
@@ -489,6 +527,7 @@ function setupProps() {
       B.selected.data.height = parseFloat(document.getElementById('ch').value) || 1;
       B.selected.data.segments = parseInt(document.getElementById('cseg').value) || 8;
       rebuildMesh(B.selected);
+      markUnsaved();
     });
   });
 
@@ -498,6 +537,7 @@ function setupProps() {
     const hex = document.getElementById('pcolor').value;
     B.selected.data.color = hex;
     B.selected.mesh.material.color.set(parseColor(hex));
+    markUnsaved();
   });
 
   // Delete / Duplicate
@@ -514,6 +554,7 @@ function setupProps() {
         parseFloat(document.getElementById('sy').value) || 9,
         parseFloat(document.getElementById('sz').value) || 0,
       );
+      markUnsaved();
     });
   });
   ['hx', 'hy', 'hz'].forEach(id => {
@@ -523,6 +564,7 @@ function setupProps() {
         parseFloat(document.getElementById('hy').value) || 8.5,
         parseFloat(document.getElementById('hz').value) || 0,
       );
+      markUnsaved();
     });
   });
 }
@@ -605,6 +647,9 @@ function exportJSON() {
   a.download = (mapData.name.replace(/\s+/g, '_').toLowerCase() || 'map') + '.json';
   a.click();
   URL.revokeObjectURL(url);
+  
+  // Clear unsaved flag after successful export
+  B.unsavedChanges = false;
 }
 
 function importJSON(e) {
@@ -661,6 +706,9 @@ function loadMapData(data) {
     const cz = (data.start[2] + data.hole[2]) / 2;
     B.orbit.target.set(cx, 8, cz);
   }
+
+  // Clear unsaved flag after successful import
+  B.unsavedChanges = false;
 }
 
 function newMap() {
@@ -676,6 +724,7 @@ function newMap() {
   B.holeMarker.position.set(0, 8.5, -20);
   B.orbit.target.set(0, 8, -10);
   selectPiece(null);
+  B.unsavedChanges = false;
 }
 
 // ── Go ───────────────────────────────────────────────────
