@@ -18,6 +18,7 @@ export const MSG = {
   VOTE_UPDATE: 'voteUpdate',
   VOTE_RESULT: 'voteResult',
   MAP_OPTIONS: 'mapOptions',
+  KICK: 'kick',
 };
 
 const MAX_PLAYERS = 4;
@@ -48,11 +49,13 @@ export const MP = {
   onPlayerListChanged: null,  // callback
   onGameStart: null,          // callback
   onRemoteBallUpdate: null,   // callback
+  onRemoteBallRemoved: null,  // callback(playerId)
   onFinish: null,             // callback(playerId, playerName, swings, time)
   onNextRound: null,          // callback()
   onPlayAgain: null,          // callback
   leaderboard: [],            // [{ id, name, swings, time }]
   onDisconnect: null,         // callback(message)
+  onKick: null,               // callback(reason)
   onChat: null,               // callback(name, text)
   onVoteUpdate: null,         // callback(votes)
   onVoteResult: null,         // callback(winnerIndex)
@@ -259,6 +262,10 @@ function handleHostReceive(clientId, data) {
       if (MP.onVote) MP.onVote(clientId, data.mapIndex);
       break;
 
+    case MSG.KICK:
+      // Guests shouldn't send KICK messages, but if they do, ignore
+      break;
+
     default:
       break;
   }
@@ -446,6 +453,13 @@ function handleGuestReceive(data) {
       if (MP.onMapOptions) MP.onMapOptions(data.mapIndices);
       break;
 
+    case MSG.KICK:
+      if (data.playerId === MP.clientId) {
+        if (MP.onKick) MP.onKick(data.reason || 'Kicked from game');
+        cleanupMultiplayer();
+      }
+      break;
+
     default:
       break;
   }
@@ -530,6 +544,16 @@ export function hostBroadcastVoteResult(winnerIndex) {
   if (!MP.isHost) return;
   broadcast({ type: MSG.VOTE_RESULT, winnerIndex });
   if (MP.onVoteResult) MP.onVoteResult(winnerIndex);
+}
+
+export function hostKickPlayer(playerId, reason = 'Kicked by host') {
+  if (!MP.isHost) return;
+  broadcast({ type: MSG.KICK, playerId, reason });
+  // Remove from local player list
+  MP.players = MP.players.filter(p => p.id !== playerId);
+  if (MP.onPlayerListChanged) MP.onPlayerListChanged(buildPlayerList());
+  // Trigger remote ball removal if game is running
+  if (MP.onRemoteBallRemoved) MP.onRemoteBallRemoved(playerId);
 }
 
 export function hostBroadcastMapOptions(mapIndices) {

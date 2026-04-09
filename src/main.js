@@ -9,7 +9,7 @@ import {
 } from './game.js';
 import {
   MP, createGame, joinGame, hostStartGame, hostPlayAgain, hostNextRound,
-  sendFinish, sendChat, sendVote, hostBroadcastVoteUpdate, hostBroadcastVoteResult, hostBroadcastMapOptions,
+  sendFinish, sendChat, sendVote, hostBroadcastVoteUpdate, hostBroadcastVoteResult, hostBroadcastMapOptions, hostKickPlayer,
   updateMultiplayerSync, cleanupMultiplayer,
   getLocalPlayer, getPlayerById, PLAYER_COLORS,
 } from './network.js';
@@ -339,6 +339,10 @@ function wireNetworkCallbacks() {
     updateRemoteBallState(playerId, position, velocity, timestamp);
   };
 
+  MP.onRemoteBallRemoved = (playerId) => {
+    removeRemoteBall(playerId);
+  };
+
   MP.onFinish = (playerId, playerName, swings, time) => {
     handleRemoteFinish(playerId, playerName, swings, time);
   };
@@ -358,6 +362,11 @@ function wireNetworkCallbacks() {
     resetGameState();
     showToast(message, 4000);
     setTimeout(async () => { await loadMenuBackground(); showMainMenu(); }, 1500);
+  };
+
+  MP.onKick = (reason) => {
+    showToast(reason || 'You were kicked from the game', 5000);
+    handleReturnToMenuFromGame();
   };
 
   MP.onChat = (playerId, name, text) => {
@@ -696,9 +705,8 @@ function handleReturnToMenuFromGame() {
 
 function handleKickPlayer(playerId) {
   if (MP.isHost) {
-    // Send kick message via peerjs (would need to implement in network.js)
-    // For now, just show a toast
-    showToast('Kick feature not yet implemented', 3000);
+    hostKickPlayer(playerId);
+    showToast('Player kicked', 2000);
   }
 }
 
