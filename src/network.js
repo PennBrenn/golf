@@ -17,6 +17,7 @@ export const MSG = {
   VOTE: 'vote',
   VOTE_UPDATE: 'voteUpdate',
   VOTE_RESULT: 'voteResult',
+  MAP_OPTIONS: 'mapOptions',
 };
 
 const MAX_PLAYERS = 4;
@@ -56,6 +57,7 @@ export const MP = {
   onVoteUpdate: null,         // callback(votes)
   onVoteResult: null,         // callback(winnerIndex)
   onVote: null,               // callback(peerId, mapIndex) - host only
+  onMapOptions: null,         // callback(mapIndices) - guests receive map options from host
   _resolveJoin: null,
   _rejectJoin: null,
   _welcomeTimeout: null,
@@ -440,6 +442,10 @@ function handleGuestReceive(data) {
       if (MP.onVoteResult) MP.onVoteResult(data.winnerIndex);
       break;
 
+    case MSG.MAP_OPTIONS:
+      if (MP.onMapOptions) MP.onMapOptions(data.mapIndices);
+      break;
+
     default:
       break;
   }
@@ -524,6 +530,11 @@ export function hostBroadcastVoteResult(winnerIndex) {
   if (!MP.isHost) return;
   broadcast({ type: MSG.VOTE_RESULT, winnerIndex });
   if (MP.onVoteResult) MP.onVoteResult(winnerIndex);
+}
+
+export function hostBroadcastMapOptions(mapIndices) {
+  if (!MP.isHost) return;
+  broadcast({ type: MSG.MAP_OPTIONS, mapIndices });
 }
 
 export function sendChat(text) {

@@ -9,7 +9,7 @@ import {
 } from './game.js';
 import {
   MP, createGame, joinGame, hostStartGame, hostPlayAgain, hostNextRound,
-  sendFinish, sendChat, sendVote, hostBroadcastVoteUpdate, hostBroadcastVoteResult,
+  sendFinish, sendChat, sendVote, hostBroadcastVoteUpdate, hostBroadcastVoteResult, hostBroadcastMapOptions,
   updateMultiplayerSync, cleanupMultiplayer,
   getLocalPlayer, getPlayerById, PLAYER_COLORS,
 } from './network.js';
@@ -346,19 +346,18 @@ function wireNetworkCallbacks() {
   MP.onVoteResult = (winnerIndex) => {
     handleVoteResult(winnerIndex);
   };
+
+  MP.onMapOptions = (mapIndices) => {
+    // Guest: receive map indices from host and load those maps
+    loadMapOptionsFromHost(mapIndices);
+  };
 }
 
 // ── Map Voting ───────────────────────────────────────────
 
-async function startVotingPhase() {
-  // Load 3 random maps for voting (optimized - no longer loads all maps)
+async function loadMapsByIndices(indices) {
   showLoading('Loading maps...', 0);
   await fetchMapManifest();
-  const indices = [];
-  while (indices.length < Math.min(3, mapManifest.length)) {
-    const idx = Math.floor(Math.random() * mapManifest.length);
-    if (!indices.includes(idx)) indices.push(idx);
-  }
   allMaps = [];
   for (let i = 0; i < indices.length; i++) {
     const mapData = await fetchMap(mapManifest[indices[i]]);
@@ -368,6 +367,56 @@ async function startVotingPhase() {
   }
   allThumbnails = allMaps.map(m => renderMapThumbnail(m));
   hideLoading();
+}
+
+async function startVotingPhase() {
+  if (MP.isHost) {
+    // Host: pick random indices and broadcast to all players
+    showLoading('Loading maps...', 0);
+    await fetchMapManifest();
+    const indices = [];
+    while (indices.length < Math.min(3, mapManifest.length)) {
+      const idx = Math.floor(Math.random() * mapManifest.length);
+      if (!indices.includes(idx)) indices.push(idx);
+    }
+    hostBroadcastMapOptions(indices);
+    await loadMapsByIndices(indices);
+
+    // Reset vote state
+    votes = {};
+    votersThisRound = new Set();
+    if (MP._playerVotes) MP._playerVotes = {};
+
+    showMapVote(allMaps, allThumbnails);
+
+    // Show debug button for host
+    const debugBtn = document.getElementById('btn-debug-map');
+    if (debugBtn) {
+      debugBtn.style.display = MP.isHost ? 'inline-block' : 'none';
+      debugBtn.onclick = async () => {
+        const debugIdx = mapManifest.indexOf('debug_showcase.json');
+        if (debugIdx === -1) {
+          showToast('debug_showcase.json not found');
+          return;
+        }
+        if (voteTimer) { clearTimeout(voteTimer); voteTimer = null; }
+        hostBroadcastVoteResult(debugIdx);
+      };
+    }
+
+    // Host starts 10-second timer then resolves
+    if (voteTimer) clearTimeout(voteTimer);
+    voteTimer = setTimeout(() => {
+      resolveVotes();
+    }, 10000);
+  } else {
+    // Guest: wait for map options from host
+    showLoading('Waiting for host...');
+  }
+}
+
+async function loadMapOptionsFromHost(indices) {
+  await loadMapsByIndices(indices);
 
   // Reset vote state
   votes = {};
@@ -375,32 +424,6 @@ async function startVotingPhase() {
   if (MP._playerVotes) MP._playerVotes = {};
 
   showMapVote(allMaps, allThumbnails);
-
-  // Show debug button for host
-  const debugBtn = document.getElementById('btn-debug-map');
-  if (debugBtn) {
-    debugBtn.style.display = MP.isHost ? 'inline-block' : 'none';
-    debugBtn.onclick = async () => {
-      // Find debug_showcase.json index
-      const debugIdx = mapManifest.indexOf('debug_showcase.json');
-      if (debugIdx === -1) {
-        showToast('debug_showcase.json not found');
-        return;
-      }
-      // Cancel timer
-      if (voteTimer) { clearTimeout(voteTimer); voteTimer = null; }
-      // Broadcast debug map as winner
-      hostBroadcastVoteResult(debugIdx);
-    };
-  }
-
-  // Host starts 10-second timer then resolves
-  if (MP.isHost) {
-    if (voteTimer) clearTimeout(voteTimer);
-    voteTimer = setTimeout(() => {
-      resolveVotes();
-    }, 10000);
-  }
 }
 
 function resolveVotes() {
