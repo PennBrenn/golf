@@ -1,7 +1,7 @@
 import Peer from 'peerjs';
 import { generateRoomCode } from './words.js';
 
-// PeerJS configuration with STUN servers for cross-device connectivity
+// PeerJS configuration with STUN/TURN servers for cross-device connectivity
 const PEER_CONFIG = {
   debug: 1,
   config: {
@@ -13,6 +13,8 @@ const PEER_CONFIG = {
       { urls: 'stun:stun4.l.google.com:19302' },
       { urls: 'stun:global.stun.twilio.com:3478' },
       { urls: 'stun:stun.mit.edu:3478' },
+      // Public TURN server (no auth required)
+      { urls: 'turn:numb.viagenie.ca', username: 'webrtc@live.com', credential: 'muazkh' },
     ]
   }
 };
@@ -108,6 +110,7 @@ export function createGame(name) {
 
     MP.peer.on('open', (id) => {
       MP.localId = id;
+      console.log('Host peer opened with ID:', id, 'Room code:', MP.roomCode);
       // Add host as first player
       MP.players.push({
         id: MP.localId,
@@ -252,11 +255,15 @@ export function joinGame(name, code) {
 
     MP.peer.on('open', (id) => {
       MP.localId = id;
+      console.log('Guest peer opened with ID:', id);
+      console.log('Attempting to connect to host: golf-' + MP.roomCode);
 
       const conn = MP.peer.connect('golf-' + MP.roomCode, {
         metadata: { name: MP.localName },
         reliable: true,
       });
+
+      console.log('Connection object created');
 
       conn.on('open', () => {
         MP.connections['host'] = conn;
@@ -275,13 +282,14 @@ export function joinGame(name, code) {
         // Connection errors can happen during ICE negotiation
       });
 
-      // Timeout if no connection after 15s (increased for cross-device NAT traversal)
+      // Timeout if no connection after 30s (increased for cross-device NAT traversal)
       setTimeout(() => {
         if (!MP.connections['host']) {
+          console.error('Connection timeout for room:', MP.roomCode);
           reject(new Error('Could not connect to room ' + MP.roomCode));
           cleanupMultiplayer();
         }
-      }, 15000);
+      }, 30000);
     });
 
     MP.peer.on('error', (err) => {
