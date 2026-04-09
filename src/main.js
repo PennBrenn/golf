@@ -286,6 +286,8 @@ function wireNetworkCallbacks() {
   };
 
   MP.onRemoteBallUpdate = (playerId, position, velocity, timestamp) => {
+    // Ignore updates from self
+    if (playerId === MP.localId) return;
     const player = getPlayerById(playerId);
     if (player && !Game.remoteBalls[playerId]) {
       addRemoteBall(playerId, PLAYER_COLORS[player.colorIndex] || 0x4488ff, player.name);
@@ -315,6 +317,8 @@ function wireNetworkCallbacks() {
   };
 
   MP.onChat = (playerId, name, text) => {
+    // Ignore own messages (they're shown locally already)
+    if (playerId === MP.localId) return;
     const player = getPlayerById(playerId);
     const colorHex = player ? playerColorHex(player.colorIndex) : '#ffffff';
     showChatBubble(playerId, text, colorHex);
