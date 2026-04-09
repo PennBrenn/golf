@@ -97,7 +97,7 @@ export function initScene(container) {
   Game.controls.dampingFactor = 0.1;
   Game.controls.minDistance = 2;
   Game.controls.maxDistance = 50;
-  Game.controls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+  Game.controls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
   Game.controls.touches = { ONE: THREE.MOUSE.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE };
 
   // Improved Lighting
@@ -1710,7 +1710,7 @@ export function showChatBubble(playerId, text, colorHex) {
 
 export function enterSpectator() {
   Game.spectatorMode = true;
-  Game.controls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+  Game.controls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
   if (Game.ball) Game.ball.visible = false;
 }
 
