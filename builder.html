@@ -11,90 +11,160 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      font-family: 'Segoe UI', 'Roboto', sans-serif;
       overflow: hidden;
-      background: #1a3a4a;
-      color: #004D5C;
+      background: #2d2d2d;
+      color: #d0d0d0;
       display: flex;
       height: 100vh;
     }
 
-    /* ── Toolbar ─────────────────────────────── */
+    /* ── Header Bar ─────────────────────────── */
 
     #toolbar {
       position: fixed;
       top: 0; left: 0; right: 0;
-      height: 48px;
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(16px) saturate(1.5);
-      -webkit-backdrop-filter: blur(16px) saturate(1.5);
-      border-bottom: 1.5px solid rgba(255,255,255,0.3);
+      height: 44px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #3a3a3a;
       display: flex;
       align-items: center;
-      padding: 0 16px;
-      gap: 8px;
+      padding: 0 12px;
+      gap: 12px;
       z-index: 100;
-      box-shadow: 0 2px 12px rgba(0,80,100,0.15);
     }
 
     #toolbar .title {
       font-weight: 700;
-      font-size: 1.1rem;
-      color: white;
-      margin-right: 16px;
-      text-shadow: 0 1px 4px rgba(0,194,204,0.4);
+      font-size: 0.95rem;
+      color: #ffffff;
+      margin-right: 12px;
     }
 
     .tb-btn {
-      padding: 6px 14px;
-      background: rgba(255,255,255,0.15);
-      border: 1.5px solid rgba(255,255,255,0.3);
-      border-radius: 8px;
-      color: white;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 600;
-      font-size: 0.8rem;
+      padding: 4px 12px;
+      background: #3a3a3a;
+      border: 1px solid #4a4a4a;
+      color: #d0d0d0;
+      font-family: 'Segoe UI', sans-serif;
+      font-weight: 500;
+      font-size: 0.75rem;
       cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
+      transition: background 0.1s;
     }
-    .tb-btn:hover { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
-    .tb-btn:active { transform: translateY(1px); }
+    .tb-btn:hover { background: #4a4a4a; }
+    .tb-btn:active { background: #2a2a2a; }
     .tb-btn.active {
-      background: rgba(0,194,204,0.4);
-      border-color: rgba(0,194,204,0.7);
+      background: #007acc;
+      border-color: #007acc;
+      color: white;
     }
 
     .tb-sep {
       width: 1px;
-      height: 24px;
-      background: rgba(255,255,255,0.2);
-      margin: 0 6px;
+      height: 20px;
+      background: #3a3a3a;
+      margin: 0 4px;
     }
 
     .tb-spacer { flex: 1; }
+
+    #map-name-input {
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      color: #d0d0d0;
+      font-family: 'Segoe UI', sans-serif;
+      font-weight: 500;
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      outline: none;
+      width: 140px;
+    }
+    #map-name-input:focus { border-color: #007acc; }
+
+    /* ── Tool Bar (below header) ───────────────── */
+
+    #tool-bar {
+      position: fixed;
+      top: 44px; left: 0; right: 0;
+      height: 48px;
+      background: #222222;
+      border-bottom: 1px solid #3a3a3a;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+      z-index: 99;
+    }
+
+    .tool-circle {
+      width: 36px;
+      height: 36px;
+      background: #3a3a3a;
+      border: 1px solid #4a4a4a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.1s;
+      font-size: 1rem;
+    }
+    .tool-circle:hover { background: #4a4a4a; }
+    .tool-circle.active {
+      background: #007acc;
+      border-color: #007acc;
+    }
+
+    .tool-label {
+      font-size: 0.7rem;
+      color: #888;
+      margin-left: 4px;
+    }
+
+    .tool-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tool-sep {
+      width: 1px;
+      height: 28px;
+      background: #3a3a3a;
+      margin: 0 8px;
+    }
+
+    #snap-grid-size {
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      color: #d0d0d0;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      width: 50px;
+      outline: none;
+    }
 
     /* ── Left Panel ──────────────────────────── */
 
     #left-panel {
       position: fixed;
-      top: 48px; left: 0; bottom: 0;
+      top: 92px; left: 0; bottom: 0;
       width: 200px;
-      background: rgba(255,255,255,0.12);
-      backdrop-filter: blur(14px) saturate(1.4);
-      -webkit-backdrop-filter: blur(14px) saturate(1.4);
-      border-right: 1.5px solid rgba(255,255,255,0.25);
+      background: #222222;
+      border-right: 1px solid #3a3a3a;
       overflow-y: auto;
       z-index: 50;
-      padding: 12px;
+      padding: 8px;
     }
 
     .panel-heading {
-      font-size: 0.7rem;
-      font-weight: 700;
+      font-size: 0.65rem;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.6);
-      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+      color: #666;
+      margin-bottom: 6px;
       margin-top: 12px;
     }
     .panel-heading:first-child { margin-top: 0; }
@@ -102,46 +172,43 @@
     .add-btn {
       display: block;
       width: 100%;
-      padding: 8px 12px;
-      margin-bottom: 6px;
-      background: rgba(255,255,255,0.12);
-      border: 1.5px solid rgba(255,255,255,0.25);
-      border-radius: 10px;
-      color: white;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 600;
-      font-size: 0.85rem;
+      padding: 6px 10px;
+      margin-bottom: 4px;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      color: #d0d0d0;
+      font-family: 'Segoe UI', sans-serif;
+      font-weight: 500;
+      font-size: 0.75rem;
       cursor: pointer;
       text-align: left;
-      transition: background 0.15s;
+      transition: background 0.1s;
     }
-    .add-btn:hover { background: rgba(0,194,204,0.25); }
+    .add-btn:hover { background: #3a3a3a; }
 
     .piece-item {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 10px;
-      margin-bottom: 4px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 8px;
-      color: rgba(255,255,255,0.85);
-      font-size: 0.8rem;
+      padding: 4px 8px;
+      margin-bottom: 2px;
+      background: #252525;
+      border: 1px solid #333;
+      color: #b0b0b0;
+      font-size: 0.75rem;
       cursor: pointer;
       transition: background 0.1s;
     }
-    .piece-item:hover { background: rgba(255,255,255,0.15); }
-    .piece-item.selected { background: rgba(0,194,204,0.3); border-color: rgba(0,194,204,0.6); }
+    .piece-item:hover { background: #2a2a2a; }
+    .piece-item.selected { background: #004466; border-color: #007acc; }
     .piece-item .swatch {
-      width: 12px; height: 12px;
-      border-radius: 3px;
+      width: 10px; height: 10px;
       flex-shrink: 0;
     }
     .piece-item .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .piece-item .del-btn {
       background: none; border: none;
-      color: rgba(255,100,100,0.7);
+      color: #666;
       font-size: 1rem;
       cursor: pointer;
       padding: 0 2px;
@@ -153,76 +220,80 @@
 
     #right-panel {
       position: fixed;
-      top: 48px; right: 0; bottom: 0;
+      top: 92px; right: 0; bottom: 0;
       width: 240px;
-      background: rgba(255,255,255,0.12);
-      backdrop-filter: blur(14px) saturate(1.4);
-      -webkit-backdrop-filter: blur(14px) saturate(1.4);
-      border-left: 1.5px solid rgba(255,255,255,0.25);
+      background: #222222;
+      border-left: 1px solid #3a3a3a;
       overflow-y: auto;
       z-index: 50;
-      padding: 12px;
+      padding: 8px;
     }
 
     .prop-group {
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .prop-label {
-      font-size: 0.7rem;
-      font-weight: 700;
+      font-size: 0.65rem;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.05em;
+      color: #666;
       margin-bottom: 4px;
     }
 
     .prop-row {
       display: flex;
-      gap: 6px;
+      gap: 4px;
       margin-bottom: 4px;
     }
 
     .prop-row label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: rgba(255,255,255,0.6);
-      width: 16px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #888;
+      width: 14px;
       text-align: right;
-      line-height: 28px;
+      line-height: 26px;
     }
 
     .prop-row input[type="number"] {
       flex: 1;
-      background: rgba(255,255,255,0.15);
-      border: 1.5px solid rgba(255,255,255,0.25);
-      border-radius: 6px;
-      color: white;
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.8rem;
-      padding: 4px 8px;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      color: #d0d0d0;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 0.75rem;
+      padding: 4px 6px;
       outline: none;
       width: 0;
-      transition: border-color 0.15s;
     }
-    .prop-row input[type="number"]:focus {
-      border-color: #00C2CC;
-      box-shadow: 0 0 0 2px rgba(0,194,204,0.2);
-    }
+    .prop-row input[type="number"]:focus { border-color: #007acc; }
 
     .prop-row input[type="color"] {
-      width: 36px; height: 28px;
-      border: 1.5px solid rgba(255,255,255,0.3);
-      border-radius: 6px;
-      background: none;
+      width: 32px; height: 26px;
+      border: 1px solid #3a3a3a;
+      background: #2a2a2a;
       cursor: pointer;
       padding: 0;
     }
 
+    .prop-row select {
+      flex: 1;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      color: #d0d0d0;
+      padding: 4px 6px;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 0.75rem;
+      outline: none;
+    }
+    .prop-row select:focus { border-color: #007acc; }
+
     #no-selection {
-      color: rgba(255,255,255,0.4);
+      color: #666;
       font-style: italic;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       text-align: center;
       margin-top: 40px;
     }
@@ -231,34 +302,18 @@
 
     #viewport {
       position: fixed;
-      top: 48px; left: 200px; right: 240px; bottom: 0;
-      background: #1a3a4a;
+      top: 92px; left: 200px; right: 240px; bottom: 0;
+      background: #1a1a1a;
     }
 
     #viewport canvas { display: block; }
 
-    /* ── Map Name Input ──────────────────────── */
-
-    #map-name-input {
-      background: rgba(255,255,255,0.15);
-      border: 1.5px solid rgba(255,255,255,0.3);
-      border-radius: 6px;
-      color: white;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 600;
-      font-size: 0.85rem;
-      padding: 4px 10px;
-      outline: none;
-      width: 160px;
-      transition: border-color 0.15s;
-    }
-    #map-name-input:focus { border-color: #00C2CC; }
-
     /* ── Scrollbar ───────────────────────────── */
 
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #1a1a1a; }
+    ::-webkit-scrollbar-thumb { background: #3a3a3a; }
+    ::-webkit-scrollbar-thumb:hover { background: #4a4a4a; }
   </style>
 </head>
 <body>
@@ -266,90 +321,102 @@
   <div id="toolbar">
     <button class="tb-btn" id="btn-back" title="Back to main menu">← Back</button>
     <div class="tb-sep"></div>
-    <span class="title">⛳ Map Builder</span>
+    <span class="title">Map Builder</span>
     <input type="text" id="map-name-input" value="Untitled" placeholder="Map name" title="Map name" />
-    <input type="number" id="map-time-input" value="120" placeholder="Time (s)" title="Time limit (seconds)" style="width: 80px; margin-left: 8px; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 6px; color: white; padding: 4px 8px; font-family: 'Nunito', sans-serif; font-size: 0.85rem;" />
-    <div class="tb-sep"></div>
-    <button class="tb-btn active" id="btn-translate" title="Move (G)">Move</button>
-    <button class="tb-btn" id="btn-rotate" title="Rotate (R)">Rotate</button>
-    <button class="tb-btn" id="btn-scale" title="Scale (S)">Scale</button>
-    <button class="tb-btn" id="btn-toggle-snap" title="Toggle snap">🧲 Snap</button>
-    <input type="number" id="snap-grid-size" value="0.5" step="0.25" min="0.1" style="width: 50px; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 6px; color: white; padding: 4px 6px; font-family: 'Nunito', sans-serif; font-size: 0.8rem;" title="Snap grid size" />
-    <div class="tb-sep"></div>
-    <button class="tb-btn" id="btn-set-start" title="Place start position">Set Start</button>
-    <button class="tb-btn" id="btn-set-hole" title="Place hole position">Set Hole</button>
-    <div class="tb-sep"></div>
-    <button class="tb-btn" id="btn-toggle-rain" title="Toggle rain">🌧 Rain</button>
-    <button class="tb-btn" id="btn-toggle-time" title="Toggle day/night">☀️ Day</button>
+    <input type="number" id="map-time-input" value="120" placeholder="Time (s)" title="Time limit (seconds)" style="width: 70px; background: #2a2a2a; border: 1px solid #3a3a3a; color: #d0d0d0; padding: 4px 8px; font-family: 'Segoe UI', sans-serif; font-size: 0.75rem;" />
     <div class="tb-spacer"></div>
-    <button class="tb-btn" id="btn-test" style="background:rgba(0,194,204,0.35);border-color:rgba(0,194,204,0.6);">▶ Test Map</button>
+    <button class="tb-btn" id="btn-test" style="background: #007acc; border-color: #007acc;">▶ Test</button>
     <button class="tb-btn" id="btn-import">Import</button>
-    <button class="tb-btn" id="btn-export" style="background:rgba(168,212,0,0.3);border-color:rgba(168,212,0,0.5);">Export JSON</button>
+    <button class="tb-btn" id="btn-export" style="background: #3a5a3a; border-color: #4a4a4a;">Export</button>
     <button class="tb-btn" id="btn-new">New</button>
   </div>
 
+  <!-- Tool Bar -->
+  <div id="tool-bar">
+    <div class="tool-group">
+      <div class="tool-circle active" id="btn-translate" title="Move (G)">↔</div>
+      <div class="tool-circle" id="btn-rotate" title="Rotate (R)">↻</div>
+      <div class="tool-circle" id="btn-scale" title="Scale (S)">⤡</div>
+    </div>
+    <div class="tool-sep"></div>
+    <div class="tool-group">
+      <div class="tool-circle" id="btn-toggle-snap" title="Toggle snap">⊙</div>
+      <input type="number" id="snap-grid-size" value="0.5" step="0.25" min="0.1" title="Snap grid size" />
+    </div>
+    <div class="tool-sep"></div>
+    <div class="tool-group">
+      <div class="tool-circle" id="btn-set-start" title="Place start position">S</div>
+      <div class="tool-circle" id="btn-set-hole" title="Place hole position">H</div>
+    </div>
+    <div class="tool-sep"></div>
+    <div class="tool-group">
+      <div class="tool-circle" id="btn-toggle-rain" title="Toggle rain">Rain</div>
+      <div class="tool-circle" id="btn-toggle-time" title="Toggle day/night">Day</div>
+    </div>
+  </div>
+
   <!-- Test overlay (iframe-based so builder state is fully preserved) -->
-  <div id="test-overlay" style="display:none;position:fixed;inset:0;z-index:10000;background:#000;">
+  <div id="test-overlay" style="display:none;position:fixed;inset:0;z-index:10000;background:#1a1a1a;">
     <iframe id="test-iframe" style="width:100%;height:100%;border:none;"></iframe>
-    <button id="btn-return-editor" style="position:fixed;top:16px;right:16px;z-index:10001;padding:10px 22px;font:700 15px/1 'Nunito',sans-serif;background:rgba(255,80,80,0.85);color:#fff;border:2px solid rgba(255,120,120,0.8);border-radius:10px;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 2px 12px rgba(0,0,0,0.4);">← Return to Editor</button>
+    <button id="btn-return-editor" style="position:fixed;top:16px;right:16px;z-index:10001;padding:8px 20px;font:700 14px/1 'Segoe UI',sans-serif;background:#2a2a2a;color:#d0d0d0;border:1px solid #4a4a4a;cursor:pointer;">← Return to Editor</button>
   </div>
 
   <!-- Left Panel: Palette + Piece List -->
   <div id="left-panel">
     <div class="panel-heading">Basic</div>
-    <button class="add-btn" data-type="box">📦 Box</button>
-    <button class="add-btn" data-type="cylinder">🛢 Cylinder</button>
-    <button class="add-btn" data-type="wall">🧱 Wall</button>
-    <button class="add-btn" data-type="ramp">📐 Ramp</button>
-    <button class="add-btn" data-type="sand">🏖 Sand</button>
-    <button class="add-btn" data-type="water">💧 Water</button>
-    <button class="add-btn" data-type="ice">🧊 Ice</button>
+    <button class="add-btn" data-type="box">Box</button>
+    <button class="add-btn" data-type="cylinder">Cylinder</button>
+    <button class="add-btn" data-type="wall">Wall</button>
+    <button class="add-btn" data-type="ramp">Ramp</button>
+    <button class="add-btn" data-type="sand">Sand</button>
+    <button class="add-btn" data-type="water">Water</button>
+    <button class="add-btn" data-type="ice">Ice</button>
 
     <div class="panel-heading">Launchers &amp; Pads</div>
-    <button class="add-btn" data-type="bouncepad">🔶 Bounce Pad</button>
-    <button class="add-btn" data-type="trampoline">🤸 Trampoline</button>
-    <button class="add-btn" data-type="launcher">🚀 Launcher</button>
-    <button class="add-btn" data-type="cannon">💣 Cannon</button>
-    <button class="add-btn" data-type="speedboost">⚡ Speed Boost</button>
+    <button class="add-btn" data-type="bouncepad">Bounce Pad</button>
+    <button class="add-btn" data-type="trampoline">Trampoline</button>
+    <button class="add-btn" data-type="launcher">Launcher</button>
+    <button class="add-btn" data-type="cannon">Cannon</button>
+    <button class="add-btn" data-type="speedboost">Speed Boost</button>
 
     <div class="panel-heading">Forces &amp; Fields</div>
-    <button class="add-btn" data-type="gravinv">🌀 Gravity Inverter</button>
-    <button class="add-btn" data-type="blower">💨 Blower</button>
-    <button class="add-btn" data-type="magnet">🧲 Magnet</button>
-    <button class="add-btn" data-type="conveyor">🔄 Conveyor</button>
+    <button class="add-btn" data-type="gravinv">Gravity Inverter</button>
+    <button class="add-btn" data-type="blower">Blower</button>
+    <button class="add-btn" data-type="magnet">Magnet</button>
+    <button class="add-btn" data-type="conveyor">Conveyor</button>
 
     <div class="panel-heading">Obstacles</div>
-    <button class="add-btn" data-type="bumper">🔴 Bumper</button>
-    <button class="add-btn" data-type="spinner">🌪 Spinner</button>
-    <button class="add-btn" data-type="windmill">🎡 Windmill</button>
-    <button class="add-btn" data-type="door">🚪 Door</button>
+    <button class="add-btn" data-type="bumper">Bumper</button>
+    <button class="add-btn" data-type="spinner">Spinner</button>
+    <button class="add-btn" data-type="windmill">Windmill</button>
+    <button class="add-btn" data-type="door">Door</button>
 
     <div class="panel-heading">Warp &amp; Utility</div>
-    <button class="add-btn" data-type="teleporter">🌀 Teleporter</button>
-    <button class="add-btn" data-type="checkpoint">🏁 Checkpoint</button>
-    <button class="add-btn" data-type="killbrick">💀 Kill Brick</button>
+    <button class="add-btn" data-type="teleporter">Teleporter</button>
+    <button class="add-btn" data-type="checkpoint">Checkpoint</button>
+    <button class="add-btn" data-type="killbrick">Kill Brick</button>
 
     <div class="panel-heading">Shapes &amp; Decor</div>
-    <button class="add-btn" data-type="glass">🪟 Glass</button>
-    <button class="add-btn" data-type="sphere">🔮 Sphere</button>
-    <button class="add-btn" data-type="dome">🫧 Dome</button>
-    <button class="add-btn" data-type="curvedhill">⛰ Curved Hill</button>
-    <button class="add-btn" data-type="cone">🔺 Cone</button>
-    <button class="add-btn" data-type="pyramid">🔻 Pyramid</button>
-    <button class="add-btn" data-type="torus">⭕ Torus</button>
-    <button class="add-btn" data-type="ring">💍 Ring</button>
-    <button class="add-btn" data-type="arch">🏛 Arch</button>
-    <button class="add-btn" data-type="column">🏛 Column</button>
-    <button class="add-btn" data-type="halfpipe">🛹 Half-Pipe</button>
-    <button class="add-btn" data-type="bridge">🌉 Bridge</button>
-    <button class="add-btn" data-type="rail">🛤 Rail</button>
-    <button class="add-btn" data-type="step">🪜 Steps</button>
-    <button class="add-btn" data-type="tube">🧪 Tube</button>
+    <button class="add-btn" data-type="glass">Glass</button>
+    <button class="add-btn" data-type="sphere">Sphere</button>
+    <button class="add-btn" data-type="dome">Dome</button>
+    <button class="add-btn" data-type="curvedhill">Curved Hill</button>
+    <button class="add-btn" data-type="cone">Cone</button>
+    <button class="add-btn" data-type="pyramid">Pyramid</button>
+    <button class="add-btn" data-type="torus">Torus</button>
+    <button class="add-btn" data-type="ring">Ring</button>
+    <button class="add-btn" data-type="arch">Arch</button>
+    <button class="add-btn" data-type="column">Column</button>
+    <button class="add-btn" data-type="halfpipe">Half-Pipe</button>
+    <button class="add-btn" data-type="bridge">Bridge</button>
+    <button class="add-btn" data-type="rail">Rail</button>
+    <button class="add-btn" data-type="step">Steps</button>
+    <button class="add-btn" data-type="tube">Tube</button>
 
     <div class="panel-heading">Lights</div>
-    <button class="add-btn" data-type="pointlight">💡 Point Light</button>
-    <button class="add-btn" data-type="spotlight">🔦 Spot Light</button>
-    <button class="add-btn" data-type="laser">🔴 Laser</button>
+    <button class="add-btn" data-type="pointlight">Point Light</button>
+    <button class="add-btn" data-type="spotlight">Spot Light</button>
+    <button class="add-btn" data-type="laser">Laser</button>
 
     <div class="panel-heading">Pieces</div>
     <div id="piece-list"></div>
