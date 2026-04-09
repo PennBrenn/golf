@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { MP, getPlayerById } from './network.js';
+import { BALL_COLORS } from './game.js';
 import * as Commands from './commands.js';
 
 // ── Settings Defaults ────────────────────────────────────
