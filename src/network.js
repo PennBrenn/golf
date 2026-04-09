@@ -1,7 +1,7 @@
 import Peer from 'peerjs';
 import { generateRoomCode } from './words.js';
 
-// PeerJS configuration with STUN servers for cross-device connectivity
+// PeerJS configuration with STUN/TURN servers for cross-device connectivity
 const PEER_CONFIG = {
   debug: 1,
   config: {
@@ -9,6 +9,17 @@ const PEER_CONFIG = {
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
       { urls: 'stun:global.stun.twilio.com:3478' },
+      // Free TURN server from openrelay.metered.ca
+      {
+        urls: 'turn:openrelay.metered.ca:80',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      }
     ]
   }
 };
