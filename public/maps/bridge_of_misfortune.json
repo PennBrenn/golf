@@ -1,0 +1,75 @@
+{
+  "name": "bridge of misfortunee",
+  "timeLimit": 120,
+  "timeOfDay": "day",
+  "rain": false,
+  "start": [
+    0,
+    9,
+    0
+  ],
+  "hole": [
+    0,
+    8.5,
+    -20
+  ],
+  "pieces": [
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0.213,
+        8.25,
+        0.741
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0.269,
+        8.25,
+        -19.93
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        2,
+        0.3,
+        20
+      ],
+      "position": [
+        0.5,
+        8.234,
+        -9
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    }
+  ]
+}

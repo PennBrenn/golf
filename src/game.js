@@ -580,18 +580,19 @@ function mt(color, type, rotation) {
   });
 }
 
-function addPiece(g, c, p, r) {
+function addPiece(g, c, p, r, type = 'box') {
   const geo = new THREE.BoxGeometry(g[0], g[1], g[2]);
   const mat = mt(c, 'box', r);
   const mesh = new THREE.Mesh(geo, mat);
   mesh.position.set(p[0], p[1], p[2]);
   if (r) mesh.rotation.set(r[0], r[1], r[2]);
   mesh.castShadow = true; mesh.receiveShadow = true;
+  mesh.userData.pieceType = type; // Store type for later reference
   Game.scene.add(mesh); Game.courseMeshes.push(mesh);
 
-  // Check if this is sand (beige color #e6d5a8)
+  // Check if this is sand (type 'sand' or beige color #e6d5a8)
   const hex = c.toString(16).toLowerCase();
-  const isSand = hex === 'e6d5a8';
+  const isSand = hex === 'e6d5a8' || type === 'sand';
   const bodyMat = isSand ? SAND_MAT : GROUND_MAT;
 
   const body = new CANNON.Body({ mass: 0, material: bodyMat });
@@ -629,8 +630,8 @@ function buildCourseFromJSON(data) {
   Game.movingPieces = [];
   for (const p of data.pieces) {
     let mesh, bodyIdx;
-    if (p.type === 'box') {
-      mesh = addPiece(p.size, parseColor(p.color), p.position, p.rotation || [0, 0, 0]);
+    if (p.type === 'box' || p.type === 'sand' || p.type === 'bouncepad' || p.type === 'gravinv' || p.type === 'ramp' || p.type === 'wall') {
+      mesh = addPiece(p.size, parseColor(p.color), p.position, p.rotation || [0, 0, 0], p.type);
       bodyIdx = Game.courseBodies.length - 1;
     } else if (p.type === 'cylinder') {
       addCyl(p.radiusTop, p.radiusBottom, p.height, p.segments || 8, parseColor(p.color), p.position);
@@ -638,14 +639,13 @@ function buildCourseFromJSON(data) {
       mesh = Game.courseMeshes[Game.courseMeshes.length - 1];
     } else continue;
 
-    // Check if this is a bounce pad (orange color #ff8800)
-    const hex = parseColor(p.color).toString(16).toLowerCase();
-    if (hex === 'ff8800') {
+    // Check if this is a bounce pad (type 'bouncepad' or orange color #ff8800)
+    if (p.type === 'bouncepad' || parseColor(p.color).toString(16).toLowerCase() === 'ff8800') {
       const body = Game.courseBodies[bodyIdx];
       body.addEventListener('collide', (e) => onBouncePadCollision(e, body));
     }
 
-    // Gravity inverters (purple color #aa44ff) - handled in updateGame loop
+    // Gravity inverters (type 'gravinv' or purple color #aa44ff) - handled in updateGame loop
 
     if (p.motion) {
       const body = Game.courseBodies[bodyIdx];
@@ -1322,9 +1322,10 @@ export function updateGame(dt) {
     for (let i = 0; i < Game.courseBodies.length; i++) {
       const body = Game.courseBodies[i];
       const mesh = Game.courseMeshes[i];
-      // Check if this is a gravity inverter (purple color #aa44ff)
+      // Check if this is a gravity inverter (type 'gravinv' or purple color #aa44ff)
       const hex = mesh.material.color.getHex().toString(16).toLowerCase();
-      if (hex === 'aa44ff') {
+      const isGravInv = hex === 'aa44ff' || mesh.userData.pieceType === 'gravinv';
+      if (isGravInv) {
         const ballPos = Game.ballBody.position;
         const invPos = body.position;
         const size = mesh.geometry.parameters;
