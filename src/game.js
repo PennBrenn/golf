@@ -152,77 +152,39 @@ function addCyl(rt, rb, h, seg, c, p) {
   Game.world.addBody(body); Game.courseBodies.push(body);
 }
 
-const BY = 8;
-const COURSES = [
-  () => ({
-    start: [0, BY + 1, 0], hole: [0, BY + 0.5, -40],
-    build() {
-      addPiece([4,.5,4],0x6bc96b,[0,BY+.25,0]);
-      addPiece([4,.5,12],0x5ab85a,[0,BY+.25,-8]);
-      addPiece([.3,.8,12],0x8B6914,[-2.15,BY+.6,-8]);
-      addPiece([.3,.8,12],0x8B6914,[2.15,BY+.6,-8]);
-      addPiece([1.8,1,.8],0xe05555,[0,BY+1,-5]);
-      addPiece([1.2,.8,.8],0xd4a843,[-1,BY+.9,-9]);
-      addPiece([1.2,.8,.8],0xd4a843,[1,BY+.9,-11]);
-      addPiece([4,.5,6],0x7ec87e,[0,BY+1.5,-17],[-0.28,0,0]);
-      addPiece([4,.5,10],0x5ab85a,[0,BY+2.75,-25]);
-      addPiece([.3,.8,10],0x8B6914,[-2.15,BY+3.4,-25]);
-      addPiece([.3,.8,10],0x8B6914,[2.15,BY+3.4,-25]);
-      addCyl(.4,.4,1.5,8,0x5588cc,[-0.8,BY+3.5,-23]);
-      addCyl(.4,.4,1.5,8,0x5588cc,[0.8,BY+3.5,-27]);
-      addPiece([4,.5,6],0x7ec87e,[0,BY+1.5,-33],[0.28,0,0]);
-      addPiece([5,.5,5],0x6bc96b,[0,BY+.25,-40]);
+let mapManifest = [];
+
+function parseColor(c) {
+  if (typeof c === 'number') return c;
+  if (typeof c === 'string') return parseInt(c.replace('#', ''), 16);
+  return 0xffffff;
+}
+
+function buildCourseFromJSON(data) {
+  for (const p of data.pieces) {
+    if (p.type === 'box') {
+      addPiece(p.size, parseColor(p.color), p.position, p.rotation || [0, 0, 0]);
+    } else if (p.type === 'cylinder') {
+      addCyl(p.radiusTop, p.radiusBottom, p.height, p.segments || 8, parseColor(p.color), p.position);
     }
-  }),
-  () => ({
-    start: [0, BY + 1, 0], hole: [8, BY + 0.5, -32],
-    build() {
-      addPiece([4,.5,4],0x6bc96b,[0,BY+.25,0]);
-      addPiece([4,.5,8],0x5ab85a,[0,BY+.25,-6]);
-      addPiece([.3,.8,8],0x8B6914,[-2.15,BY+.6,-6]);
-      addPiece([.3,.8,8],0x8B6914,[2.15,BY+.6,-6]);
-      addPiece([8,.5,4],0x7ec87e,[4,BY+.25,-12]);
-      addPiece([.3,.8,8],0x8B6914,[8.15,BY+.6,-12]);
-      addPiece([.8,1,.8],0xe05555,[3,BY+1,-12]);
-      addPiece([4,.5,8],0x5ab85a,[8,BY+.25,-18]);
-      addPiece([.3,.8,8],0x8B6914,[5.85,BY+.6,-18]);
-      addPiece([.3,.8,8],0x8B6914,[10.15,BY+.6,-18]);
-      addPiece([1,.8,1],0xd4a843,[7,BY+.9,-16]);
-      addPiece([1,.8,1],0xd4a843,[9,BY+.9,-19]);
-      addPiece([4,.5,5],0x7ec87e,[8,BY+1.5,-25],[-0.3,0,0]);
-      addPiece([5,.5,5],0x6bc96b,[8,BY+2.75,-30]);
-      addPiece([.3,.8,5],0x8B6914,[5.5,BY+3.4,-30]);
-      addPiece([.3,.8,5],0x8B6914,[10.5,BY+3.4,-30]);
-      addPiece([4,.5,4],0x7ec87e,[8,BY+1.5,-34],[0.35,0,0]);
-      addPiece([5,.5,5],0x6bc96b,[8,BY+.25,-32]);
-    }
-  }),
-  () => ({
-    start: [-6, BY + 1, 0], hole: [6, BY + 0.5, -36],
-    build() {
-      addPiece([4,.5,4],0x6bc96b,[-6,BY+.25,0]);
-      addPiece([4,.5,8],0x5ab85a,[-6,BY+.25,-6]);
-      addPiece([.3,.8,8],0x8B6914,[-8.15,BY+.6,-6]);
-      addPiece([.3,.8,8],0x8B6914,[-3.85,BY+.6,-6]);
-      addPiece([10,.5,4],0x7ec87e,[-1,BY+.25,-12]);
-      addPiece([.3,.8,10],0x8B6914,[-6.15,BY+.6,-12]);
-      addPiece([1,1.2,1],0xe05555,[0,BY+1.1,-12]);
-      addPiece([4,.5,8],0x5ab85a,[6,BY+.25,-18]);
-      addPiece([.3,.8,8],0x8B6914,[3.85,BY+.6,-18]);
-      addPiece([.3,.8,8],0x8B6914,[8.15,BY+.6,-18]);
-      addPiece([1,.8,1],0xd4a843,[5,BY+.9,-16]);
-      addPiece([1,.8,1],0xd4a843,[7,BY+.9,-20]);
-      addPiece([4,.5,5],0x7ec87e,[6,BY+1.5,-25],[-0.3,0,0]);
-      addPiece([6,.5,6],0x6bc96b,[6,BY+2.75,-31]);
-      addPiece([.3,.8,6],0x8B6914,[2.85,BY+3.4,-31]);
-      addPiece([.3,.8,6],0x8B6914,[9.15,BY+3.4,-31]);
-      addCyl(.5,.5,1.5,8,0x5588cc,[4.5,BY+3.5,-30]);
-      addCyl(.5,.5,1.5,8,0x5588cc,[7.5,BY+3.5,-32]);
-      addPiece([4,.5,4],0x7ec87e,[6,BY+1.5,-35.5],[0.35,0,0]);
-      addPiece([5,.5,5],0x6bc96b,[6,BY+.25,-36]);
-    }
-  }),
-];
+  }
+}
+
+export async function fetchMapManifest() {
+  try {
+    const res = await fetch('/maps/manifest.json');
+    mapManifest = await res.json();
+  } catch (e) {
+    console.warn('Could not load map manifest, using fallback');
+    mapManifest = ['straight_fairway.json', 'dogleg_right.json', 'zigzag.json'];
+  }
+  return mapManifest;
+}
+
+export async function fetchMap(filename) {
+  const res = await fetch('/maps/' + filename);
+  return res.json();
+}
 
 export function clearCourse() {
   for (const m of Game.courseMeshes) Game.scene.remove(m);
@@ -230,14 +192,16 @@ export function clearCourse() {
   Game.courseMeshes = []; Game.courseBodies = [];
 }
 
-export function buildRandomCourse() {
+export async function buildRandomCourse() {
   clearCourse();
-  const idx = Math.floor(Math.random() * COURSES.length);
+  if (mapManifest.length === 0) await fetchMapManifest();
+  const idx = Math.floor(Math.random() * mapManifest.length);
   Game.currentCourseIndex = idx;
-  const def = COURSES[idx]();
-  Game.startPosition.set(def.start[0], def.start[1], def.start[2]);
-  Game.holePosition.set(def.hole[0], def.hole[1], def.hole[2]);
-  def.build();
+  const data = await fetchMap(mapManifest[idx]);
+
+  Game.startPosition.set(data.start[0], data.start[1], data.start[2]);
+  Game.holePosition.set(data.hole[0], data.hole[1], data.hole[2]);
+  buildCourseFromJSON(data);
 
   const holeMesh = new THREE.Mesh(
     new THREE.CylinderGeometry(Game.holeRadius, Game.holeRadius, 0.02, 32), mt(0x111111)

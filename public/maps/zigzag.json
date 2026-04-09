@@ -1,0 +1,27 @@
+{
+  "name": "Zigzag",
+  "start": [-6, 9, 0],
+  "hole": [6, 8.5, -36],
+  "pieces": [
+    { "type": "box", "size": [4, 0.5, 4], "position": [-6, 8.25, 0], "rotation": [0, 0, 0], "color": "#6bc96b" },
+    { "type": "box", "size": [4, 0.5, 8], "position": [-6, 8.25, -6], "rotation": [0, 0, 0], "color": "#5ab85a" },
+    { "type": "box", "size": [0.3, 0.8, 8], "position": [-8.15, 8.6, -6], "rotation": [0, 0, 0], "color": "#8B6914" },
+    { "type": "box", "size": [0.3, 0.8, 8], "position": [-3.85, 8.6, -6], "rotation": [0, 0, 0], "color": "#8B6914" },
+    { "type": "box", "size": [10, 0.5, 4], "position": [-1, 8.25, -12], "rotation": [0, 0, 0], "color": "#7ec87e" },
+    { "type": "box", "size": [0.3, 0.8, 10], "position": [-6.15, 8.6, -12], "rotation": [0, 0, 0], "color": "#8B6914" },
+    { "type": "box", "size": [1, 1.2, 1], "position": [0, 9.1, -12], "rotation": [0, 0, 0], "color": "#e05555" },
+    { "type": "box", "size": [4, 0.5, 8], "position": [6, 8.25, -18], "rotation": [0, 0, 0], "color": "#5ab85a" },
+    { "type": "box", "size": [0.3, 0.8, 8], "position": [3.85, 8.6, -18], "rotation": [0, 0, 0], "color": "#8B6914" },
+    { "type": "box", "size": [0.3, 0.8, 8], "position": [8.15, 8.6, -18], "rotation": [0, 0, 0], "color": "#8B6914" },
+    { "type": "box", "size": [1, 0.8, 1], "position": [5, 8.9, -16], "rotation": [0, 0, 0], "color": "#d4a843" },
+    { "type": "box", "size": [1, 0.8, 1], "position": [7, 8.9, -20], "rotation": [0, 0, 0], "color": "#d4a843" },
+    { "type": "box", "size": [4, 0.5, 5], "position": [6, 9.5, -25], "rotation": [-0.3, 0, 0], "color": "#7ec87e" },
+    { "type": "box", "size": [6, 0.5, 6], "position": [6, 10.75, -31], "rotation": [0, 0, 0], "color": "#6bc96b" },
+    { "type": "box", "size": [0.3, 0.8, 6], "position": [2.85, 11.4, -31], "rotation": [0, 0, 0], "color": "#8B6914" },
+    { "type": "box", "size": [0.3, 0.8, 6], "position": [9.15, 11.4, -31], "rotation": [0, 0, 0], "color": "#8B6914" },
+    { "type": "cylinder", "radiusTop": 0.5, "radiusBottom": 0.5, "height": 1.5, "segments": 8, "position": [4.5, 11.5, -30], "color": "#5588cc" },
+    { "type": "cylinder", "radiusTop": 0.5, "radiusBottom": 0.5, "height": 1.5, "segments": 8, "position": [7.5, 11.5, -32], "color": "#5588cc" },
+    { "type": "box", "size": [4, 0.5, 4], "position": [6, 9.5, -35.5], "rotation": [0.35, 0, 0], "color": "#7ec87e" },
+    { "type": "box", "size": [5, 0.5, 5], "position": [6, 8.25, -36], "rotation": [0, 0, 0], "color": "#6bc96b" }
+  ]
+}

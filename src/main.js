@@ -1,5 +1,6 @@
 import {
-  initScene, buildRandomCourse, buildTerrain, createLocalBall, resetLocalBall,
+  initScene, buildRandomCourse, buildTerrain, fetchMapManifest,
+  createLocalBall, resetLocalBall,
   addRemoteBall, removeRemoteBall, updateRemoteBallState,
   setupInput, updateGame, renderGame, resetGameState, enterSpectator,
   Game, BALL_COLORS,
@@ -149,9 +150,9 @@ function startNextRound() {
   currentRound++;
   roundFinishEntries = [];
 
-  showCountdown(() => {
+  showCountdown(async () => {
     resetGameState();
-    buildRandomCourse();
+    await buildRandomCourse();
 
     const local = getLocalPlayer();
     const colorIndex = local ? local.colorIndex : 0;

@@ -1,0 +1,25 @@
+{
+  "name": "Dogleg Right",
+  "start": [0, 9, 0],
+  "hole": [8, 8.5, -32],
+  "pieces": [
+    { "type": "box", "size": [4, 0.5, 4], "position": [0, 8.25, 0], "rotation": [0, 0, 0], "color": "#6bc96b" },
+    { "type": "box", "size": [4, 0.5, 8], "position": [0, 8.25, -6], "rotation": [0, 0, 0], "color": "#5ab85a" },
+    { "type": "box", "size": [0.3, 0.8, 8], "position": [-2.15, 8.6, -6], "rotation": [0, 0, 0], "color": "#8B6914" },
+    { "type": "box", "size": [0.3, 0.8, 8], "position": [2.15, 8.6, -6], "rotation": [0, 0, 0], "color": "#8B6914" },
+    { "type": "box", "size": [8, 0.5, 4], "position": [4, 8.25, -12], "rotation": [0, 0, 0], "color": "#7ec87e" },
+    { "type": "box", "size": [0.3, 0.8, 8], "position": [8.15, 8.6, -12], "rotation": [0, 0, 0], "color": "#8B6914" },
+    { "type": "box", "size": [0.8, 1, 0.8], "position": [3, 9, -12], "rotation": [0, 0, 0], "color": "#e05555" },
+    { "type": "box", "size": [4, 0.5, 8], "position": [8, 8.25, -18], "rotation": [0, 0, 0], "color": "#5ab85a" },
+    { "type": "box", "size": [0.3, 0.8, 8], "position": [5.85, 8.6, -18], "rotation": [0, 0, 0], "color": "#8B6914" },
+    { "type": "box", "size": [0.3, 0.8, 8], "position": [10.15, 8.6, -18], "rotation": [0, 0, 0], "color": "#8B6914" },
+    { "type": "box", "size": [1, 0.8, 1], "position": [7, 8.9, -16], "rotation": [0, 0, 0], "color": "#d4a843" },
+    { "type": "box", "size": [1, 0.8, 1], "position": [9, 8.9, -19], "rotation": [0, 0, 0], "color": "#d4a843" },
+    { "type": "box", "size": [4, 0.5, 5], "position": [8, 9.5, -25], "rotation": [-0.3, 0, 0], "color": "#7ec87e" },
+    { "type": "box", "size": [5, 0.5, 5], "position": [8, 10.75, -30], "rotation": [0, 0, 0], "color": "#6bc96b" },
+    { "type": "box", "size": [0.3, 0.8, 5], "position": [5.5, 11.4, -30], "rotation": [0, 0, 0], "color": "#8B6914" },
+    { "type": "box", "size": [0.3, 0.8, 5], "position": [10.5, 11.4, -30], "rotation": [0, 0, 0], "color": "#8B6914" },
+    { "type": "box", "size": [4, 0.5, 4], "position": [8, 9.5, -34], "rotation": [0.35, 0, 0], "color": "#7ec87e" },
+    { "type": "box", "size": [5, 0.5, 5], "position": [8, 8.25, -32], "rotation": [0, 0, 0], "color": "#6bc96b" }
+  ]
+}
