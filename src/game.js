@@ -487,10 +487,10 @@ export function updateMovingPieces(dt) {
 
 export async function fetchMapManifest() {
   try {
-    const res = await fetch('/maps/manifest.json');
+    const res = await fetch('/api/maps');
     mapManifest = await res.json();
   } catch (e) {
-    console.warn('Could not load map manifest, using fallback');
+    console.warn('Could not load map list, using fallback');
     mapManifest = ['straight_fairway.json', 'dogleg_right.json', 'zigzag.json'];
   }
   return mapManifest;
