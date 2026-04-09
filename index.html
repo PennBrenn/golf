@@ -371,7 +371,36 @@
       text-shadow: 0 1px 3px rgba(0,50,65,0.3);
     }
 
-    
+    #wind-indicator {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(12px) saturate(1.4);
+      -webkit-backdrop-filter: blur(12px) saturate(1.4);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      border-radius: 16px;
+      padding: 8px 14px;
+      pointer-events: none;
+      box-shadow: 0 4px 16px rgba(0,180,210,0.12);
+    }
+    .wind-arrow {
+      font-size: 1.2rem;
+      color: #00C2CC;
+      transition: transform 0.3s;
+      text-shadow: 0 1px 6px rgba(0,194,204,0.5);
+    }
+    .wind-text {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 1px 3px rgba(0,50,65,0.3);
+    }
+
     /* ── Settings Screen ──────────────────────────── */
 
     #screen-settings {
@@ -427,6 +456,59 @@
     .color-swatch.selected { 
       border-color: #fff; 
       box-shadow: 0 0 16px rgba(0, 194, 204, 0.6), inset 0 1px 2px rgba(255,255,255,0.5);
+    }
+
+    .settings-label {
+      display: block;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.75);
+      margin: 10px 0 6px;
+    }
+    .settings-radio-row {
+      display: flex; gap: 6px;
+    }
+    .settings-radio {
+      padding: 5px 14px;
+      background: rgba(255,255,255,0.15);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      color: rgba(255,255,255,0.7);
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .settings-radio:hover { border-color: rgba(255,255,255,0.5); }
+    .settings-radio.active {
+      background: rgba(0,194,204,0.3);
+      border-color: #00C2CC;
+      color: white;
+    }
+    .settings-slider {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.2);
+      outline: none;
+      margin: 4px 0 8px;
+    }
+    .settings-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #00C2CC;
+      border: 2px solid rgba(255,255,255,0.6);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,194,204,0.4);
+    }
+    #settings-invert-y {
+      margin-right: 6px;
+      accent-color: #00C2CC;
     }
 
     /* ── Spectator Banner ────────────────────────── */
@@ -677,6 +759,84 @@
       white-space: nowrap;
       pointer-events: none;
     }
+
+    /* ── Chat Bubbles (3D CSS2D) ─────────────────── */
+
+    .chat-bubble {
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 12px;
+      border-left: 4px solid #ffffff;
+      padding: 6px 12px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: #003040;
+      max-width: 160px;
+      word-wrap: break-word;
+      pointer-events: none;
+      transition: opacity 0.5s;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+    .chat-bubble-fade { opacity: 0; }
+
+    /* ── Chat Input & Log ────────────────────────── */
+
+    #chat-input-container {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      display: none;
+    }
+    #chat-input-container.visible { display: block; }
+
+    #chat-input {
+      width: 360px;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(16px) saturate(1.5);
+      -webkit-backdrop-filter: blur(16px) saturate(1.5);
+      border: 1.5px solid rgba(255,255,255,0.45);
+      border-radius: 50px;
+      color: #003040;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      outline: none;
+      box-shadow: 0 4px 20px rgba(0,180,210,0.15);
+    }
+    #chat-input::placeholder { color: rgba(0,60,80,0.4); }
+    #chat-input:focus {
+      border-color: #00C2CC;
+      box-shadow: 0 0 0 3px rgba(0,194,204,0.25), 0 4px 20px rgba(0,180,210,0.2);
+    }
+
+    #chat-log {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      width: 280px;
+      max-height: 180px;
+      overflow-y: auto;
+      z-index: 55;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      pointer-events: none;
+    }
+
+    .chat-log-msg {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: white;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+      padding: 2px 0;
+      opacity: 0.85;
+    }
   </style>
 </head>
 <body>
@@ -729,6 +889,10 @@
       <div id="drag-fill"></div>
     </div>
     <div class="hud-hint">Click &amp; drag to aim &middot; Release to shoot &middot; Right-click to orbit</div>
+    <div id="wind-indicator" style="display:none;">
+      <div class="wind-arrow">&#9650;</div>
+      <div class="wind-text">Calm</div>
+    </div>
   </div>
 
   <!-- Spectator Banner -->
@@ -768,12 +932,54 @@
 
   <!-- Settings Screen -->
   <div id="screen-settings" class="screen hidden">
-    <div class="screen-panel">
+    <div class="screen-panel" style="max-width:480px;max-height:85vh;overflow-y:auto;">
       <h1>Settings</h1>
       <div id="settings-sections">
         <div class="settings-section">
-          <h3>Ball Color</h3>
-          <div id="color-grid"></div>
+          <h3>Player</h3>
+          <input type="text" id="settings-name" placeholder="Display name" maxlength="16" />
+          <label class="settings-label">Ball Color</label>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div id="color-grid"></div>
+            <input type="text" id="settings-hex" placeholder="#ff4444" maxlength="7"
+                   style="width:90px;text-align:center;font-size:0.85rem;" />
+          </div>
+        </div>
+        <div class="settings-section">
+          <h3>Graphics</h3>
+          <label class="settings-label">Shadow Quality</label>
+          <div class="settings-radio-row" id="settings-shadows">
+            <button class="settings-radio" data-val="off">Off</button>
+            <button class="settings-radio" data-val="low">Low</button>
+            <button class="settings-radio active" data-val="high">High</button>
+          </div>
+          <label class="settings-label">Terrain Detail</label>
+          <div class="settings-radio-row" id="settings-terrain">
+            <button class="settings-radio" data-val="low">Low</button>
+            <button class="settings-radio active" data-val="high">High</button>
+          </div>
+          <label class="settings-label">Ball Trail</label>
+          <div class="settings-radio-row" id="settings-trail">
+            <button class="settings-radio active" data-val="off">Off</button>
+            <button class="settings-radio" data-val="on">On</button>
+          </div>
+        </div>
+        <div class="settings-section">
+          <h3>Audio</h3>
+          <label class="settings-label">Master Volume</label>
+          <input type="range" id="settings-master-vol" min="0" max="100" value="80" class="settings-slider" />
+          <label class="settings-label">SFX Volume</label>
+          <input type="range" id="settings-sfx-vol" min="0" max="100" value="80" class="settings-slider" />
+          <label class="settings-label">Music Volume</label>
+          <input type="range" id="settings-music-vol" min="0" max="100" value="50" class="settings-slider" />
+        </div>
+        <div class="settings-section">
+          <h3>Gameplay</h3>
+          <label class="settings-label">Camera Sensitivity</label>
+          <input type="range" id="settings-cam-sens" min="50" max="200" value="100" class="settings-slider" />
+          <label class="settings-label">
+            <input type="checkbox" id="settings-invert-y" /> Invert Camera Y
+          </label>
         </div>
         <div class="btn-row">
           <button id="btn-save-settings" class="btn btn-green">Save</button>
@@ -782,6 +988,12 @@
       </div>
     </div>
   </div>
+
+  <!-- Chat -->
+  <div id="chat-input-container">
+    <input id="chat-input" type="text" placeholder="Press Enter to chat..." maxlength="80" />
+  </div>
+  <div id="chat-log"></div>
 
   <!-- Toast -->
   <div id="toast" class="hidden"></div>

@@ -14,6 +14,7 @@ export const MSG = {
   NEXT_ROUND: 'nextRound',
   PLAY_AGAIN: 'playAgain',
   CHAT: 'chat',
+  REMOTE_CHAT: 'remoteChat',
   VOTE: 'vote',
   VOTE_UPDATE: 'voteUpdate',
   VOTE_RESULT: 'voteResult',
@@ -190,9 +191,9 @@ function handleHostReceive(peerId, data) {
       break;
 
     case MSG.CHAT:
-      // Relay chat to all guests
-      broadcast({ type: MSG.CHAT, name: data.name, text: data.text });
-      if (MP.onChat) MP.onChat(data.name, data.text);
+      // Relay chat to all guests with sender ID
+      broadcast({ type: MSG.REMOTE_CHAT, playerId: peerId, name: data.name, text: data.text });
+      if (MP.onChat) MP.onChat(peerId, data.name, data.text);
       break;
 
     case MSG.VOTE:
@@ -327,8 +328,8 @@ function handleGuestReceive(data) {
       if (MP.onPlayAgain) MP.onPlayAgain();
       break;
 
-    case MSG.CHAT:
-      if (MP.onChat) MP.onChat(data.name, data.text);
+    case MSG.REMOTE_CHAT:
+      if (MP.onChat) MP.onChat(data.playerId, data.name, data.text);
       break;
 
     case MSG.VOTE_UPDATE:
@@ -432,8 +433,8 @@ export function hostBroadcastVoteResult(winnerIndex) {
 export function sendChat(text) {
   const payload = { type: MSG.CHAT, name: MP.localName, text };
   if (MP.isHost) {
-    broadcast(payload);
-    if (MP.onChat) MP.onChat(MP.localName, text);
+    broadcast({ type: MSG.REMOTE_CHAT, playerId: MP.localId, name: MP.localName, text });
+    if (MP.onChat) MP.onChat(MP.localId, MP.localName, text);
   } else {
     sendToHost(payload);
   }

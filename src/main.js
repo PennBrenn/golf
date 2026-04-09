@@ -4,11 +4,11 @@ import {
   createLocalBall, resetLocalBall,
   addRemoteBall, removeRemoteBall, updateRemoteBallState,
   setupInput, updateGame, renderGame, resetGameState, enterSpectator,
-  Game, BALL_COLORS,
+  showChatBubble, updateMovingPieces, Game, BALL_COLORS,
 } from './game.js';
 import {
   MP, createGame, joinGame, hostStartGame, hostPlayAgain, hostNextRound,
-  sendFinish, sendVote, hostBroadcastVoteUpdate, hostBroadcastVoteResult,
+  sendFinish, sendChat, sendVote, hostBroadcastVoteUpdate, hostBroadcastVoteResult,
   updateMultiplayerSync, cleanupMultiplayer,
   getLocalPlayer, getPlayerById, PLAYER_COLORS,
 } from './network.js';
@@ -19,7 +19,7 @@ import {
   showSpectatorBanner, hideSpectatorBanner,
   showLeaderboard, hideLeaderboard,
   showMapVote, updateMapVotes, showVoteWinner, hideMapVote,
-  showToast, UI,
+  showToast, loadSettings, getSettings, UI,
 } from './ui.js';
 
 // ── App State ────────────────────────────────────────────
@@ -42,7 +42,11 @@ let voteTimer = null;
 async function init() {
   const container = document.getElementById('game-container');
 
+  // Load settings before scene init
+  const settings = loadSettings();
+
   initScene(container);
+  applySettings(settings);
   setupInput();
   initUI();
 
@@ -54,17 +58,115 @@ async function init() {
   UI.onNextRound = handleNextRound;
   UI.onColorPick = (color) => { Game.ballColor = color; };
   UI.onMapVote = (mapIndex) => { sendVote(mapIndex); };
+  UI.onSettingsChanged = (s) => applySettings(s);
 
   // Wire game callbacks
   Game.onDragChanged = (ratio, active) => updateDragIndicator(ratio, active);
   Game.onFinishHole = handleLocalFinish;
   Game.onSwingCountChanged = (count) => updateSwings(count);
   Game.onTimeUpdate = (t) => updateTimer(t);
+  Game.onWaterSplash = () => showToast('Splash! +1 stroke penalty', 2500);
+
+  // Chat input
+  setupChatInput();
 
   // Load menu background
   await loadMenuBackground();
   showMainMenu();
   loop();
+}
+
+// ── Chat ─────────────────────────────────────────────────
+
+function setupChatInput() {
+  const container = document.getElementById('chat-input-container');
+  const input = document.getElementById('chat-input');
+  let chatOpen = false;
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      if (!chatOpen) {
+        container.classList.add('visible');
+        input.focus();
+        chatOpen = true;
+        e.preventDefault();
+      } else {
+        const text = input.value.trim();
+        if (text && MP.peer) {
+          sendChat(text);
+          const local = getLocalPlayer();
+          const colorHex = local ? playerColorHex(local.colorIndex) : '#ffffff';
+          showChatBubble('local', text, colorHex);
+          addChatLogMsg(MP.localName, text, colorHex);
+        }
+        input.value = '';
+        container.classList.remove('visible');
+        input.blur();
+        chatOpen = false;
+        e.preventDefault();
+      }
+    }
+    if (e.key === 'Escape' && chatOpen) {
+      input.value = '';
+      container.classList.remove('visible');
+      input.blur();
+      chatOpen = false;
+    }
+  });
+}
+
+function playerColorHex(colorIndex) {
+  const colors = [0xff4444, 0x4488ff, 0xffcc00, 0x44cc44];
+  const c = colors[colorIndex] ?? 0xffffff;
+  return '#' + c.toString(16).padStart(6, '0');
+}
+
+const chatLogMessages = [];
+function addChatLogMsg(name, text, colorHex) {
+  const log = document.getElementById('chat-log');
+  const div = document.createElement('div');
+  div.className = 'chat-log-msg';
+  div.innerHTML = `<span style="color:${colorHex}">${escapeHtml(name)}:</span> ${escapeHtml(text)}`;
+  log.appendChild(div);
+  chatLogMessages.push(div);
+  if (chatLogMessages.length > 10) {
+    const old = chatLogMessages.shift();
+    old.remove();
+  }
+  log.scrollTop = log.scrollHeight;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ── Apply Settings ───────────────────────────────────────
+
+function applySettings(s) {
+  // Ball color
+  Game.ballColor = s.ballColor;
+
+  // Shadows
+  if (s.shadows === 'off') {
+    Game.renderer.shadowMap.enabled = false;
+  } else {
+    Game.renderer.shadowMap.enabled = true;
+    Game.renderer.shadowMap.type = s.shadows === 'low'
+      ? 0 /* THREE.BasicShadowMap */ : 2 /* THREE.PCFSoftShadowMap */;
+  }
+
+  // Camera sensitivity
+  if (Game.controls) {
+    Game.controls.rotateSpeed = (s.cameraSensitivity || 100) / 100;
+  }
+
+  // Populate name input on main menu if available
+  const nameInput = document.getElementById('input-name');
+  if (nameInput && s.playerName && !nameInput.value) {
+    nameInput.value = s.playerName;
+  }
 }
 
 // ── Game Loop ────────────────────────────────────────────
@@ -76,6 +178,7 @@ function loop() {
   const dt = Math.min(Game.clock.getDelta(), 0.05);
 
   if (gameRunning) {
+    updateMovingPieces(dt);
     updateGame(dt);
     updateMultiplayerSync(dt, Game.ballBody);
   } else if (menuMode) {
@@ -131,8 +234,11 @@ function wireNetworkCallbacks() {
     setTimeout(async () => { await loadMenuBackground(); showMainMenu(); }, 1500);
   };
 
-  MP.onChat = (name, text) => {
-    showToast(`${name}: ${text}`, 3000);
+  MP.onChat = (playerId, name, text) => {
+    const player = getPlayerById(playerId);
+    const colorHex = player ? playerColorHex(player.colorIndex) : '#ffffff';
+    showChatBubble(playerId, text, colorHex);
+    addChatLogMsg(name, text, colorHex);
   };
 
   // Vote callbacks (host collects, guests receive updates)
@@ -229,6 +335,7 @@ async function handleCreateGame(name) {
     menuMode = false;
     showLobby(code, true);
     updatePlayerList(MP.players);
+    updateStartButton(MP.players.length >= 1);
   } catch (err) {
     showToast('Failed to create game: ' + err.message);
     console.error(err);
@@ -254,12 +361,37 @@ function handleStartGame() {
   hostStartGame();
 }
 
+function generateWind() {
+  const angle = Math.random() * Math.PI * 2;
+  const strength = Math.random() * 3;
+  Game.wind = { x: Math.cos(angle) * strength, z: Math.sin(angle) * strength };
+  updateWindIndicator();
+}
+
+function updateWindIndicator() {
+  const el = document.getElementById('wind-indicator');
+  if (!el) return;
+  const strength = Math.sqrt(Game.wind.x * Game.wind.x + Game.wind.z * Game.wind.z);
+  let label = 'Calm';
+  if (strength > 1) label = 'Breeze';
+  if (strength > 2) label = 'Gusty';
+  if (strength > 3) label = 'Strong';
+
+  const angle = Math.atan2(Game.wind.z, Game.wind.x) * (180 / Math.PI);
+  const arrow = el.querySelector('.wind-arrow');
+  const text = el.querySelector('.wind-text');
+  if (arrow) arrow.style.transform = `rotate(${angle + 90}deg)`;
+  if (text) text.textContent = label;
+  el.style.display = strength < 0.1 ? 'none' : 'flex';
+}
+
 function startNextRound(mapIndex) {
   currentRound++;
   roundFinishEntries = [];
 
   showCountdown(async () => {
     resetGameState();
+    generateWind();
     await buildCourseByIndex(mapIndex);
 
     const local = getLocalPlayer();

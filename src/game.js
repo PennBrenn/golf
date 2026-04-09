@@ -14,15 +14,17 @@ export const Game = {
   controls: null, world: null, clock: null,
   ball: null, ballBody: null, ballColor: BALL_COLORS[0],
   remoteBalls: {},
-  courseMeshes: [], courseBodies: [], terrainMesh: null,
+  courseMeshes: [], courseBodies: [], terrainMesh: null, movingPieces: [],
   holePosition: new THREE.Vector3(), holeRadius: 0.6,
   startPosition: new THREE.Vector3(), courseBaseY: 8,
   isDragging: false, dragStart: { x: 0, y: 0 }, dragCurrent: { x: 0, y: 0 },
   dragArrow: null, maxPower: 20,
   swings: 0, timerStart: 0, elapsedTime: 0,
   hasFinished: false, spectatorMode: false, currentCourseIndex: -1,
+  wind: { x: 0, z: 0 },
+  waterZones: [], lastSafePosition: new THREE.Vector3(), waterSplashed: false,
   onSwingCountChanged: null, onTimeUpdate: null,
-  onFinishHole: null, onDragChanged: null,
+  onFinishHole: null, onDragChanged: null, onWaterSplash: null,
 };
 
 const BALL_RADIUS = 0.2;
@@ -161,11 +163,77 @@ function parseColor(c) {
 }
 
 function buildCourseFromJSON(data) {
+  Game.movingPieces = [];
   for (const p of data.pieces) {
+    let mesh, bodyIdx;
     if (p.type === 'box') {
-      addPiece(p.size, parseColor(p.color), p.position, p.rotation || [0, 0, 0]);
+      mesh = addPiece(p.size, parseColor(p.color), p.position, p.rotation || [0, 0, 0]);
+      bodyIdx = Game.courseBodies.length - 1;
     } else if (p.type === 'cylinder') {
       addCyl(p.radiusTop, p.radiusBottom, p.height, p.segments || 8, parseColor(p.color), p.position);
+      bodyIdx = Game.courseBodies.length - 1;
+      mesh = Game.courseMeshes[Game.courseMeshes.length - 1];
+    } else continue;
+
+    if (p.motion) {
+      const body = Game.courseBodies[bodyIdx];
+      body.type = CANNON.Body.KINEMATIC;
+      body.mass = 0;
+      Game.movingPieces.push({
+        mesh, body,
+        origin: [...p.position],
+        originRot: p.rotation ? [...p.rotation] : [0, 0, 0],
+        motion: p.motion,
+      });
+    }
+  }
+
+  // Water zones
+  Game.waterZones = [];
+  if (data.pieces) {
+    for (const p of data.pieces) {
+      if (p.type === 'water') {
+        const geo = new THREE.BoxGeometry(p.size[0], 0.05, p.size[2]);
+        const mat = new THREE.MeshStandardMaterial({
+          color: 0x1e8cff, transparent: true, opacity: 0.55,
+          flatShading: true, side: THREE.DoubleSide,
+        });
+        const waterMesh = new THREE.Mesh(geo, mat);
+        waterMesh.position.set(p.position[0], p.position[1], p.position[2]);
+        waterMesh.receiveShadow = true;
+        Game.scene.add(waterMesh);
+        Game.courseMeshes.push(waterMesh);
+        Game.waterZones.push({
+          mesh: waterMesh,
+          min: [p.position[0] - p.size[0] / 2, p.position[1] - p.size[1] / 2, p.position[2] - p.size[2] / 2],
+          max: [p.position[0] + p.size[0] / 2, p.position[1] + p.size[1] / 2, p.position[2] + p.size[2] / 2],
+        });
+      }
+    }
+  }
+}
+
+let gameTime = 0;
+
+export function updateMovingPieces(dt) {
+  gameTime += dt;
+  for (const mp of Game.movingPieces) {
+    const m = mp.motion;
+    const val = Math.sin((gameTime * m.speed * Math.PI * 2) + (m.phase || 0) * Math.PI * 2) * m.range;
+    const axisMap = { x: 0, y: 1, z: 2 };
+    const ai = axisMap[m.axis] ?? 0;
+
+    if (m.type === 'translate') {
+      const pos = [...mp.origin];
+      pos[ai] += val;
+      mp.mesh.position.set(pos[0], pos[1], pos[2]);
+      mp.body.position.set(pos[0], pos[1], pos[2]);
+    } else if (m.type === 'rotate') {
+      const rot = [...mp.originRot];
+      rot[ai] += val * (Math.PI / 180);
+      mp.mesh.rotation.set(rot[0], rot[1], rot[2]);
+      const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(rot[0], rot[1], rot[2]));
+      mp.body.quaternion.set(q.x, q.y, q.z, q.w);
     }
   }
 }
@@ -313,6 +381,8 @@ export function createLocalBall(color) {
   Game.world.addBody(Game.ballBody);
   Game.hasFinished = false; Game.spectatorMode = false;
   Game.swings = 0; Game.timerStart = Date.now(); Game.elapsedTime = 0;
+  Game.lastSafePosition.copy(Game.startPosition);
+  Game.waterSplashed = false;
 }
 
 export function resetLocalBall() {
@@ -393,7 +463,7 @@ function getDragDir() {
   const ratio = Math.min(dist / 200, 1);
   const forward = new THREE.Vector3();
   Game.camera.getWorldDirection(forward); forward.y = 0; forward.normalize();
-  const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), forward).normalize();
+  const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
   const worldDir = new THREE.Vector3().addScaledVector(forward, dy / 200).addScaledVector(right, dx / 200);
   worldDir.y = 0;
   return { ratio, worldDir: worldDir.length() > 0.01 ? worldDir.normalize() : null };
@@ -472,6 +542,38 @@ function checkWin() {
   }
 }
 
+export function showChatBubble(playerId, text, colorHex) {
+  const mesh = playerId === 'local' ? Game.ball :
+    (Game.remoteBalls[playerId] ? Game.remoteBalls[playerId].mesh : null);
+  if (!mesh) return;
+
+  // Remove existing bubble if any
+  const existing = mesh.userData.chatBubble;
+  if (existing) {
+    mesh.remove(existing);
+    if (existing.userData.fadeTimeout) clearTimeout(existing.userData.fadeTimeout);
+  }
+
+  const div = document.createElement('div');
+  div.className = 'chat-bubble';
+  div.textContent = text;
+  div.style.borderLeftColor = colorHex || '#ffffff';
+  const label = new CSS2DObject(div);
+  label.position.set(0, BALL_RADIUS + 1.2, 0);
+  mesh.add(label);
+  mesh.userData.chatBubble = label;
+
+  label.userData.fadeTimeout = setTimeout(() => {
+    div.classList.add('chat-bubble-fade');
+    setTimeout(() => {
+      if (mesh.userData.chatBubble === label) {
+        mesh.remove(label);
+        mesh.userData.chatBubble = null;
+      }
+    }, 500);
+  }, 4500);
+}
+
 export function enterSpectator() {
   Game.spectatorMode = true;
   Game.controls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
@@ -489,16 +591,89 @@ export function updateGame(dt) {
     Game.elapsedTime = (Date.now() - Game.timerStart) / 1000;
     if (Game.onTimeUpdate) Game.onTimeUpdate(Game.elapsedTime);
   }
+  if (Game.ballBody && !Game.hasFinished && (Game.wind.x !== 0 || Game.wind.z !== 0)) {
+    Game.ballBody.applyForce(new CANNON.Vec3(Game.wind.x, 0, Game.wind.z), Game.ballBody.position);
+  }
   Game.world.step(1 / 60, dt, 3);
   if (Game.ball && Game.ballBody && !Game.hasFinished) {
     Game.ball.position.copy(Game.ballBody.position);
     Game.ball.quaternion.copy(Game.ballBody.quaternion);
     if (Game.ballBody.position.y < Game.courseBaseY - 3) resetLocalBall();
   }
+  // Track last safe position (when ball is on a surface and not in water)
+  if (Game.ballBody && !Game.hasFinished) {
+    const vel = Game.ballBody.velocity;
+    const speed = Math.sqrt(vel.x * vel.x + vel.y * vel.y + vel.z * vel.z);
+    if (speed < 2 && !Game.waterSplashed) {
+      let inWater = false;
+      const bp = Game.ballBody.position;
+      for (const wz of Game.waterZones) {
+        if (bp.x >= wz.min[0] && bp.x <= wz.max[0] &&
+            bp.y >= wz.min[1] - 0.5 && bp.y <= wz.max[1] + 0.5 &&
+            bp.z >= wz.min[2] && bp.z <= wz.max[2]) {
+          inWater = true; break;
+        }
+      }
+      if (!inWater) {
+        Game.lastSafePosition.copy(Game.ballBody.position);
+      }
+    }
+    // Check water splash
+    if (!Game.waterSplashed) {
+      const bp2 = Game.ballBody.position;
+      for (const wz of Game.waterZones) {
+        if (bp2.x >= wz.min[0] && bp2.x <= wz.max[0] &&
+            bp2.y <= wz.max[1] + 0.3 && bp2.y >= wz.min[1] - 1 &&
+            bp2.z >= wz.min[2] && bp2.z <= wz.max[2]) {
+          Game.waterSplashed = true;
+          Game.ballBody.velocity.setZero();
+          Game.ballBody.angularVelocity.setZero();
+          spawnSplashParticles(bp2);
+          setTimeout(() => {
+            Game.ballBody.position.set(
+              Game.lastSafePosition.x, Game.lastSafePosition.y + 0.5, Game.lastSafePosition.z
+            );
+            Game.ballBody.velocity.setZero();
+            Game.ballBody.angularVelocity.setZero();
+            Game.swings++;
+            if (Game.onSwingCountChanged) Game.onSwingCountChanged(Game.swings);
+            if (Game.onWaterSplash) Game.onWaterSplash();
+            Game.waterSplashed = false;
+          }, 800);
+          break;
+        }
+      }
+    }
+  }
   interpolateRemoteBalls(dt);
   if (Game.ball && !Game.spectatorMode) Game.controls.target.lerp(Game.ball.position, 0.1);
   Game.controls.update();
   checkWin();
+}
+
+function spawnSplashParticles(pos) {
+  const count = 12;
+  for (let i = 0; i < count; i++) {
+    const geo = new THREE.SphereGeometry(0.06, 4, 4);
+    const mat = new THREE.MeshBasicMaterial({ color: 0x4db8ff, transparent: true, opacity: 0.8 });
+    const p = new THREE.Mesh(geo, mat);
+    p.position.set(pos.x, pos.y + 0.1, pos.z);
+    Game.scene.add(p);
+    const vx = (Math.random() - 0.5) * 3;
+    const vy = Math.random() * 4 + 2;
+    const vz = (Math.random() - 0.5) * 3;
+    const start = Date.now();
+    function animate() {
+      const t = (Date.now() - start) / 1000;
+      if (t > 0.8) { Game.scene.remove(p); return; }
+      p.position.x += vx * 0.016;
+      p.position.y += (vy - 15 * t) * 0.016;
+      p.position.z += vz * 0.016;
+      mat.opacity = 0.8 * (1 - t / 0.8);
+      requestAnimationFrame(animate);
+    }
+    animate();
+  }
 }
 
 export function renderGame() {

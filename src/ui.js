@@ -1,5 +1,37 @@
 import { BALL_COLORS } from './game.js';
 
+// ── Settings Defaults ────────────────────────────────────
+
+const SETTINGS_KEY = 'minigolf_settings';
+const DEFAULT_SETTINGS = {
+  playerName: '',
+  ballColor: BALL_COLORS[0],
+  shadows: 'high',
+  terrainDetail: 'high',
+  ballTrail: 'off',
+  masterVolume: 80,
+  sfxVolume: 80,
+  musicVolume: 50,
+  cameraSensitivity: 100,
+  invertY: false,
+};
+
+let currentSettings = { ...DEFAULT_SETTINGS };
+
+export function loadSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (raw) currentSettings = { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+  } catch (e) { /* ignore */ }
+  return currentSettings;
+}
+
+export function getSettings() { return currentSettings; }
+
+function saveSettings() {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(currentSettings));
+}
+
 // ── UI State ─────────────────────────────────────────────
 
 export const UI = {
@@ -11,6 +43,7 @@ export const UI = {
   onColorPick: null,     // callback(colorHex)
   onNextRound: null,     // callback()
   onMapVote: null,       // callback(mapIndex)
+  onSettingsChanged: null, // callback(settings)
 };
 
 // ── Init ─────────────────────────────────────────────────
@@ -71,12 +104,86 @@ export function initUI() {
   });
 
   document.getElementById('btn-save-settings').addEventListener('click', () => {
+    collectSettings();
+    saveSettings();
+    if (UI.onSettingsChanged) UI.onSettingsChanged(currentSettings);
     showToast('Settings saved!');
     showMainMenu();
   });
 
+  // Settings radio buttons
+  document.querySelectorAll('.settings-radio-row').forEach(row => {
+    row.querySelectorAll('.settings-radio').forEach(btn => {
+      btn.addEventListener('click', () => {
+        row.querySelectorAll('.settings-radio').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  });
+
+  // Hex color input
+  const hexInput = document.getElementById('settings-hex');
+  if (hexInput) {
+    hexInput.addEventListener('change', () => {
+      const hex = hexInput.value.trim();
+      if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+        const c = parseInt(hex.slice(1), 16);
+        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+        if (UI.onColorPick) UI.onColorPick(c);
+      }
+    });
+  }
+
   // Ball color picker
   buildColorPicker();
+
+  // Populate settings from saved values
+  populateSettings();
+}
+
+function collectSettings() {
+  currentSettings.playerName = (document.getElementById('settings-name').value || '').trim();
+  const hexInput = document.getElementById('settings-hex');
+  if (hexInput && /^#[0-9a-fA-F]{6}$/.test(hexInput.value.trim())) {
+    currentSettings.ballColor = parseInt(hexInput.value.trim().slice(1), 16);
+  }
+  const shadowBtn = document.querySelector('#settings-shadows .settings-radio.active');
+  if (shadowBtn) currentSettings.shadows = shadowBtn.dataset.val;
+  const terrainBtn = document.querySelector('#settings-terrain .settings-radio.active');
+  if (terrainBtn) currentSettings.terrainDetail = terrainBtn.dataset.val;
+  const trailBtn = document.querySelector('#settings-trail .settings-radio.active');
+  if (trailBtn) currentSettings.ballTrail = trailBtn.dataset.val;
+  currentSettings.masterVolume = parseInt(document.getElementById('settings-master-vol').value);
+  currentSettings.sfxVolume = parseInt(document.getElementById('settings-sfx-vol').value);
+  currentSettings.musicVolume = parseInt(document.getElementById('settings-music-vol').value);
+  currentSettings.cameraSensitivity = parseInt(document.getElementById('settings-cam-sens').value);
+  currentSettings.invertY = document.getElementById('settings-invert-y').checked;
+}
+
+function populateSettings() {
+  const nameInput = document.getElementById('settings-name');
+  if (nameInput && currentSettings.playerName) nameInput.value = currentSettings.playerName;
+  const hexInput = document.getElementById('settings-hex');
+  if (hexInput) hexInput.value = '#' + currentSettings.ballColor.toString(16).padStart(6, '0');
+
+  // Set radio buttons
+  setRadioActive('settings-shadows', currentSettings.shadows);
+  setRadioActive('settings-terrain', currentSettings.terrainDetail);
+  setRadioActive('settings-trail', currentSettings.ballTrail);
+
+  document.getElementById('settings-master-vol').value = currentSettings.masterVolume;
+  document.getElementById('settings-sfx-vol').value = currentSettings.sfxVolume;
+  document.getElementById('settings-music-vol').value = currentSettings.musicVolume;
+  document.getElementById('settings-cam-sens').value = currentSettings.cameraSensitivity;
+  document.getElementById('settings-invert-y').checked = currentSettings.invertY;
+}
+
+function setRadioActive(rowId, val) {
+  const row = document.getElementById(rowId);
+  if (!row) return;
+  row.querySelectorAll('.settings-radio').forEach(b => {
+    b.classList.toggle('active', b.dataset.val === val);
+  });
 }
 
 // ── Color Picker ─────────────────────────────────────────
