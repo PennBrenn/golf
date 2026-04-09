@@ -128,16 +128,20 @@ export function createGame(name) {
       MP.channels.lobby = MP.ably.channels.get(getChannelName('-lobby'));
 
       // Subscribe to host channel (guest messages)
+      console.log('Subscribing to host channel...');
       MP.channels.host.subscribe('msg', (message) => {
+        console.log('Host received message from:', message.clientId, message.data);
         handleHostReceive(message.clientId, message.data);
       });
 
       // Enter presence
-      await MP.channels.lobby.presence.enter({ 
-        name: MP.localName, 
+      console.log('Host entering presence...');
+      await MP.channels.lobby.presence.enter({
+        name: MP.localName,
         colorIndex: 0,
         isHost: true
       });
+      console.log('Host presence entered');
 
       // Add host as first player
       MP.players[clientId] = {
@@ -149,8 +153,10 @@ export function createGame(name) {
 
       // Subscribe to presence events
       MP.channels.lobby.presence.subscribe('enter', (member) => {
+        console.log('Presence enter event:', member.clientId, member.data);
         if (member.clientId !== clientId) {
           // Guest joined via presence, send welcome
+          console.log('Guest joined, sending welcome...');
           const colorIndex = nextColorIndex();
           MP.players[member.clientId] = {
             clientId: member.clientId,
@@ -161,6 +167,7 @@ export function createGame(name) {
 
           // Send welcome to this guest
           const guestChannel = MP.ably.channels.get(getChannelName(`-guest-${member.clientId}`));
+          console.log('Sending welcome to guest channel:', getChannelName(`-guest-${member.clientId}`));
           guestChannel.publish('msg', {
             type: MSG.WELCOME,
             rejected: false,
@@ -169,9 +176,9 @@ export function createGame(name) {
           });
 
           // Notify all other guests
-          broadcast({ 
-            type: MSG.PLAYER_JOINED, 
-            player: MP.players[member.clientId] 
+          broadcast({
+            type: MSG.PLAYER_JOINED,
+            player: MP.players[member.clientId]
           });
 
           if (MP.onPlayerListChanged) MP.onPlayerListChanged(buildPlayerList());
@@ -202,7 +209,7 @@ export function createGame(name) {
 
     } catch (e) {
       console.error('Host Ably error:', e);
-      reject(new Error('Failed to create game. Check your connection.'));
+      reject(new Error('Failed to create game: ' + (e.message || 'check your connection')));
     }
   });
 }
@@ -279,7 +286,7 @@ export function joinGame(name, code) {
     try {
       // Initialize Ably
       MP.ably = new Ably.Realtime({ 
-        key: 'YOUR_ABLY_KEY_HERE', 
+        key: 'pDOguA.oiTwGg:cPn9_2JtlLkwE4_C2Y2AHOaJ0d1gML6bEF4bLELtDH4', 
         clientId: clientId 
       });
 
@@ -293,10 +300,17 @@ export function joinGame(name, code) {
       console.log('Attempting to join room:', MP.roomCode);
 
       // Set up channels
-      MP.channels.host = MP.ably.channels.get(getChannelName('-host'));
-      MP.channels.broadcast = MP.ably.channels.get(getChannelName('-broadcast'));
-      MP.channels.lobby = MP.ably.channels.get(getChannelName('-lobby'));
-      MP.channels.direct = MP.ably.channels.get(getChannelName(`-guest-${clientId}`));
+      const hostChannelName = getChannelName('-host');
+      const broadcastChannelName = getChannelName('-broadcast');
+      const lobbyChannelName = getChannelName('-lobby');
+      const directChannelName = getChannelName(`-guest-${clientId}`);
+
+      console.log('Channel names:', { hostChannelName, broadcastChannelName, lobbyChannelName, directChannelName });
+
+      MP.channels.host = MP.ably.channels.get(hostChannelName);
+      MP.channels.broadcast = MP.ably.channels.get(broadcastChannelName);
+      MP.channels.lobby = MP.ably.channels.get(lobbyChannelName);
+      MP.channels.direct = MP.ably.channels.get(directChannelName);
 
       // Subscribe to broadcast channel (host messages to all)
       MP.channels.broadcast.subscribe('msg', (message) => {
@@ -309,19 +323,23 @@ export function joinGame(name, code) {
       });
 
       // Enter presence
-      await MP.channels.lobby.presence.enter({ 
-        name: MP.localName, 
+      console.log('Entering presence on lobby channel...');
+      await MP.channels.lobby.presence.enter({
+        name: MP.localName,
         colorIndex: 0,
         isHost: false
       });
+      console.log('Presence entered successfully');
 
       // Send join message to host
+      console.log('Sending join message to host...');
       MP.channels.host.publish('msg', {
         type: 'playerJoined',
         name: MP.localName,
         clientId,
         color: 0,
       });
+      console.log('Join message sent');
 
       // Subscribe to presence events
       MP.channels.lobby.presence.subscribe('leave', (member) => {
@@ -353,14 +371,16 @@ export function joinGame(name, code) {
 
     } catch (e) {
       console.error('Guest Ably error:', e);
-      reject(new Error('Failed to connect to game. Check your connection.'));
+      reject(new Error('Failed to connect to game: ' + (e.message || 'check your connection')));
     }
   });
 }
 
 function handleGuestReceive(data) {
+  console.log('Guest received message type:', data.type);
   switch (data.type) {
     case MSG.WELCOME:
+      console.log('Guest received WELCOME message:', data);
       if (data.rejected) {
         if (MP.onDisconnect) MP.onDisconnect(data.reason || 'Rejected');
         cleanupMultiplayer();
