@@ -23,6 +23,10 @@ import {
   showToast, loadSettings, getSettings, saveSettings, UI,
   showESCMenu, hideESCMenu,
 } from './ui.js';
+
+// Import the default showSettings implementation to avoid infinite recursion
+const defaultShowSettings = UI.showSettings;
+const defaultShowKickPlayers = UI.showKickPlayers;
 import { initCommands, handleCommand, setAdminCommandsEnabled } from './commands.js';
 
 // ── App State ────────────────────────────────────────────
@@ -70,10 +74,10 @@ async function init() {
   applySettings(getSettings());
 
   // Override showKickPlayers to pass current players and host status
-  UI.showKickPlayers = () => UI.showKickPlayers(MP.players, MP.isHost);
+  UI.showKickPlayers = () => defaultShowKickPlayers(MP.players, MP.isHost);
 
   // Override showSettings to pass host and game running status
-  UI.showSettings = () => UI.showSettings(MP.isHost, gameRunning);
+  UI.showSettings = () => defaultShowSettings(MP.isHost, gameRunning);
 
   // Override showESCMenu to pass host status
   UI.showESCMenu = () => showESCMenu(MP.isHost);
