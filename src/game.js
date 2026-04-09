@@ -9,6 +9,7 @@ import {
   spawnHitDust, spawnHoleConfetti, spawnWallSparks, triggerCameraShake,
   createAimVisuals, updateAimVisuals, hideAimVisuals, cleanupAimVisuals,
 } from './vfx.js';
+import { showLoading, hideLoading } from './ui.js';
 
 export const BALL_COLORS = [
   0xff4444, 0x4488ff, 0xffcc00, 0x44cc44,
@@ -1067,17 +1068,14 @@ export function updateMovingPieces(dt) {
 
 export async function fetchMapManifest() {
   try {
+    showLoading('Loading maps...');
     const res = await fetch('/api/maps');
     mapManifest = await res.json();
+    hideLoading();
   } catch (e) {
-    // Fallback for production: try fetching manifest.json
-    try {
-      const res = await fetch('/maps/manifest.json');
-      mapManifest = await res.json();
-    } catch (e2) {
-      console.warn('Could not load map list, using fallback');
-      mapManifest = ['straight_fairway.json', 'dogleg_right.json', 'zigzag.json'];
-    }
+    console.error('Failed to fetch map manifest:', e);
+    mapManifest = [];
+    hideLoading();
   }
   return mapManifest;
 }
@@ -1089,10 +1087,15 @@ export async function fetchMap(filename) {
 
 export async function getAllMapData() {
   if (mapManifest.length === 0) await fetchMapManifest();
+  showLoading('Loading maps...', 0);
   const maps = [];
-  for (const f of mapManifest) {
-    maps.push(await fetchMap(f));
+  const total = mapManifest.length;
+  for (let i = 0; i < total; i++) {
+    maps.push(await fetchMap(mapManifest[i]));
+    const progress = ((i + 1) / total) * 100;
+    showLoading('Loading maps...', progress);
   }
+  hideLoading();
   return maps;
 }
 
@@ -1123,7 +1126,9 @@ export async function buildCourseByIndex(idx) {
   clearCourse();
   if (mapManifest.length === 0) await fetchMapManifest();
   Game.currentCourseIndex = idx;
+  showLoading('Loading map...');
   const data = await fetchMap(mapManifest[idx]);
+  hideLoading();
 
   Game.startPosition.set(data.start[0], data.start[1], data.start[2]);
   Game.holePosition.set(data.hole[0], data.hole[1], data.hole[2]);
@@ -1228,7 +1233,9 @@ export function renderMapThumbnail(mapData) {
 export async function loadMenuBackground() {
   if (mapManifest.length === 0) await fetchMapManifest();
   const idx = Math.floor(Math.random() * mapManifest.length);
+  showLoading('Loading background...');
   const data = await fetchMap(mapManifest[idx]);
+  hideLoading();
   clearCourse();
   buildCourseFromJSON(data);
   buildTerrain();

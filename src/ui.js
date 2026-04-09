@@ -395,11 +395,26 @@ export function hideKickPlayers() {
   UI.screens.kickPlayers.classList.add('hidden');
 }
 
-export function showLoading(msg) {
+export function showLoading(msg, progress = null) {
   hideAll();
   UI.screens.loading.classList.remove('hidden');
   const el = document.getElementById('loading-text');
   if (el) el.textContent = msg || 'Loading...';
+
+  const progressContainer = document.getElementById('loading-progress-container');
+  const progressBar = document.getElementById('loading-progress-bar');
+  const progressText = document.getElementById('loading-progress-text');
+
+  if (progress !== null) {
+    progressContainer.style.display = 'block';
+    progressText.style.display = 'block';
+    const pct = Math.max(0, Math.min(100, Math.round(progress)));
+    progressBar.style.width = pct + '%';
+    progressText.textContent = pct + '%';
+  } else {
+    progressContainer.style.display = 'none';
+    progressText.style.display = 'none';
+  }
 }
 
 export function hideLoading() {

@@ -91,7 +91,9 @@ async function init() {
   }
 
   // Load menu background
+  showLoading('Loading...');
   await loadMenuBackground();
+  hideLoading();
   showMainMenu();
   loop();
 }
