@@ -50,12 +50,19 @@ function fbm(x, z) {
 }
 
 export function initScene(container) {
-  Game.renderer = new THREE.WebGLRenderer({ antialias: true });
+  Game.scene = new THREE.Scene();
+  Game.scene.fog = new THREE.Fog(0x87ceeb, 20, 150);
+
+  const aspect = window.innerWidth / window.innerHeight;
+  Game.camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
+
+  // Allow transparent background so CSS sky gradient shows through
+  Game.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   Game.renderer.setSize(window.innerWidth, window.innerHeight);
   Game.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   Game.renderer.shadowMap.enabled = true;
   Game.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  Game.renderer.setClearColor(0x87ceeb);
+  Game.renderer.setClearColor(0x000000, 0); // Transparent
   container.appendChild(Game.renderer.domElement);
 
   Game.labelRenderer = new CSS2DRenderer();
@@ -79,15 +86,30 @@ export function initScene(container) {
   Game.controls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
   Game.controls.touches = { ONE: null, TWO: THREE.TOUCH.DOLLY_ROTATE };
 
-  Game.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-  const dir = new THREE.DirectionalLight(0xffffff, 1.0);
-  dir.position.set(15, 35, 15);
-  dir.castShadow = true;
-  dir.shadow.mapSize.set(2048, 2048);
-  dir.shadow.camera.left = -50; dir.shadow.camera.right = 50;
-  dir.shadow.camera.top = 50; dir.shadow.camera.bottom = -50;
-  dir.shadow.camera.near = 0.5; dir.shadow.camera.far = 100;
-  Game.scene.add(dir);
+  // Improved Lighting
+  const sun = new THREE.DirectionalLight(0xfff5e0, 1.2);
+  sun.position.set(80, 120, 60);
+  sun.castShadow = true;
+  sun.shadow.mapSize.width = 2048;
+  sun.shadow.mapSize.height = 2048;
+  sun.shadow.camera.near = 1;
+  sun.shadow.camera.far = 400;
+  sun.shadow.camera.left = -80;
+  sun.shadow.camera.right = 80;
+  sun.shadow.camera.top = 80;
+  sun.shadow.camera.bottom = -80;
+  sun.shadow.bias = -0.001;
+  Game.scene.add(sun);
+
+  const ambientLight = new THREE.AmbientLight(0xb0d8f0, 0.45);
+  Game.scene.add(ambientLight);
+
+  const fillLight = new THREE.DirectionalLight(0x88ccff, 0.3);
+  fillLight.position.set(-40, 30, -40);
+  Game.scene.add(fillLight);
+
+  const groundBounce = new THREE.HemisphereLight(0x88cc66, 0x334422, 0.4);
+  Game.scene.add(groundBounce);
 
   Game.clock = new THREE.Clock();
   Game.world = new CANNON.World({ gravity: new CANNON.Vec3(0, -15, 0) });
@@ -105,46 +127,199 @@ function onResize() {
   Game.labelRenderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+function createTerrainTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+
+  // Base grass green
+  ctx.fillStyle = '#4a8c3f';
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Noise layer 1: darker patches
+  ctx.fillStyle = '#2d6b28';
+  for (let i = 0; i < 4000; i++) {
+    const x = Math.random() * 512;
+    const y = Math.random() * 512;
+    const r = Math.random() * 4 + 1;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Noise layer 2: lighter patches
+  ctx.fillStyle = '#6abf5e';
+  for (let i = 0; i < 3000; i++) {
+    const x = Math.random() * 512;
+    const y = Math.random() * 512;
+    const r = Math.random() * 3 + 1;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Fine grain noise
+  ctx.fillStyle = 'rgba(0,0,0,0.15)';
+  for (let i = 0; i < 50000; i++) {
+    const x = Math.random() * 512;
+    const y = Math.random() * 512;
+    ctx.fillRect(x, y, 1, 1);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(12, 12);
+  
+  // To avoid blurry look since it's procedural pixel noise
+  texture.magFilter = THREE.NearestFilter;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  
+  return texture;
+}
+
 export function buildTerrain() {
-  if (Game.terrainMesh) Game.scene.remove(Game.terrainMesh);
-  const geo = new THREE.PlaneGeometry(140, 140, 80, 80);
+  if (Game.terrainMesh) {
+    Game.scene.remove(Game.terrainMesh);
+    Game.terrainMesh.geometry.dispose();
+    Game.terrainMesh.material.dispose();
+    Game.terrainMesh = null;
+  }
+  const geo = new THREE.PlaneGeometry(300, 300, 60, 60);
   geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position;
-  const seed = Math.random() * 999;
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i), z = pos.getZ(i);
-    pos.setY(i, fbm((x + seed) * 0.03, (z + seed) * 0.03) * 5 - 1);
+    const h = fbm(x * 0.05, z * 0.05) * 4 + fbm(x * 0.1, z * 0.1) * 2;
+    pos.setY(i, h - 2);
   }
   geo.computeVertexNormals();
-  Game.terrainMesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0x3a8c3a, flatShading: true }));
+  
+  const terrainTex = createTerrainTexture();
+  const mat = new THREE.MeshStandardMaterial({ 
+    color: 0xffffff, // Let texture drive color
+    map: terrainTex,
+    flatShading: true,
+    roughness: 0.9
+  });
+  
+  Game.terrainMesh = new THREE.Mesh(geo, mat);
   Game.terrainMesh.receiveShadow = true;
   Game.terrainMesh.position.y = -2;
   Game.scene.add(Game.terrainMesh);
 }
 
+let sunSprite = null;
+let sunRays = [];
+
 export function applyDayNightCycle(timeOfDay) {
   const isNight = timeOfDay === 'night';
   
-  // Sky color
+  // Sky color (fog only, background is transparent to show CSS gradient)
   const skyColor = isNight ? 0x0a1828 : 0x87ceeb;
-  Game.renderer.setClearColor(skyColor);
   Game.scene.fog.color.setHex(skyColor);
+  
+  // Update CSS background for sky gradient
+  const bg = document.getElementById('game-container');
+  if (bg) {
+    if (isNight) {
+      bg.style.background = 'radial-gradient(ellipse at 50% 0%, #0a1828 0%, #05101a 50%, #000000 100%)';
+    } else {
+      bg.style.background = 'radial-gradient(ellipse at 50% 0%, #b8f0ff 0%, #72d4f0 25%, #3ab8e0 55%, #1a7aaa 85%, #0d4a70 100%)';
+    }
+  }
 
   // Find and update lights
   Game.scene.traverse((obj) => {
     if (obj.isAmbientLight) {
-      obj.intensity = isNight ? 0.25 : 0.5;
-      obj.color.setHex(isNight ? 0x6688bb : 0xffffff);
+      obj.intensity = isNight ? 0.20 : 0.45;
+      obj.color.setHex(isNight ? 0x446688 : 0xb0d8f0);
     }
     if (obj.isDirectionalLight) {
-      obj.intensity = isNight ? 0.4 : 1.0;
-      obj.color.setHex(isNight ? 0xaaccff : 0xffffff);
+      // Sun
+      if (obj.castShadow) {
+        obj.intensity = isNight ? 0.3 : 1.2;
+        obj.color.setHex(isNight ? 0x88aadd : 0xfff5e0);
+        
+        // Add or update sun sprite / god rays
+        if (!sunSprite) {
+          createGodRays(obj.position);
+        }
+        if (sunSprite) {
+          sunSprite.material.opacity = isNight ? 0 : 0.35;
+          sunRays.forEach(ray => ray.material.opacity = isNight ? 0 : 0.12);
+        }
+      } 
+      // Fill light
+      else {
+        obj.intensity = isNight ? 0.1 : 0.3;
+        obj.color.setHex(isNight ? 0x224466 : 0x88ccff);
+      }
+    }
+    if (obj.isHemisphereLight) {
+      obj.intensity = isNight ? 0.15 : 0.4;
+      obj.color.setHex(isNight ? 0x224455 : 0x88cc66);
+      obj.groundColor.setHex(isNight ? 0x112211 : 0x334422);
     }
   });
 
   // Update terrain color for night
   if (Game.terrainMesh) {
-    Game.terrainMesh.material.color.setHex(isNight ? 0x1a3a2a : 0x3a8c3a);
+    Game.terrainMesh.material.color.setHex(isNight ? 0x1a3a2a : 0x4a8c3f);
+  }
+}
+
+function createGodRays(sunPos) {
+  // Create sun sprite
+  const canvas = document.createElement('canvas');
+  canvas.width = 256; canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+  gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+  gradient.addColorStop(0.2, 'rgba(255, 250, 230, 0.8)');
+  gradient.addColorStop(0.5, 'rgba(255, 240, 200, 0.3)');
+  gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 256, 256);
+  
+  const tex = new THREE.CanvasTexture(canvas);
+  const mat = new THREE.SpriteMaterial({
+    map: tex,
+    blending: THREE.AdditiveBlending,
+    opacity: 0.35,
+    depthWrite: false,
+    depthTest: false
+  });
+  
+  sunSprite = new THREE.Sprite(mat);
+  sunSprite.scale.set(150, 150, 1);
+  sunSprite.position.copy(sunPos);
+  Game.scene.add(sunSprite);
+  
+  // Create ray shafts
+  sunRays = [];
+  const rayMat = new THREE.MeshBasicMaterial({
+    color: 0xfff5e0,
+    blending: THREE.AdditiveBlending,
+    transparent: true,
+    opacity: 0.12,
+    side: THREE.DoubleSide,
+    depthWrite: false
+  });
+  
+  for (let i = 0; i < 5; i++) {
+    const rayGeo = new THREE.PlaneGeometry(5, 200);
+    // Shift geometry so origin is at the top (sun center)
+    rayGeo.translate(0, -100, 0); 
+    const ray = new THREE.Mesh(rayGeo, rayMat);
+    ray.position.copy(sunPos);
+    // Initial random rotation around Z
+    ray.rotation.z = Math.random() * Math.PI * 2;
+    // Store rotation speed
+    ray.userData.rotSpeed = (Math.random() - 0.5) * 0.0004;
+    Game.scene.add(ray);
+    sunRays.push(ray);
   }
 }
 
@@ -158,11 +333,47 @@ export function applyWindFromMapData(mapData) {
   }
 }
 
-function mt(color) { return new THREE.MeshStandardMaterial({ color, flatShading: true }); }
+function mt(color) {
+  // Check if it's a specific color to assign different materials
+  const hex = color.toString(16).toLowerCase();
+  
+  // Fairway / Grass (#5cb85c or close to original #55aa55/#7ec87e)
+  if (hex === '5cb85c' || hex === '55aa55' || hex === '7ec87e') {
+    return new THREE.MeshStandardMaterial({ 
+      color: 0x5cb85c, 
+      roughness: 0.8, 
+      metalness: 0.0 
+    });
+  }
+  
+  // Wall / Barrier (warm sandy brown)
+  if (hex === '885533' || hex === 'a06a44' || hex === 'c8a96e') {
+    return new THREE.MeshStandardMaterial({ 
+      color: 0xc8a96e, 
+      roughness: 0.9, 
+      metalness: 0.0 
+    });
+  }
+  
+  // Default generic material
+  return new THREE.MeshStandardMaterial({ 
+    color, 
+    roughness: 0.7,
+    metalness: 0.1
+  });
+}
 
 function addPiece(g, c, p, r) {
   const geo = new THREE.BoxGeometry(g[0], g[1], g[2]);
-  const mesh = new THREE.Mesh(geo, mt(c));
+  
+  // Custom material assignment based on geometry size for ramps/walls if color isn't exact
+  let mat = mt(c);
+  if (c === 0x55aa55 && r && r[0] !== 0) {
+    // It's a ramp, make slightly desaturated
+    mat = new THREE.MeshStandardMaterial({ color: 0x6bb86b, roughness: 0.8, metalness: 0.0 });
+  }
+
+  const mesh = new THREE.Mesh(geo, mat);
   mesh.position.set(p[0], p[1], p[2]);
   if (r) mesh.rotation.set(r[0], r[1], r[2]);
   mesh.castShadow = true; mesh.receiveShadow = true;
@@ -322,16 +533,33 @@ export async function buildCourseByIndex(idx) {
   applyWindFromMapData(data);
 
   const holeMesh = new THREE.Mesh(
-    new THREE.CylinderGeometry(Game.holeRadius, Game.holeRadius, 0.02, 32), mt(0x111111)
+    new THREE.CylinderGeometry(Game.holeRadius, Game.holeRadius, 0.02, 32), 
+    new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 1.0 })
   );
   holeMesh.position.copy(Game.holePosition).add(new THREE.Vector3(0, 0.01, 0));
   holeMesh.receiveShadow = true;
   Game.scene.add(holeMesh); Game.courseMeshes.push(holeMesh);
 
-  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2, 8), mt(0xcccccc));
+  // Add subtle glowing rim to hole
+  const rimMesh = new THREE.Mesh(
+    new THREE.TorusGeometry(Game.holeRadius, 0.03, 16, 32),
+    new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x001a20, emissiveIntensity: 0.5 })
+  );
+  rimMesh.position.copy(Game.holePosition).add(new THREE.Vector3(0, 0.02, 0));
+  rimMesh.rotation.x = Math.PI / 2;
+  Game.scene.add(rimMesh); Game.courseMeshes.push(rimMesh);
+
+  const pole = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.04, 0.04, 2, 8), 
+    new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.8, roughness: 0.2 })
+  );
   pole.position.copy(Game.holePosition).add(new THREE.Vector3(0, 1, 0));
   pole.castShadow = true; Game.scene.add(pole); Game.courseMeshes.push(pole);
-  const flag = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.35, 0.02), mt(0xff3333));
+  
+  const flag = new THREE.Mesh(
+    new THREE.BoxGeometry(0.6, 0.35, 0.02), 
+    new THREE.MeshStandardMaterial({ color: 0xff3333, roughness: 0.9 })
+  );
   flag.position.copy(Game.holePosition).add(new THREE.Vector3(0.3, 1.8, 0));
   flag.castShadow = true; Game.scene.add(flag); Game.courseMeshes.push(flag);
 
@@ -345,14 +573,25 @@ export function renderMapThumbnail(mapData) {
   const thumbScene = new THREE.Scene();
   thumbScene.fog = new THREE.Fog(0x87ceeb, 50, 150);
   thumbScene.background = new THREE.Color(0x87ceeb);
-  thumbScene.add(new THREE.AmbientLight(0xffffff, 0.5));
-  const dl = new THREE.DirectionalLight(0xffffff, 1.0);
-  dl.position.set(15, 35, 15);
-  thumbScene.add(dl);
+  
+  const sun = new THREE.DirectionalLight(0xfff5e0, 1.2);
+  sun.position.set(15, 35, 15);
+  thumbScene.add(sun);
+  thumbScene.add(new THREE.AmbientLight(0xb0d8f0, 0.45));
+  
+  const fillLight = new THREE.DirectionalLight(0x88ccff, 0.3);
+  fillLight.position.set(-20, 20, -20);
+  thumbScene.add(fillLight);
+  
+  thumbScene.add(new THREE.HemisphereLight(0x88cc66, 0x334422, 0.4));
 
   for (const p of mapData.pieces) {
     let geo, color = parseColor(p.color);
-    const mat = new THREE.MeshStandardMaterial({ color, flatShading: true });
+    let mat = mt(color);
+    if (color === 0x55aa55 && p.rotation && p.rotation[0] !== 0) {
+      mat = new THREE.MeshStandardMaterial({ color: 0x6bb86b, roughness: 0.8, metalness: 0.0 });
+    }
+    
     if (p.type === 'box') {
       geo = new THREE.BoxGeometry(p.size[0], p.size[1], p.size[2]);
     } else if (p.type === 'cylinder') {
@@ -629,6 +868,19 @@ export function updateGame(dt) {
     Game.elapsedTime = (Date.now() - Game.timerStart) / 1000;
     if (Game.onTimeUpdate) Game.onTimeUpdate(Game.elapsedTime);
   }
+
+  // Update god rays
+  if (sunRays && sunRays.length > 0) {
+    sunRays.forEach(ray => {
+      ray.rotation.z += ray.userData.rotSpeed;
+      // Billboard to face camera while keeping Z rotation
+      const q = new THREE.Quaternion().copy(Game.camera.quaternion);
+      const euler = new THREE.Euler().setFromQuaternion(q);
+      euler.z = ray.rotation.z;
+      ray.quaternion.setFromEuler(euler);
+    });
+  }
+
   if (Game.ballBody && !Game.hasFinished && (Game.wind.x !== 0 || Game.wind.z !== 0)) {
     Game.ballBody.applyForce(new CANNON.Vec3(Game.wind.x, 0, Game.wind.z), Game.ballBody.position);
   }

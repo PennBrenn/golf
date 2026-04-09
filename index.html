@@ -13,7 +13,7 @@
     body {
       font-family: 'Nunito', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
       overflow: hidden;
-      background: radial-gradient(ellipse at 60% 0%, #B3E5F5 0%, #7EC8E3 35%, #4DB8CC 65%, #006080 100%);
+      background: #000;
       color: #004D5C;
       position: relative;
     }
@@ -351,114 +351,139 @@
       background: rgba(255, 255, 255, 0.18);
       backdrop-filter: blur(12px) saturate(1.4);
       -webkit-backdrop-filter: blur(12px) saturate(1.4);
-      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.4);
       border-radius: 16px;
       padding: 10px 16px;
       font-family: 'Nunito', sans-serif;
       font-size: 0.85rem;
       font-weight: 600;
-      color: #003040;
-      pointer-events: none;
-      box-shadow: 0 4px 16px rgba(0, 180, 210, 0.12);
+      color: #004D5C;
+      max-width: 240px;
+      box-shadow: 0 4px 16px rgba(0, 180, 210, 0.15);
+      pointer-events: auto;
     }
 
     #hud-players div {
+      margin-bottom: 6px;
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 3px 0;
+    }
+    #hud-players div:last-child {
+      margin-bottom: 0;
+    }
+
+    .hud-player-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 6px rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+    
+    .hud-player-swings {
+      margin-left: auto;
+      font-size: 0.8rem;
+      opacity: 0.8;
+      background: rgba(255,255,255,0.4);
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+
+    .drag-bar-container {
+      width: 280px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 12px;
+      overflow: hidden;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15), inset 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    #drag-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #a8d400 0%, #ffcc00 50%, #ff4422 100%);
+      transition: width 0.05s linear;
+      position: relative;
+    }
+    
+    #drag-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 45%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 100%);
+    }
+
+    #wind-indicator {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(12px) saturate(1.4);
+      -webkit-backdrop-filter: blur(12px) saturate(1.4);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 16px;
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(0, 180, 210, 0.15);
+    }
+    
+    .wind-arrow {
+      font-size: 1.4rem;
+      color: #A8D400;
+      text-shadow: 0 0 8px rgba(168, 212, 0, 0.6);
+      transform-origin: center;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .wind-text {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #004D5C;
+    }
+
+    .hud-hint {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.85);
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.85rem;
+      font-style: italic;
+      font-weight: 600;
+      text-shadow: 0 1px 4px rgba(0, 50, 65, 0.6);
+      background: rgba(0, 50, 65, 0.3);
+      padding: 6px 16px;
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .hud-top-left {
       position: fixed;
       top: 16px; left: 16px;
       display: flex;
-      flex-direction: column;
-      gap: 8px;
-      pointer-events: none;
+      gap: 16px;
       background: rgba(255, 255, 255, 0.18);
       backdrop-filter: blur(12px) saturate(1.4);
       -webkit-backdrop-filter: blur(12px) saturate(1.4);
-      border: 1.5px solid rgba(255, 255, 255, 0.35);
-      border-radius: 16px;
-      padding: 12px 18px;
-      box-shadow: 0 4px 16px rgba(0, 180, 210, 0.12);
-    }
-
-    #hud-timer {
-      font-family: 'Nunito', sans-serif;
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #00C2CC;
-      text-shadow: 0 1px 8px rgba(0, 194, 204, 0.4);
-    }
-
-    #hud-swings {
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #004D5C;
-    }
-
-    .drag-bar-container {
-      width: 240px;
-      height: 20px;
-      background: rgba(255, 255, 255, 0.25);
-      border: 1.5px solid rgba(255, 255, 255, 0.4);
-      border-radius: 30px;
-      overflow: hidden;
-      opacity: 0.4;
-      transition: opacity 0.15s;
-      box-shadow: inset 0 2px 6px rgba(0,50,65,0.15);
-    }
-
-    #drag-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #A8D400 0%, #C6E600 100%);
-      border-radius: 30px;
-      transition: width 0.05s linear;
-      box-shadow: 0 0 12px rgba(168, 212, 0, 0.5);
-    }
-
-    .hud-hint {
-      margin-top: 8px;
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 400;
-      color: rgba(255,255,255,0.7);
-      pointer-events: none;
-      text-shadow: 0 1px 3px rgba(0,50,65,0.3);
-    }
-
-    #wind-indicator {
-      position: fixed;
-      bottom: 16px;
-      right: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255,255,255,0.18);
-      backdrop-filter: blur(12px) saturate(1.4);
-      -webkit-backdrop-filter: blur(12px) saturate(1.4);
-      border: 1.5px solid rgba(255,255,255,0.35);
-      border-radius: 16px;
-      padding: 8px 14px;
-      pointer-events: none;
-      box-shadow: 0 4px 16px rgba(0,180,210,0.12);
-    }
-    .wind-arrow {
-      font-size: 1.2rem;
-      color: #00C2CC;
-      transition: transform 0.3s;
-      text-shadow: 0 1px 6px rgba(0,194,204,0.5);
-    }
-    .wind-text {
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: white;
-      text-shadow: 0 1px 3px rgba(0,50,65,0.3);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 20px;
+      padding: 12px 24px;
+      box-shadow: 0 4px 16px rgba(0, 180, 210, 0.15);
     }
 
     /* ── Settings Screen ──────────────────────────── */
@@ -577,20 +602,21 @@
       position: fixed;
       top: 60px; left: 50%;
       transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.2);
+      background: linear-gradient(90deg, rgba(0,200,240,0.25), rgba(0,200,240,0.0));
       backdrop-filter: blur(12px) saturate(1.5);
       -webkit-backdrop-filter: blur(12px) saturate(1.5);
-      border: 1.5px solid rgba(255, 255, 255, 0.4);
-      color: #A8D400;
+      border-left: 3px solid #00c8f0;
+      color: #00f0ff;
       font-family: 'Nunito', sans-serif;
       padding: 10px 28px;
-      border-radius: 20px;
       font-size: 0.9rem;
       font-weight: 700;
+      font-style: italic;
+      letter-spacing: 0.08em;
       z-index: 60;
       pointer-events: none;
-      box-shadow: 0 4px 16px rgba(168, 212, 0, 0.2);
-      text-shadow: 0 1px 3px rgba(0,50,65,0.3);
+      box-shadow: 0 4px 16px rgba(0, 240, 255, 0.1);
+      text-shadow: 0 0 12px rgba(0,240,255,0.6);
     }
     
     #spectator-banner.hidden {
@@ -803,21 +829,31 @@
       position: fixed;
       bottom: 40px; left: 50%;
       transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(16px) saturate(1.5);
-      -webkit-backdrop-filter: blur(16px) saturate(1.5);
-      border: 1.5px solid rgba(255, 255, 255, 0.4);
-      color: #003040;
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-left: 3px solid #00c8f0;
+      border-radius: 12px;
+      color: #ffffff;
       font-family: 'Nunito', sans-serif;
+      font-size: 0.9rem;
       font-weight: 600;
-      padding: 12px 32px;
-      border-radius: 20px;
-      font-size: 0.95rem;
-      z-index: 300;
+      padding: 12px 24px;
+      z-index: 200;
       pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s, transform 0.3s;
-      box-shadow: 0 4px 20px rgba(0, 180, 210, 0.2), inset 0 1px 0 rgba(255,255,255,0.5);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      animation: slideInRight 0.3s ease, fadeOut 0.4s ease 2.6s forwards;
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(-50%); }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; transform: translateX(-50%); }
+      to { opacity: 0; transform: translateX(-50%); }
     }
 
     #toast.toast-show { 
@@ -825,9 +861,7 @@
       transform: translateX(-50%) translateY(0);
     }
     #toast.hidden { 
-      display: block; 
-      opacity: 0; 
-      transform: translateX(-50%) translateY(10px);
+      display: none; 
     }
 
     /* ── Player Labels (CSS2D) ────────────────────── */
