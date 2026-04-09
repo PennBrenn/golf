@@ -55,6 +55,54 @@ export const UI = {
   onReturnToMenu: null,  // callback()
   onKickPlayer: null,    // callback(playerId)
   onResetBall: null,     // callback()
+  showKickPlayers: (players, isHost = false) => {
+    // Default implementation - will be overridden in main.js
+    hideAll();
+    UI.screens.kickPlayers.classList.remove('hidden');
+    const list = document.getElementById('kick-player-list');
+    list.innerHTML = '';
+    if (players) {
+      players.forEach((p) => {
+        const li = document.createElement('li');
+        const colorHex = playerColorHex(p.colorIndex);
+        li.innerHTML = `
+          <span style="display:flex;align-items:center;gap:10px;">
+            <span class="player-dot" style="background:${colorHex}"></span>
+            ${escapeHtml(p.name)}${p.isHost ? ' (Host)' : ''}
+          </span>
+        `;
+        if (isHost && !p.isHost) {
+          const kickBtn = document.createElement('button');
+          kickBtn.className = 'kick-btn';
+          kickBtn.textContent = 'Kick';
+          kickBtn.addEventListener('click', () => {
+            if (UI.onKickPlayer) UI.onKickPlayer(p.id);
+          });
+          li.appendChild(kickBtn);
+        }
+        list.appendChild(li);
+      });
+    }
+  },
+  hideKickPlayers: () => {
+    UI.screens.kickPlayers.classList.add('hidden');
+  },
+  showSettings: (isHost = false, gameRunning = false) => {
+    // Default implementation - will be overridden in main.js
+    hideAll();
+    UI.screens.settings.classList.remove('hidden');
+    populateSettings();
+    const adminSection = document.getElementById('settings-admin-section');
+    const adminToggle = document.getElementById('settings-admin-commands');
+    if (adminSection && adminToggle) {
+      if (isHost && !gameRunning) {
+        adminSection.style.display = 'block';
+        adminToggle.disabled = false;
+      } else {
+        adminSection.style.display = 'none';
+      }
+    }
+  },
 };
 
 // ── Init ─────────────────────────────────────────────────
@@ -122,7 +170,7 @@ export function initUI() {
 
   // Main menu settings button
   document.getElementById('btn-settings-main').addEventListener('click', () => {
-    if (UI.showSettings) UI.showSettings(MP?.isHost || false, false); else showSettings(false, false);
+    UI.showSettings(MP?.isHost || false, false);
   });
 
   // Main menu map builder button
@@ -319,23 +367,6 @@ export function showMainMenu() {
   UI.screens.mainMenu.classList.remove('hidden');
 }
 
-export function showSettings(isHost = false, gameRunning = false) {
-  hideAll();
-  UI.screens.settings.classList.remove('hidden');
-
-  const adminSection = document.getElementById('settings-admin-section');
-  const adminToggle = document.getElementById('settings-admin-commands');
-
-  if (adminSection && adminToggle) {
-    if (isHost && !gameRunning) {
-      adminSection.style.display = 'block';
-      adminToggle.disabled = false;
-    } else {
-      adminSection.style.display = 'none';
-    }
-  }
-}
-
 export async function showMapLibrary() {
   hideAll();
   UI.screens.mapLibrary.classList.remove('hidden');
@@ -393,41 +424,6 @@ export function showESCMenu(isHost = false) {
 
 export function hideESCMenu() {
   UI.screens.escMenu.classList.add('hidden');
-}
-
-export function showKickPlayers(players, isHost = false) {
-  hideAll();
-  UI.screens.kickPlayers.classList.remove('hidden');
-
-  const list = document.getElementById('kick-player-list');
-  list.innerHTML = '';
-
-  if (players) {
-    players.forEach((p) => {
-      const li = document.createElement('li');
-      const colorHex = playerColorHex(p.colorIndex);
-      li.innerHTML = `
-        <span style="display:flex;align-items:center;gap:10px;">
-          <span class="player-dot" style="background:${colorHex}"></span>
-          ${escapeHtml(p.name)}${p.isHost ? ' (Host)' : ''}
-        </span>
-      `;
-      if (isHost && !p.isHost) {
-        const kickBtn = document.createElement('button');
-        kickBtn.className = 'kick-btn';
-        kickBtn.textContent = 'Kick';
-        kickBtn.addEventListener('click', () => {
-          if (UI.onKickPlayer) UI.onKickPlayer(p.id);
-        });
-        li.appendChild(kickBtn);
-      }
-      list.appendChild(li);
-    });
-  }
-}
-
-export function hideKickPlayers() {
-  UI.screens.kickPlayers.classList.add('hidden');
 }
 
 export function showLoading(msg, progress = null) {

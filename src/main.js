@@ -21,7 +21,7 @@ import {
   showLeaderboard, hideLeaderboard,
   showMapVote, updateMapVotes, showVoteWinner, hideMapVote,
   showToast, loadSettings, getSettings, saveSettings, UI,
-  showESCMenu, hideESCMenu, showKickPlayers, hideKickPlayers,
+  showESCMenu, hideESCMenu,
 } from './ui.js';
 import { initCommands, handleCommand, setAdminCommandsEnabled } from './commands.js';
 
@@ -70,10 +70,10 @@ async function init() {
   applySettings(getSettings());
 
   // Override showKickPlayers to pass current players and host status
-  UI.showKickPlayers = () => showKickPlayers(MP.players, MP.isHost);
+  UI.showKickPlayers = () => UI.showKickPlayers(MP.players, MP.isHost);
 
   // Override showSettings to pass host and game running status
-  UI.showSettings = () => showSettings(MP.isHost, gameRunning);
+  UI.showSettings = () => UI.showSettings(MP.isHost, gameRunning);
 
   // Override showESCMenu to pass host status
   UI.showESCMenu = () => showESCMenu(MP.isHost);
