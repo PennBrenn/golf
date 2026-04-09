@@ -1,0 +1,43 @@
+{
+  "name": "Bounce Journey",
+  "timeLimit": 120,
+  "start": [0, 9, 12],
+  "hole": [0, 9, -12],
+  "pieces": [
+    {
+      "type": "box",
+      "size": [3, 0.5, 3],
+      "position": [0, 8.5, 9],
+      "rotation": [0, 0, 0],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "bouncepad",
+      "size": [2, 0.3, 2],
+      "position": [0, 8.4, 6],
+      "rotation": [-0.3, 0, 0],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [2, 0.3, 2],
+      "position": [0, 9.4, 0],
+      "rotation": [0.3, 0, 0],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [2, 0.3, 2],
+      "position": [0, 8.4, -6],
+      "rotation": [-0.3, 0, 0],
+      "color": "#ff8800"
+    },
+    {
+      "type": "box",
+      "size": [3, 0.5, 3],
+      "position": [0, 8.5, -9],
+      "rotation": [0, 0, 0],
+      "color": "#5ab85a"
+    }
+  ]
+}

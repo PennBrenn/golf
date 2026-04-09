@@ -1,0 +1,43 @@
+{
+  "name": "Maze",
+  "timeLimit": 180,
+  "start": [-4, 9, 4],
+  "hole": [4, 9, -4],
+  "pieces": [
+    {
+      "type": "box",
+      "size": [8, 0.5, 8],
+      "position": [0, 8.5, 0],
+      "rotation": [0, 0, 0],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "wall",
+      "size": [0.3, 0.8, 4],
+      "position": [0, 8.6, 2],
+      "rotation": [0, 0, 0],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [0.3, 0.8, 4],
+      "position": [0, 8.6, -2],
+      "rotation": [0, 0, 0],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [4, 0.8, 0.3],
+      "position": [2, 8.6, 0],
+      "rotation": [0, 0, 0],
+      "color": "#ffffff"
+    },
+    {
+      "type": "wall",
+      "size": [4, 0.8, 0.3],
+      "position": [-2, 8.6, 0],
+      "rotation": [0, 0, 0],
+      "color": "#ffffff"
+    }
+  ]
+}
