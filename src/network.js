@@ -1,20 +1,14 @@
 import Peer from 'peerjs';
 import { generateRoomCode } from './words.js';
 
-// PeerJS configuration with STUN/TURN servers for cross-device connectivity
+// PeerJS configuration with STUN servers for cross-device connectivity
 const PEER_CONFIG = {
   debug: 1,
   config: {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' },
-      { urls: 'stun:stun3.l.google.com:19302' },
-      { urls: 'stun:stun4.l.google.com:19302' },
       { urls: 'stun:global.stun.twilio.com:3478' },
-      { urls: 'stun:stun.mit.edu:3478' },
-      // Public TURN server (no auth required)
-      { urls: 'turn:numb.viagenie.ca', username: 'webrtc@live.com', credential: 'muazkh' },
     ]
   }
 };
