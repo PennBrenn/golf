@@ -364,9 +364,6 @@ export function buildTerrain() {
   Game.scene.add(Game.terrainMesh);
 }
 
-let sunSprite = null;
-let sunRays = [];
-
 export function applyDayNightCycle(timeOfDay) {
   const isNight = timeOfDay === 'night';
   
@@ -395,15 +392,6 @@ export function applyDayNightCycle(timeOfDay) {
       if (obj.castShadow) {
         obj.intensity = isNight ? 0.3 : 1.2;
         obj.color.setHex(isNight ? 0x88aadd : 0xfff5e0);
-        
-        // Add or update sun sprite / god rays
-        if (!sunSprite) {
-          createGodRays(obj.position);
-        }
-        if (sunSprite) {
-          sunSprite.material.opacity = isNight ? 0 : 0.35;
-          sunRays.forEach(ray => ray.material.opacity = isNight ? 0 : 0.12);
-        }
       } 
       // Fill light
       else {
@@ -421,59 +409,6 @@ export function applyDayNightCycle(timeOfDay) {
   // Update terrain color for night
   if (Game.terrainMesh) {
     Game.terrainMesh.material.color.setHex(isNight ? 0x1a3a2a : 0x4a8c3f);
-  }
-}
-
-function createGodRays(sunPos) {
-  // Create sun sprite
-  const canvas = document.createElement('canvas');
-  canvas.width = 256; canvas.height = 256;
-  const ctx = canvas.getContext('2d');
-  const gradient = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-  gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-  gradient.addColorStop(0.2, 'rgba(255, 250, 230, 0.8)');
-  gradient.addColorStop(0.5, 'rgba(255, 240, 200, 0.3)');
-  gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 256, 256);
-  
-  const tex = new THREE.CanvasTexture(canvas);
-  const mat = new THREE.SpriteMaterial({
-    map: tex,
-    blending: THREE.AdditiveBlending,
-    opacity: 0.35,
-    depthWrite: false,
-    depthTest: false
-  });
-  
-  sunSprite = new THREE.Sprite(mat);
-  sunSprite.scale.set(150, 150, 1);
-  sunSprite.position.copy(sunPos);
-  Game.scene.add(sunSprite);
-  
-  // Create ray shafts
-  sunRays = [];
-  const rayMat = new THREE.MeshBasicMaterial({
-    color: 0xfff5e0,
-    blending: THREE.AdditiveBlending,
-    transparent: true,
-    opacity: 0.12,
-    side: THREE.DoubleSide,
-    depthWrite: false
-  });
-  
-  for (let i = 0; i < 5; i++) {
-    const rayGeo = new THREE.PlaneGeometry(5, 200);
-    // Shift geometry so origin is at the top (sun center)
-    rayGeo.translate(0, -100, 0); 
-    const ray = new THREE.Mesh(rayGeo, rayMat);
-    ray.position.copy(sunPos);
-    // Initial random rotation around Z
-    ray.rotation.z = Math.random() * Math.PI * 2;
-    // Store rotation speed
-    ray.userData.rotSpeed = (Math.random() - 0.5) * 0.0004;
-    Game.scene.add(ray);
-    sunRays.push(ray);
   }
 }
 
@@ -1049,18 +984,6 @@ export function updateGame(dt) {
       Game.hasFinished = true;
       if (Game.onTimeUp) Game.onTimeUp();
     }
-  }
-
-  // Update god rays
-  if (sunRays && sunRays.length > 0) {
-    sunRays.forEach(ray => {
-      ray.rotation.z += ray.userData.rotSpeed;
-      // Billboard to face camera while keeping Z rotation
-      const q = new THREE.Quaternion().copy(Game.camera.quaternion);
-      const euler = new THREE.Euler().setFromQuaternion(q);
-      euler.z = ray.rotation.z;
-      ray.quaternion.setFromEuler(euler);
-    });
   }
 
   if (Game.ballBody && !Game.hasFinished && (Game.wind.x !== 0 || Game.wind.z !== 0)) {
