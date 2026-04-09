@@ -1,8 +1,8 @@
 {
   "name": "Untitled",
   "timeLimit": 120,
-  "timeOfDay": "night",
-  "rain": true,
+  "timeOfDay": "day",
+  "rain": false,
   "start": [
     0,
     9,
@@ -17,21 +17,46 @@
     {
       "type": "box",
       "size": [
-        4,
-        0.5,
-        21.373
+        3.41,
+        0.8,
+        23.225
       ],
       "position": [
-        0,
-        10.708,
-        -8.5
+        -0.04,
+        7.832,
+        -9.469
       ],
       "rotation": [
-        0.259,
+        0,
         0,
         0
       ],
-      "color": "#5ab85a"
+      "color": "#ffffff"
+    },
+    {
+      "type": "cylinder",
+      "radiusTop": 0.4,
+      "radiusBottom": 0.4,
+      "height": 1.5,
+      "segments": 8,
+      "position": [
+        0.121,
+        8.894,
+        -10.067
+      ],
+      "color": "#5588cc",
+      "rotation": [
+        0,
+        0,
+        -0.641
+      ],
+      "motion": {
+        "type": "rotate",
+        "axis": "x",
+        "range": 0,
+        "speed": 0,
+        "phase": 0
+      }
     }
   ]
 }

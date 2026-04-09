@@ -23,13 +23,33 @@ const B = {
 // ── Piece Defaults ───────────────────────────────────────
 
 const PRESETS = {
+  // ── Basic ──
   box:        () => ({ type: 'box', size: [4, 0.5, 4], position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#5ab85a' }),
   cylinder:   () => ({ type: 'cylinder', radiusTop: 0.4, radiusBottom: 0.4, height: 1.5, segments: 8, position: [0, 9, 0], color: '#5588cc' }),
   wall:       () => ({ type: 'box', size: [0.3, 0.8, 8], position: [0, 8.6, 0], rotation: [0, 0, 0], color: '#ffffff' }),
   ramp:       () => ({ type: 'box', size: [4, 0.5, 6], position: [0, 9.5, 0], rotation: [-0.28, 0, 0], color: '#7ec87e' }),
-  bouncepad:  () => ({ type: 'box', size: [2, 0.3, 2], position: [0, 8.4, 0], rotation: [0, 0, 0], color: '#ff8800' }),
   sand:       () => ({ type: 'box', size: [4, 0.5, 4], position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#e6d5a8' }),
-  gravinv:    () => ({ type: 'box', size: [2, 0.3, 2], position: [0, 8.4, 0], rotation: [0, 0, 0], color: '#aa44ff' }),
+  water:      () => ({ type: 'water', size: [4, 0.5, 4], position: [0, 8.1, 0], rotation: [0, 0, 0], color: '#1e8cff' }),
+  ice:        () => ({ type: 'ice', size: [4, 0.5, 4], position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#ccf2ff' }),
+  // ── Launchers & Pads ──
+  bouncepad:  () => ({ type: 'bouncepad', size: [2, 0.3, 2], position: [0, 8.4, 0], rotation: [0, 0, 0], color: '#ff8800' }),
+  trampoline: () => ({ type: 'trampoline', size: [3, 0.2, 3], position: [0, 8.35, 0], rotation: [0, 0, 0], color: '#ff66aa' }),
+  launcher:   () => ({ type: 'launcher', size: [1.5, 0.3, 1.5], position: [0, 8.4, 0], rotation: [0, 0, 0], color: '#ff4488', launchForce: 20 }),
+  cannon:     () => ({ type: 'cannon', size: [1, 1, 2.5], position: [0, 8.75, 0], rotation: [0, 0, 0], color: '#882222', launchForce: 25 }),
+  speedboost: () => ({ type: 'speedboost', size: [2, 0.15, 3], position: [0, 8.3, 0], rotation: [0, 0, 0], color: '#44ff44', boostForce: 12 }),
+  // ── Forces & Fields ──
+  gravinv:    () => ({ type: 'gravinv', size: [2, 0.3, 2], position: [0, 8.4, 0], rotation: [0, 0, 0], color: '#aa44ff' }),
+  blower:     () => ({ type: 'blower', size: [1, 1.5, 1], position: [0, 9, 0], rotation: [0, 0, 0], color: '#88ddff', blowForce: 8, blowDir: [0, 0, -1] }),
+  magnet:     () => ({ type: 'magnet', size: [1, 0.8, 1], position: [0, 8.65, 0], rotation: [0, 0, 0], color: '#cc2222', magnetForce: 6, magnetRadius: 5 }),
+  conveyor:   () => ({ type: 'conveyor', size: [2, 0.3, 6], position: [0, 8.4, 0], rotation: [0, 0, 0], color: '#ffaa00', conveyorDir: [0, 0, -1], conveyorSpeed: 5 }),
+  // ── Obstacles ──
+  bumper:     () => ({ type: 'bumper', radiusTop: 0.6, radiusBottom: 0.6, height: 0.8, segments: 16, position: [0, 8.65, 0], color: '#ff4444', bumperForce: 12 }),
+  spinner:    () => ({ type: 'spinner', size: [5, 0.4, 0.6], position: [0, 8.45, 0], rotation: [0, 0, 0], color: '#4488ff', motion: { type: 'rotate', axis: 'y', range: 180, speed: 0.3, phase: 0 } }),
+  windmill:   () => ({ type: 'windmill', size: [0.4, 3, 0.15], position: [0, 10, 0], rotation: [0, 0, 0], color: '#dddddd', motion: { type: 'rotate', axis: 'z', range: 180, speed: 0.25, phase: 0 } }),
+  door:       () => ({ type: 'door', size: [3, 2, 0.3], position: [0, 9.25, 0], rotation: [0, 0, 0], color: '#886644', motion: { type: 'translate', axis: 'y', range: 2.5, speed: 0.3, phase: 0 } }),
+  // ── Warp & Utility ──
+  teleporter: () => ({ type: 'teleporter', size: [1.5, 0.15, 1.5], position: [0, 8.3, 0], rotation: [0, 0, 0], color: '#ff44ff', target: [5, 8.8, 0] }),
+  checkpoint: () => ({ type: 'checkpoint', size: [1.5, 0.1, 1.5], position: [0, 8.3, 0], rotation: [0, 0, 0], color: '#ffff00' }),
 };
 
 // ── Init ─────────────────────────────────────────────────
@@ -283,15 +303,29 @@ function destroyRainSystem() {
 
 // ── Piece Management ─────────────────────────────────────
 
+const BOX_TYPES = ['box','wall','ramp','sand','bouncepad','gravinv','ice','trampoline',
+  'launcher','cannon','speedboost','blower','magnet','conveyor','spinner','windmill',
+  'door','teleporter','checkpoint','water'];
+
 function createMeshFromData(data) {
   let geo, mat;
   const color = parseColor(data.color);
-  mat = new THREE.MeshStandardMaterial({ color, flatShading: true });
 
-  if (data.type === 'box') {
-    geo = new THREE.BoxGeometry(data.size[0], data.size[1], data.size[2]);
-  } else if (data.type === 'cylinder') {
+  // Emissive glow for special types
+  const glowTypes = { teleporter: 0.6, checkpoint: 0.4, speedboost: 0.5, launcher: 0.4, cannon: 0.2, bumper: 0.5, blower: 0.3, magnet: 0.3, conveyor: 0.2 };
+  const emissiveIntensity = glowTypes[data.type] || 0;
+  mat = new THREE.MeshStandardMaterial({
+    color, flatShading: true,
+    emissive: emissiveIntensity > 0 ? color : 0x000000,
+    emissiveIntensity,
+    transparent: data.type === 'water' || data.type === 'teleporter',
+    opacity: data.type === 'water' ? 0.55 : data.type === 'teleporter' ? 0.7 : 1.0,
+  });
+
+  if (data.type === 'cylinder' || data.type === 'bumper') {
     geo = new THREE.CylinderGeometry(data.radiusTop, data.radiusBottom, data.height, data.segments || 8);
+  } else if (data.size) {
+    geo = new THREE.BoxGeometry(data.size[0], data.size[1], data.size[2]);
   } else {
     geo = new THREE.BoxGeometry(1, 1, 1);
   }
@@ -358,7 +392,7 @@ function syncDataFromMesh(piece) {
   const m = piece.mesh;
   piece.data.position = [round3(m.position.x), round3(m.position.y), round3(m.position.z)];
   piece.data.rotation = [round3(m.rotation.x), round3(m.rotation.y), round3(m.rotation.z)];
-  if (piece.data.type === 'box') {
+  if (piece.data.size) {
     piece.data.size = [
       round3(m.scale.x * getBaseSize(piece, 0)),
       round3(m.scale.y * getBaseSize(piece, 1)),
@@ -369,7 +403,7 @@ function syncDataFromMesh(piece) {
 
 function getBaseSize(piece, axis) {
   const params = piece.mesh.geometry.parameters;
-  if (piece.data.type === 'box') {
+  if (piece.data.size && params.width !== undefined) {
     return [params.width, params.height, params.depth][axis];
   }
   return 1;
@@ -700,6 +734,68 @@ function setupProps() {
     });
   });
 
+  // Force property (launcher, cannon, speedboost, bumper)
+  document.getElementById('prop-force').addEventListener('input', () => {
+    if (!B.selected) return;
+    const val = parseFloat(document.getElementById('prop-force').value) || 10;
+    const t = B.selected.data.type;
+    if (t === 'launcher' || t === 'cannon') B.selected.data.launchForce = val;
+    else if (t === 'speedboost') B.selected.data.boostForce = val;
+    else if (t === 'bumper') B.selected.data.bumperForce = val;
+    markUnsaved();
+  });
+
+  // Blower direction
+  ['dir-x', 'dir-y', 'dir-z'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      if (!B.selected || B.selected.data.type !== 'blower') return;
+      B.selected.data.blowDir = [
+        parseFloat(document.getElementById('dir-x').value) || 0,
+        parseFloat(document.getElementById('dir-y').value) || 0,
+        parseFloat(document.getElementById('dir-z').value) || 0,
+      ];
+      B.selected.data.blowForce = parseFloat(document.getElementById('prop-force').value) || 8;
+      markUnsaved();
+    });
+  });
+
+  // Teleporter target
+  ['tp-x', 'tp-y', 'tp-z'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      if (!B.selected || B.selected.data.type !== 'teleporter') return;
+      B.selected.data.target = [
+        parseFloat(document.getElementById('tp-x').value) || 0,
+        parseFloat(document.getElementById('tp-y').value) || 8.8,
+        parseFloat(document.getElementById('tp-z').value) || 0,
+      ];
+      markUnsaved();
+    });
+  });
+
+  // Magnet properties
+  ['mag-force', 'mag-radius'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      if (!B.selected || B.selected.data.type !== 'magnet') return;
+      B.selected.data.magnetForce = parseFloat(document.getElementById('mag-force').value) || 6;
+      B.selected.data.magnetRadius = parseFloat(document.getElementById('mag-radius').value) || 5;
+      markUnsaved();
+    });
+  });
+
+  // Conveyor properties
+  ['conv-speed', 'conv-dx', 'conv-dz'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      if (!B.selected || B.selected.data.type !== 'conveyor') return;
+      B.selected.data.conveyorSpeed = parseFloat(document.getElementById('conv-speed').value) || 5;
+      B.selected.data.conveyorDir = [
+        parseFloat(document.getElementById('conv-dx').value) || 0,
+        0,
+        parseFloat(document.getElementById('conv-dz').value) || -1,
+      ];
+      markUnsaved();
+    });
+  });
+
   // Delete / Duplicate
   document.getElementById('btn-delete').addEventListener('click', () => {
     if (B.selected) removePiece(B.selected);
@@ -750,12 +846,12 @@ function updatePropsUI() {
   document.getElementById('ry').value = round3(m.rotation.y);
   document.getElementById('rz').value = round3(m.rotation.z);
 
-  const isBox = d.type === 'box';
-  const isCyl = d.type === 'cylinder';
-  document.getElementById('box-size-group').style.display = isBox ? 'block' : 'none';
+  const hasSize = d.size !== undefined;
+  const isCyl = d.type === 'cylinder' || d.type === 'bumper';
+  document.getElementById('box-size-group').style.display = hasSize ? 'block' : 'none';
   document.getElementById('cyl-size-group').style.display = isCyl ? 'block' : 'none';
 
-  if (isBox) {
+  if (hasSize) {
     document.getElementById('sw').value = d.size[0];
     document.getElementById('sh').value = d.size[1];
     document.getElementById('sd').value = d.size[2];
@@ -783,6 +879,46 @@ function updatePropsUI() {
     document.getElementById('motion-range').value = 0;
     document.getElementById('motion-speed').value = 0;
     document.getElementById('motion-phase').value = 0;
+  }
+
+  // Show/hide special property groups based on type
+  const forceTypes = ['launcher', 'cannon', 'speedboost', 'bumper', 'blower'];
+  const showForce = forceTypes.includes(d.type);
+  document.getElementById('force-group').style.display = showForce ? 'block' : 'none';
+  if (showForce) {
+    const forceVal = d.launchForce || d.boostForce || d.bumperForce || d.blowForce || 10;
+    document.getElementById('prop-force').value = forceVal;
+  }
+
+  const showDir = d.type === 'blower';
+  document.getElementById('direction-group').style.display = showDir ? 'block' : 'none';
+  if (showDir && d.blowDir) {
+    document.getElementById('dir-x').value = d.blowDir[0] || 0;
+    document.getElementById('dir-y').value = d.blowDir[1] || 0;
+    document.getElementById('dir-z').value = d.blowDir[2] || 0;
+  }
+
+  const showTp = d.type === 'teleporter';
+  document.getElementById('teleporter-group').style.display = showTp ? 'block' : 'none';
+  if (showTp && d.target) {
+    document.getElementById('tp-x').value = d.target[0] || 0;
+    document.getElementById('tp-y').value = d.target[1] || 8.8;
+    document.getElementById('tp-z').value = d.target[2] || 0;
+  }
+
+  const showMag = d.type === 'magnet';
+  document.getElementById('magnet-group').style.display = showMag ? 'block' : 'none';
+  if (showMag) {
+    document.getElementById('mag-force').value = d.magnetForce || 6;
+    document.getElementById('mag-radius').value = d.magnetRadius || 5;
+  }
+
+  const showConv = d.type === 'conveyor';
+  document.getElementById('conveyor-group').style.display = showConv ? 'block' : 'none';
+  if (showConv) {
+    document.getElementById('conv-speed').value = d.conveyorSpeed || 5;
+    document.getElementById('conv-dx').value = (d.conveyorDir && d.conveyorDir[0]) || 0;
+    document.getElementById('conv-dz').value = (d.conveyorDir && d.conveyorDir[2]) || -1;
   }
 }
 

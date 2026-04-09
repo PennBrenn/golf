@@ -1,0 +1,79 @@
+{
+  "name": "Debug Showcase",
+  "timeLimit": 300,
+  "timeOfDay": "day",
+  "rain": false,
+  "start": [0, 8.8, 0],
+  "hole": [0, 8.5, -95],
+  "pieces": [
+    {"type": "box", "size": [4, 0.5, 6], "position": [0, 8.25, 0], "rotation": [0, 0, 0], "color": "#5ab85a"},
+    {"type": "box", "size": [4, 0.5, 6], "position": [0, 8.25, -5.5], "rotation": [0, 0, 0], "color": "#5ab85a"},
+
+    {"type": "wall", "size": [0.3, 0.8, 12], "position": [2.15, 8.65, -2.5], "rotation": [0, 0, 0], "color": "#ffffff"},
+    {"type": "wall", "size": [0.3, 0.8, 12], "position": [-2.15, 8.65, -2.5], "rotation": [0, 0, 0], "color": "#ffffff"},
+
+    {"type": "bouncepad", "size": [2, 0.3, 2], "position": [0, 8.4, -9], "rotation": [0, 0, 0], "color": "#ff8800"},
+    {"type": "box", "size": [4, 0.5, 2], "position": [0, 8.25, -9], "rotation": [0, 0, 0], "color": "#5ab85a"},
+
+    {"type": "box", "size": [4, 0.5, 6], "position": [0, 10, -14], "rotation": [0, 0, 0], "color": "#5ab85a"},
+
+    {"type": "ramp", "size": [4, 0.5, 5], "position": [0, 9.5, -18.5], "rotation": [0.25, 0, 0], "color": "#7ec87e"},
+
+    {"type": "sand", "size": [4, 0.5, 4], "position": [0, 8.25, -22], "rotation": [0, 0, 0], "color": "#e6d5a8"},
+
+    {"type": "ice", "size": [4, 0.5, 5], "position": [0, 8.25, -26.5], "rotation": [0, 0, 0], "color": "#ccf2ff"},
+
+    {"type": "trampoline", "size": [3, 0.2, 3], "position": [0, 8.35, -30.5], "rotation": [0, 0, 0], "color": "#ff66aa"},
+    {"type": "box", "size": [4, 0.5, 3], "position": [0, 8.25, -30.5], "rotation": [0, 0, 0], "color": "#5ab85a"},
+
+    {"type": "box", "size": [4, 0.5, 6], "position": [0, 8.25, -35], "rotation": [0, 0, 0], "color": "#5ab85a"},
+    {"type": "launcher", "size": [1.5, 0.3, 1.5], "position": [0, 8.4, -35], "rotation": [0, 0, 0], "color": "#ff4488", "launchForce": 18},
+
+    {"type": "box", "size": [4, 0.5, 4], "position": [0, 14, -39], "rotation": [0, 0, 0], "color": "#5ab85a"},
+    {"type": "ramp", "size": [4, 0.5, 4], "position": [0, 13, -42.5], "rotation": [0.3, 0, 0], "color": "#7ec87e"},
+
+    {"type": "box", "size": [4, 0.5, 5], "position": [0, 8.25, -46], "rotation": [0, 0, 0], "color": "#5ab85a"},
+    {"type": "cannon", "size": [1, 1, 2.5], "position": [0, 8.75, -46], "rotation": [0, 0, 0], "color": "#882222", "launchForce": 22},
+
+    {"type": "box", "size": [6, 0.5, 8], "position": [0, 8.25, -54], "rotation": [0, 0, 0], "color": "#5ab85a"},
+    {"type": "speedboost", "size": [2, 0.15, 3], "position": [0, 8.33, -52], "rotation": [0, 0, 0], "color": "#44ff44", "boostForce": 10},
+
+    {"type": "bumper", "radiusTop": 0.6, "radiusBottom": 0.6, "height": 0.8, "segments": 16, "position": [1.5, 8.65, -55], "color": "#ff4444", "bumperForce": 12},
+    {"type": "bumper", "radiusTop": 0.6, "radiusBottom": 0.6, "height": 0.8, "segments": 16, "position": [-1.5, 8.65, -56], "color": "#ff4444", "bumperForce": 12},
+
+    {"type": "box", "size": [4, 0.5, 6], "position": [0, 8.25, -61], "rotation": [0, 0, 0], "color": "#5ab85a"},
+    {"type": "blower", "size": [1, 1.5, 1], "position": [2.5, 9, -61], "rotation": [0, 0, 0], "color": "#88ddff", "blowForce": 10, "blowDir": [-1, 0, 0]},
+
+    {"type": "box", "size": [4, 0.5, 5], "position": [0, 8.25, -66.5], "rotation": [0, 0, 0], "color": "#5ab85a"},
+    {"type": "magnet", "size": [1, 0.8, 1], "position": [-2, 8.65, -68], "rotation": [0, 0, 0], "color": "#cc2222", "magnetForce": 8, "magnetRadius": 4},
+
+    {"type": "conveyor", "size": [3, 0.3, 6], "position": [0, 8.4, -72], "rotation": [0, 0, 0], "color": "#ffaa00", "conveyorDir": [0, 0, -1], "conveyorSpeed": 6},
+    {"type": "box", "size": [4, 0.5, 6], "position": [0, 8.25, -72], "rotation": [0, 0, 0], "color": "#5ab85a"},
+
+    {"type": "box", "size": [5, 0.5, 5], "position": [0, 8.25, -77.5], "rotation": [0, 0, 0], "color": "#5ab85a"},
+    {"type": "spinner", "size": [5, 0.4, 0.6], "position": [0, 8.45, -77.5], "rotation": [0, 0, 0], "color": "#4488ff", "motion": {"type": "rotate", "axis": "y", "range": 180, "speed": 0.3, "phase": 0}},
+
+    {"type": "box", "size": [4, 0.5, 4], "position": [0, 8.25, -82], "rotation": [0, 0, 0], "color": "#5ab85a"},
+    {"type": "gravinv", "size": [2, 0.3, 2], "position": [0, 8.4, -82], "rotation": [0, 0, 0], "color": "#aa44ff"},
+
+    {"type": "box", "size": [4, 0.5, 4], "position": [0, 12, -82], "rotation": [0, 0, 0], "color": "#5ab85a"},
+
+    {"type": "teleporter", "size": [1.5, 0.15, 1.5], "position": [0, 12.1, -82], "rotation": [0, 0, 0], "color": "#ff44ff", "target": [0, 8.8, -86]},
+
+    {"type": "box", "size": [4, 0.5, 5], "position": [0, 8.25, -86], "rotation": [0, 0, 0], "color": "#5ab85a"},
+    {"type": "checkpoint", "size": [1.5, 0.1, 1.5], "position": [0, 8.3, -86], "rotation": [0, 0, 0], "color": "#ffff00"},
+
+    {"type": "water", "size": [4, 0.5, 3], "position": [0, 8.1, -90], "rotation": [0, 0, 0], "color": "#1e8cff"},
+
+    {"type": "box", "size": [4, 0.5, 4], "position": [0, 8.25, -93], "rotation": [0, 0, 0], "color": "#5ab85a"},
+    {"type": "door", "size": [3, 2, 0.3], "position": [0, 9.25, -91.5], "rotation": [0, 0, 0], "color": "#886644", "motion": {"type": "translate", "axis": "y", "range": 2.5, "speed": 0.3, "phase": 0}},
+
+    {"type": "box", "size": [4, 0.5, 4], "position": [0, 8.25, -95], "rotation": [0, 0, 0], "color": "#5ab85a"},
+
+    {"type": "wall", "size": [0.3, 0.8, 90], "position": [2.15, 8.65, -50], "rotation": [0, 0, 0], "color": "#ffffff"},
+    {"type": "wall", "size": [0.3, 0.8, 90], "position": [-2.15, 8.65, -50], "rotation": [0, 0, 0], "color": "#ffffff"},
+
+    {"type": "cylinder", "radiusTop": 0.15, "radiusBottom": 0.15, "height": 1, "segments": 8, "position": [2.5, 9, -9], "color": "#5588cc"},
+    {"type": "cylinder", "radiusTop": 0.15, "radiusBottom": 0.15, "height": 1, "segments": 8, "position": [-2.5, 9, -9], "color": "#5588cc"}
+  ]
+}

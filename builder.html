@@ -289,14 +289,37 @@
 
   <!-- Left Panel: Palette + Piece List -->
   <div id="left-panel">
-    <div class="panel-heading">Add Piece</div>
+    <div class="panel-heading">Basic</div>
     <button class="add-btn" data-type="box">📦 Box</button>
     <button class="add-btn" data-type="cylinder">🛢 Cylinder</button>
     <button class="add-btn" data-type="wall">🧱 Wall</button>
     <button class="add-btn" data-type="ramp">📐 Ramp</button>
-    <button class="add-btn" data-type="bouncepad">🔶 Bounce Pad</button>
     <button class="add-btn" data-type="sand">🏖 Sand</button>
+    <button class="add-btn" data-type="water">💧 Water</button>
+    <button class="add-btn" data-type="ice">🧊 Ice</button>
+
+    <div class="panel-heading">Launchers &amp; Pads</div>
+    <button class="add-btn" data-type="bouncepad">🔶 Bounce Pad</button>
+    <button class="add-btn" data-type="trampoline">🤸 Trampoline</button>
+    <button class="add-btn" data-type="launcher">🚀 Launcher</button>
+    <button class="add-btn" data-type="cannon">💣 Cannon</button>
+    <button class="add-btn" data-type="speedboost">⚡ Speed Boost</button>
+
+    <div class="panel-heading">Forces &amp; Fields</div>
     <button class="add-btn" data-type="gravinv">🌀 Gravity Inverter</button>
+    <button class="add-btn" data-type="blower">💨 Blower</button>
+    <button class="add-btn" data-type="magnet">🧲 Magnet</button>
+    <button class="add-btn" data-type="conveyor">🔄 Conveyor</button>
+
+    <div class="panel-heading">Obstacles</div>
+    <button class="add-btn" data-type="bumper">🔴 Bumper</button>
+    <button class="add-btn" data-type="spinner">🌪 Spinner</button>
+    <button class="add-btn" data-type="windmill">🎡 Windmill</button>
+    <button class="add-btn" data-type="door">🚪 Door</button>
+
+    <div class="panel-heading">Warp &amp; Utility</div>
+    <button class="add-btn" data-type="teleporter">🌀 Teleporter</button>
+    <button class="add-btn" data-type="checkpoint">🏁 Checkpoint</button>
 
     <div class="panel-heading">Pieces</div>
     <div id="piece-list"></div>
@@ -357,6 +380,33 @@
         <div class="prop-row"><label style="width: 40px; text-align: right;">Range</label><input type="number" id="motion-range" step="0.1" min="0" style="flex: 1;"></div>
         <div class="prop-row"><label style="width: 40px; text-align: right;">Speed</label><input type="number" id="motion-speed" step="0.1" min="0" style="flex: 1;"></div>
         <div class="prop-row"><label style="width: 40px; text-align: right;">Phase</label><input type="number" id="motion-phase" step="0.05" style="flex: 1;"></div>
+      </div>
+      <div class="prop-group" id="force-group" style="display:none;">
+        <div class="prop-label">Force / Power</div>
+        <div class="prop-row"><label>Force</label><input type="number" id="prop-force" step="1" min="1"></div>
+      </div>
+      <div class="prop-group" id="direction-group" style="display:none;">
+        <div class="prop-label">Direction</div>
+        <div class="prop-row"><label>X</label><input type="number" id="dir-x" step="0.1"></div>
+        <div class="prop-row"><label>Y</label><input type="number" id="dir-y" step="0.1"></div>
+        <div class="prop-row"><label>Z</label><input type="number" id="dir-z" step="0.1"></div>
+      </div>
+      <div class="prop-group" id="teleporter-group" style="display:none;">
+        <div class="prop-label">Teleport Target</div>
+        <div class="prop-row"><label>X</label><input type="number" id="tp-x" step="0.5"></div>
+        <div class="prop-row"><label>Y</label><input type="number" id="tp-y" step="0.5"></div>
+        <div class="prop-row"><label>Z</label><input type="number" id="tp-z" step="0.5"></div>
+      </div>
+      <div class="prop-group" id="magnet-group" style="display:none;">
+        <div class="prop-label">Magnet</div>
+        <div class="prop-row"><label>Force</label><input type="number" id="mag-force" step="1" min="1"></div>
+        <div class="prop-row"><label>Radius</label><input type="number" id="mag-radius" step="0.5" min="1"></div>
+      </div>
+      <div class="prop-group" id="conveyor-group" style="display:none;">
+        <div class="prop-label">Conveyor</div>
+        <div class="prop-row"><label>Speed</label><input type="number" id="conv-speed" step="0.5" min="0.5"></div>
+        <div class="prop-row"><label>Dir X</label><input type="number" id="conv-dx" step="0.1"></div>
+        <div class="prop-row"><label>Dir Z</label><input type="number" id="conv-dz" step="0.1"></div>
       </div>
       <div class="prop-group">
         <button class="tb-btn" id="btn-duplicate" style="width:100%;margin-bottom:6px;">Duplicate</button>

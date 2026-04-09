@@ -28,7 +28,8 @@ export const Game = {
   swings: 0, timerStart: 0, elapsedTime: 0, timeLimit: 120, remainingTime: 120,
   hasFinished: false, spectatorMode: false, currentCourseIndex: -1,
   wind: { x: 0, z: 0 },
-  waterZones: [], lastSafePosition: new THREE.Vector3(), lastSwingPosition: new THREE.Vector3(), waterSplashed: false,
+  waterZones: [], specialPieces: [],
+  lastSafePosition: new THREE.Vector3(), lastSwingPosition: new THREE.Vector3(), waterSplashed: false,
   hat: null, hatMesh: null, glowIntensity: 0,
   trailEnabled: false, trailColor: '#ffffff', trailPoints: [], trailLine: null,
   rainEnabled: false, rainDrops: [],
@@ -40,6 +41,8 @@ export const Game = {
 const BALL_RADIUS = 0.2;
 const GROUND_MAT = new CANNON.Material('ground');
 const SAND_MAT = new CANNON.Material('sand');
+const ICE_MAT = new CANNON.Material('ice');
+const TRAMPOLINE_MAT = new CANNON.Material('trampoline');
 const BALL_MAT_C = new CANNON.Material('ball');
 
 function hash(x, z) {
@@ -127,6 +130,8 @@ export function initScene(container) {
   Game.world.allowSleep = false;
   Game.world.addContactMaterial(new CANNON.ContactMaterial(GROUND_MAT, BALL_MAT_C, { friction: 0.4, restitution: 0.3 }));
   Game.world.addContactMaterial(new CANNON.ContactMaterial(SAND_MAT, BALL_MAT_C, { friction: 2.5, restitution: 0.1 }));
+  Game.world.addContactMaterial(new CANNON.ContactMaterial(ICE_MAT, BALL_MAT_C, { friction: 0.02, restitution: 0.15 }));
+  Game.world.addContactMaterial(new CANNON.ContactMaterial(TRAMPOLINE_MAT, BALL_MAT_C, { friction: 0.3, restitution: 0.95 }));
 
   window.addEventListener('resize', onResize);
 
@@ -561,6 +566,109 @@ function mt(color, type, rotation) {
       });
     }
     
+    // Ice (light blue)
+    if (hex === 'ccf2ff') {
+      return new THREE.MeshStandardMaterial({
+        color: 0xccf2ff, roughness: 0.05, metalness: 0.3,
+        emissive: 0x88ccff, emissiveIntensity: 0.1,
+      });
+    }
+
+    // Trampoline (pink)
+    if (hex === 'ff66aa') {
+      return new THREE.MeshStandardMaterial({
+        color: 0xff66aa, roughness: 0.4, metalness: 0.2,
+        emissive: 0xff2288, emissiveIntensity: 0.3,
+      });
+    }
+
+    // Launcher (hot pink)
+    if (hex === 'ff4488') {
+      return new THREE.MeshStandardMaterial({
+        color: 0xff4488, roughness: 0.3, metalness: 0.4,
+        emissive: 0xff2266, emissiveIntensity: 0.4,
+      });
+    }
+
+    // Cannon (dark red)
+    if (hex === '882222') {
+      return new THREE.MeshStandardMaterial({
+        color: 0x882222, roughness: 0.6, metalness: 0.7,
+      });
+    }
+
+    // Speed boost (green)
+    if (hex === '44ff44') {
+      return new THREE.MeshStandardMaterial({
+        color: 0x44ff44, roughness: 0.3, metalness: 0.2,
+        emissive: 0x22cc22, emissiveIntensity: 0.5,
+      });
+    }
+
+    // Blower (light blue)
+    if (hex === '88ddff') {
+      return new THREE.MeshStandardMaterial({
+        color: 0x88ddff, roughness: 0.4, metalness: 0.3,
+        emissive: 0x44aadd, emissiveIntensity: 0.3,
+      });
+    }
+
+    // Magnet (red)
+    if (hex === 'cc2222') {
+      return new THREE.MeshStandardMaterial({
+        color: 0xcc2222, roughness: 0.5, metalness: 0.6,
+        emissive: 0xcc0000, emissiveIntensity: 0.3,
+      });
+    }
+
+    // Conveyor (orange-yellow)
+    if (hex === 'ffaa00') {
+      return new THREE.MeshStandardMaterial({
+        color: 0xffaa00, roughness: 0.6, metalness: 0.3,
+        emissive: 0xcc8800, emissiveIntensity: 0.2,
+      });
+    }
+
+    // Teleporter (magenta)
+    if (hex === 'ff44ff') {
+      return new THREE.MeshStandardMaterial({
+        color: 0xff44ff, roughness: 0.2, metalness: 0.4,
+        emissive: 0xff22ff, emissiveIntensity: 0.6,
+        transparent: true, opacity: 0.7,
+      });
+    }
+
+    // Checkpoint (yellow)
+    if (hex === 'ffff00') {
+      return new THREE.MeshStandardMaterial({
+        color: 0xffff00, roughness: 0.3, metalness: 0.2,
+        emissive: 0xcccc00, emissiveIntensity: 0.4,
+      });
+    }
+
+    // Bumper (bright red) - handled via cylinder path too
+    if (hex === 'ff4444') {
+      return new THREE.MeshStandardMaterial({
+        color: 0xff4444, roughness: 0.3, metalness: 0.4,
+        emissive: 0xff2222, emissiveIntensity: 0.5,
+      });
+    }
+
+    // Spinner (blue)
+    if (hex === '4488ff') {
+      return new THREE.MeshStandardMaterial({
+        color: 0x4488ff, roughness: 0.5, metalness: 0.4,
+        emissive: 0x2266cc, emissiveIntensity: 0.2,
+      });
+    }
+
+    // Door (brown)
+    if (hex === '886644') {
+      return new THREE.MeshStandardMaterial({
+        color: 0x886644, roughness: 0.8, metalness: 0.1,
+      });
+    }
+
     // Wall / Barrier (white or warm sandy brown colors) - white
     if (hex === 'ffffff' || hex === '885533' || hex === 'a06a44' || hex === 'c8a96e') {
       return new THREE.MeshStandardMaterial({ 
@@ -617,10 +725,12 @@ function addPiece(g, c, p, r, type = 'box') {
   mesh.userData.pieceType = type; // Store type for later reference
   Game.scene.add(mesh); Game.courseMeshes.push(mesh);
 
-  // Check if this is sand (type 'sand' or beige color #e6d5a8)
+  // Pick physics material based on type
   const hex = c.toString(16).toLowerCase();
   const isSand = hex === 'e6d5a8' || type === 'sand';
-  const bodyMat = isSand ? SAND_MAT : GROUND_MAT;
+  const isIce = type === 'ice';
+  const isTrampoline = type === 'trampoline';
+  const bodyMat = isSand ? SAND_MAT : isIce ? ICE_MAT : isTrampoline ? TRAMPOLINE_MAT : GROUND_MAT;
 
   const body = new CANNON.Body({ mass: 0, material: bodyMat });
   body.addShape(new CANNON.Box(new CANNON.Vec3(g[0] / 2, g[1] / 2, g[2] / 2)));
@@ -655,24 +765,102 @@ function parseColor(c) {
 
 function buildCourseFromJSON(data) {
   Game.movingPieces = [];
+  Game.specialPieces = [];
+  const BOX_TYPES = ['box','sand','bouncepad','gravinv','ramp','wall','ice','trampoline',
+    'launcher','cannon','speedboost','blower','magnet','conveyor','spinner','windmill',
+    'door','teleporter','checkpoint'];
+
   for (const p of data.pieces) {
     let mesh, bodyIdx;
-    if (p.type === 'box' || p.type === 'sand' || p.type === 'bouncepad' || p.type === 'gravinv' || p.type === 'ramp' || p.type === 'wall') {
+    if (BOX_TYPES.includes(p.type) && p.size) {
       mesh = addPiece(p.size, parseColor(p.color), p.position, p.rotation || [0, 0, 0], p.type);
       bodyIdx = Game.courseBodies.length - 1;
     } else if (p.type === 'cylinder') {
       addCyl(p.radiusTop, p.radiusBottom, p.height, p.segments || 8, parseColor(p.color), p.position);
       bodyIdx = Game.courseBodies.length - 1;
       mesh = Game.courseMeshes[Game.courseMeshes.length - 1];
+    } else if (p.type === 'bumper') {
+      addCyl(p.radiusTop, p.radiusBottom, p.height, p.segments || 16, parseColor(p.color), p.position);
+      bodyIdx = Game.courseBodies.length - 1;
+      mesh = Game.courseMeshes[Game.courseMeshes.length - 1];
+      mesh.userData.pieceType = 'bumper';
     } else continue;
 
-    // Check if this is a bounce pad (type 'bouncepad' or orange color #ff8800)
-    if (p.type === 'bouncepad' || parseColor(p.color).toString(16).toLowerCase() === 'ff8800') {
+    // Bounce pad
+    if (p.type === 'bouncepad') {
       const body = Game.courseBodies[bodyIdx];
       body.addEventListener('collide', (e) => onBouncePadCollision(e, body));
     }
 
-    // Gravity inverters (type 'gravinv' or purple color #aa44ff) - handled in updateGame loop
+    // Launcher — launch ball straight up
+    if (p.type === 'launcher') {
+      const body = Game.courseBodies[bodyIdx];
+      const force = p.launchForce || 20;
+      body.addEventListener('collide', (e) => {
+        if (e.body === Game.ballBody) {
+          Game.ballBody.velocity.y = force;
+        }
+      });
+    }
+
+    // Cannon — launch ball in the direction the piece faces (negative Z in local space)
+    if (p.type === 'cannon') {
+      const body = Game.courseBodies[bodyIdx];
+      const force = p.launchForce || 25;
+      const rot = p.rotation || [0, 0, 0];
+      const dir = new THREE.Vector3(0, 0.3, -1).applyEuler(new THREE.Euler(rot[0], rot[1], rot[2])).normalize();
+      body.addEventListener('collide', (e) => {
+        if (e.body === Game.ballBody) {
+          Game.ballBody.velocity.set(dir.x * force, dir.y * force, dir.z * force);
+        }
+      });
+    }
+
+    // Speed boost — accelerate ball in piece's forward direction
+    if (p.type === 'speedboost') {
+      const body = Game.courseBodies[bodyIdx];
+      const force = p.boostForce || 12;
+      const rot = p.rotation || [0, 0, 0];
+      const dir = new THREE.Vector3(0, 0, -1).applyEuler(new THREE.Euler(rot[0], rot[1], rot[2])).normalize();
+      body.addEventListener('collide', (e) => {
+        if (e.body === Game.ballBody) {
+          Game.ballBody.velocity.x += dir.x * force;
+          Game.ballBody.velocity.z += dir.z * force;
+        }
+      });
+    }
+
+    // Bumper — bounce ball away from center
+    if (p.type === 'bumper') {
+      const body = Game.courseBodies[bodyIdx];
+      const force = p.bumperForce || 12;
+      body.addEventListener('collide', (e) => {
+        if (e.body === Game.ballBody) {
+          const dx = Game.ballBody.position.x - body.position.x;
+          const dz = Game.ballBody.position.z - body.position.z;
+          const len = Math.sqrt(dx * dx + dz * dz) || 1;
+          Game.ballBody.velocity.x = (dx / len) * force;
+          Game.ballBody.velocity.z = (dz / len) * force;
+          Game.ballBody.velocity.y = Math.max(Game.ballBody.velocity.y, 2);
+        }
+      });
+    }
+
+    // Store special pieces for per-frame logic
+    if (['blower', 'magnet', 'conveyor', 'teleporter', 'checkpoint', 'gravinv'].includes(p.type)) {
+      Game.specialPieces.push({
+        type: p.type,
+        position: [...p.position],
+        size: p.size ? [...p.size] : [1, 1, 1],
+        rotation: p.rotation || [0, 0, 0],
+        // Type-specific data
+        blowDir: p.blowDir, blowForce: p.blowForce,
+        magnetForce: p.magnetForce, magnetRadius: p.magnetRadius,
+        conveyorDir: p.conveyorDir, conveyorSpeed: p.conveyorSpeed,
+        target: p.target,
+        mesh, body: Game.courseBodies[bodyIdx],
+      });
+    }
 
     if (p.motion) {
       const body = Game.courseBodies[bodyIdx];
@@ -791,6 +979,7 @@ export function clearCourse() {
   // Clear VFX particles
   cleanupVFX(Game.scene);
   Game.prevBallSpeed = 0;
+  Game.specialPieces = [];
 }
 
 export async function buildCourseByIndex(idx) {
@@ -1331,29 +1520,81 @@ export function updateGame(dt) {
     Game.ballBody.applyForce(new CANNON.Vec3(Game.wind.x, 0, Game.wind.z), Game.ballBody.position);
   }
 
-  // Check for gravity inverters - apply upward force if ball is above them
-  if (Game.ballBody && !Game.hasFinished) {
-    for (let i = 0; i < Game.courseBodies.length; i++) {
-      const body = Game.courseBodies[i];
-      const mesh = Game.courseMeshes[i];
-      // Check if this is a gravity inverter (type 'gravinv' or purple color #aa44ff)
-      const hex = mesh.material.color.getHex().toString(16).toLowerCase();
-      const isGravInv = hex === 'aa44ff' || mesh.userData.pieceType === 'gravinv';
-      if (isGravInv) {
-        const ballPos = Game.ballBody.position;
-        const invPos = body.position;
-        const size = mesh.geometry.parameters;
-        // Check if ball is above the inverter (within x/z bounds and above y)
-        const halfX = size.width / 2;
-        const halfZ = size.depth / 2;
-        const halfY = size.height / 2;
-        if (ballPos.x >= invPos.x - halfX && ballPos.x <= invPos.x + halfX &&
-            ballPos.z >= invPos.z - halfZ && ballPos.z <= invPos.z + halfZ &&
-            ballPos.y >= invPos.y - halfY && ballPos.y <= invPos.y + halfY + 5) {
-          // Apply upward force
+  // Process special pieces (blower, magnet, conveyor, teleporter, checkpoint, gravinv)
+  if (Game.ballBody && !Game.hasFinished && Game.specialPieces) {
+    const bp = Game.ballBody.position;
+    for (const sp of Game.specialPieces) {
+      const halfX = sp.size[0] / 2;
+      const halfY = sp.size[1] / 2;
+      const halfZ = sp.size[2] / 2;
+      const px = sp.position[0], py = sp.position[1], pz = sp.position[2];
+
+      if (sp.type === 'gravinv') {
+        if (bp.x >= px - halfX && bp.x <= px + halfX &&
+            bp.z >= pz - halfZ && bp.z <= pz + halfZ &&
+            bp.y >= py - halfY && bp.y <= py + halfY + 5) {
           Game.ballBody.velocity.y = Math.max(Game.ballBody.velocity.y, 12);
           Game.ballBody.velocity.x *= 0.95;
           Game.ballBody.velocity.z *= 0.95;
+        }
+      }
+
+      if (sp.type === 'blower') {
+        const range = 6;
+        const dx = bp.x - px, dy = bp.y - py, dz = bp.z - pz;
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        if (dist < range) {
+          const strength = (sp.blowForce || 8) * (1 - dist / range);
+          const dir = sp.blowDir || [0, 0, -1];
+          Game.ballBody.velocity.x += dir[0] * strength * dt;
+          Game.ballBody.velocity.y += dir[1] * strength * dt;
+          Game.ballBody.velocity.z += dir[2] * strength * dt;
+        }
+      }
+
+      if (sp.type === 'magnet') {
+        const radius = sp.magnetRadius || 5;
+        const dx = px - bp.x, dy = py - bp.y, dz = pz - bp.z;
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        if (dist < radius && dist > 0.3) {
+          const strength = (sp.magnetForce || 6) * (1 - dist / radius);
+          Game.ballBody.velocity.x += (dx / dist) * strength * dt;
+          Game.ballBody.velocity.y += (dy / dist) * strength * dt;
+          Game.ballBody.velocity.z += (dz / dist) * strength * dt;
+        }
+      }
+
+      if (sp.type === 'conveyor') {
+        // Only affect ball when it's on top of the conveyor
+        if (bp.x >= px - halfX && bp.x <= px + halfX &&
+            bp.z >= pz - halfZ && bp.z <= pz + halfZ &&
+            bp.y >= py + halfY - 0.3 && bp.y <= py + halfY + 0.8) {
+          const dir = sp.conveyorDir || [0, 0, -1];
+          const speed = sp.conveyorSpeed || 5;
+          Game.ballBody.velocity.x += dir[0] * speed * dt;
+          Game.ballBody.velocity.z += dir[2] * speed * dt;
+        }
+      }
+
+      if (sp.type === 'teleporter') {
+        if (bp.x >= px - halfX && bp.x <= px + halfX &&
+            bp.z >= pz - halfZ && bp.z <= pz + halfZ &&
+            bp.y >= py - 0.5 && bp.y <= py + 1.5 && sp.target) {
+          // Cooldown check to prevent rapid re-teleporting
+          const now = Date.now();
+          if (!sp._lastTeleport || now - sp._lastTeleport > 1500) {
+            sp._lastTeleport = now;
+            Game.ballBody.position.set(sp.target[0], sp.target[1], sp.target[2]);
+            Game.ballBody.velocity.setZero();
+          }
+        }
+      }
+
+      if (sp.type === 'checkpoint') {
+        if (bp.x >= px - halfX && bp.x <= px + halfX &&
+            bp.z >= pz - halfZ && bp.z <= pz + halfZ &&
+            bp.y >= py - 0.5 && bp.y <= py + 1.0) {
+          Game.lastSwingPosition.set(px, py + 0.5, pz);
         }
       }
     }
