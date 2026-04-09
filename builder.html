@@ -282,9 +282,16 @@
     <button class="tb-btn" id="btn-toggle-rain" title="Toggle rain">🌧 Rain</button>
     <button class="tb-btn" id="btn-toggle-time" title="Toggle day/night">☀️ Day</button>
     <div class="tb-spacer"></div>
+    <button class="tb-btn" id="btn-test" style="background:rgba(0,194,204,0.35);border-color:rgba(0,194,204,0.6);">▶ Test Map</button>
     <button class="tb-btn" id="btn-import">Import</button>
     <button class="tb-btn" id="btn-export" style="background:rgba(168,212,0,0.3);border-color:rgba(168,212,0,0.5);">Export JSON</button>
     <button class="tb-btn" id="btn-new">New</button>
+  </div>
+
+  <!-- Test overlay (iframe-based so builder state is fully preserved) -->
+  <div id="test-overlay" style="display:none;position:fixed;inset:0;z-index:10000;background:#000;">
+    <iframe id="test-iframe" style="width:100%;height:100%;border:none;"></iframe>
+    <button id="btn-return-editor" style="position:fixed;top:16px;right:16px;z-index:10001;padding:10px 22px;font:700 15px/1 'Nunito',sans-serif;background:rgba(255,80,80,0.85);color:#fff;border:2px solid rgba(255,120,120,0.8);border-radius:10px;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 2px 12px rgba(0,0,0,0.4);">← Return to Editor</button>
   </div>
 
   <!-- Left Panel: Palette + Piece List -->
@@ -320,6 +327,24 @@
     <div class="panel-heading">Warp &amp; Utility</div>
     <button class="add-btn" data-type="teleporter">🌀 Teleporter</button>
     <button class="add-btn" data-type="checkpoint">🏁 Checkpoint</button>
+
+    <div class="panel-heading">Shapes &amp; Decor</div>
+    <button class="add-btn" data-type="glass">🪟 Glass</button>
+    <button class="add-btn" data-type="wedge">📐 Wedge</button>
+    <button class="add-btn" data-type="sphere">🔮 Sphere</button>
+    <button class="add-btn" data-type="dome">🫧 Dome</button>
+    <button class="add-btn" data-type="curvedhill">⛰ Curved Hill</button>
+    <button class="add-btn" data-type="cone">🔺 Cone</button>
+    <button class="add-btn" data-type="pyramid">🔻 Pyramid</button>
+    <button class="add-btn" data-type="torus">⭕ Torus</button>
+    <button class="add-btn" data-type="ring">💍 Ring</button>
+    <button class="add-btn" data-type="arch">🏛 Arch</button>
+    <button class="add-btn" data-type="column">🏛 Column</button>
+    <button class="add-btn" data-type="halfpipe">🛹 Half-Pipe</button>
+    <button class="add-btn" data-type="bridge">🌉 Bridge</button>
+    <button class="add-btn" data-type="rail">🛤 Rail</button>
+    <button class="add-btn" data-type="step">🪜 Steps</button>
+    <button class="add-btn" data-type="tube">🧪 Tube</button>
 
     <div class="panel-heading">Pieces</div>
     <div id="piece-list"></div>

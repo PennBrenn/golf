@@ -1,10 +1,11 @@
 import {
-  initScene, buildCourseByIndex, buildTerrain, fetchMapManifest,
+  initScene, buildCourseByIndex, buildCourseFromJSON, buildTerrain, fetchMapManifest,
   getAllMapData, renderMapThumbnail, loadMenuBackground, updateMenuCamera,
-  createLocalBall, resetLocalBall, updateBallAppearance,
+  createLocalBall, resetLocalBall, updateBallAppearance, clearCourse,
   addRemoteBall, removeRemoteBall, updateRemoteBallState,
   setupInput, updateGame, renderGame, resetGameState, enterSpectator,
-  showChatBubble, updateMovingPieces, applyWindFromMapData, Game, BALL_COLORS,
+  showChatBubble, updateMovingPieces, applyWindFromMapData, applyDayNightCycle,
+  Game, BALL_COLORS,
 } from './game.js';
 import {
   MP, createGame, joinGame, hostStartGame, hostPlayAgain, hostNextRound,
@@ -81,6 +82,14 @@ async function init() {
   // Chat input
   setupChatInput();
 
+  // Check for builder test mode
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('test') === 'builder') {
+    await startBuilderTestMode();
+    loop();
+    return;
+  }
+
   // Load menu background
   await loadMenuBackground();
   showMainMenu();
@@ -153,6 +162,43 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+// ── Builder Test Mode ────────────────────────────────────
+
+async function startBuilderTestMode() {
+  try {
+    const raw = localStorage.getItem('__builder_test_map');
+    if (!raw) { showToast('No test map data found'); return; }
+    const mapData = JSON.parse(raw);
+
+    // Hide all screens, show HUD
+    document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+    showHUD();
+
+    clearCourse();
+    buildCourseFromJSON(mapData);
+    buildTerrain();
+    if (mapData.timeOfDay) applyDayNightCycle(mapData.timeOfDay);
+
+    Game.startPosition.set(mapData.start[0], mapData.start[1], mapData.start[2]);
+    Game.holePosition.set(mapData.hole[0], mapData.hole[1], mapData.hole[2]);
+    Game.timeLimit = mapData.timeLimit || 120;
+    Game.remainingTime = Game.timeLimit;
+
+    createLocalBall(Game.ballColor);
+    Game.ballBody.position.set(mapData.start[0], mapData.start[1], mapData.start[2]);
+    Game.lastSwingPosition.set(mapData.start[0], mapData.start[1], mapData.start[2]);
+    Game.lastSafePosition.copy(Game.lastSwingPosition);
+    Game.timerStart = Date.now();
+    Game.swings = 0;
+    Game.hasFinished = false;
+
+    gameRunning = true;
+    menuMode = false;
+  } catch (e) {
+    console.error('Builder test mode error:', e);
+  }
+}
+
 // ── Apply Settings ───────────────────────────────────────
 
 function applySettings(s) {
@@ -187,9 +233,26 @@ function applySettings(s) {
 
 const menuClock = { start: Date.now() };
 
+// FPS counter
+let fpsFrames = 0, fpsLast = performance.now(), fpsValue = 0;
+const fpsEl = document.createElement('div');
+fpsEl.id = 'fps-counter';
+fpsEl.style.cssText = 'position:fixed;top:8px;left:8px;color:rgba(255,255,255,0.7);font:600 13px/1 "Nunito",sans-serif;z-index:9999;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,0.5);';
+document.body.appendChild(fpsEl);
+
 function loop() {
   requestAnimationFrame(loop);
   const dt = Math.min(Game.clock.getDelta(), 0.05);
+
+  // Update FPS
+  fpsFrames++;
+  const now = performance.now();
+  if (now - fpsLast >= 500) {
+    fpsValue = Math.round(fpsFrames / ((now - fpsLast) / 1000));
+    fpsEl.textContent = fpsValue + ' FPS';
+    fpsFrames = 0;
+    fpsLast = now;
+  }
 
   if (gameRunning) {
     updateMovingPieces(dt);

@@ -763,7 +763,94 @@ function parseColor(c) {
   return 0xffffff;
 }
 
-function buildCourseFromJSON(data) {
+// Generic helper for decorative/custom-geometry pieces
+function addDecorPiece(p, threeGeo, cannonShape) {
+  const color = parseColor(p.color);
+  const isGlass = p.type === 'glass';
+  const mat = isGlass
+    ? new THREE.MeshPhysicalMaterial({ color, roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.35, clearcoat: 1 })
+    : new THREE.MeshStandardMaterial({ color, roughness: 0.7, metalness: 0.1 });
+  const mesh = new THREE.Mesh(threeGeo, mat);
+  mesh.position.set(p.position[0], p.position[1], p.position[2]);
+  if (p.rotation) mesh.rotation.set(p.rotation[0], p.rotation[1], p.rotation[2]);
+  mesh.castShadow = true; mesh.receiveShadow = true;
+  mesh.userData.pieceType = p.type;
+  Game.scene.add(mesh); Game.courseMeshes.push(mesh);
+
+  const body = new CANNON.Body({ mass: 0, material: GROUND_MAT });
+  body.addShape(cannonShape);
+  body.position.set(p.position[0], p.position[1], p.position[2]);
+  if (p.rotation) {
+    const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(p.rotation[0], p.rotation[1], p.rotation[2]));
+    body.quaternion.set(q.x, q.y, q.z, q.w);
+  }
+  Game.world.addBody(body); Game.courseBodies.push(body);
+  return mesh;
+}
+
+// ── Custom Geometry Helpers (game) ───────────────────────
+function createWedgeGeo(w, h, d) {
+  const hw = w / 2, hd = d / 2;
+  const positions = [ -hw,0,hd, hw,0,hd, hw,h,hd, -hw,0,-hd, hw,0,-hd, hw,h,-hd ];
+  const indices = [ 0,1,2, 4,3,5, 0,3,4, 0,4,1, 1,4,5, 1,5,2, 0,2,5, 0,5,3 ];
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function createStepGeo(width, totalH, depth, n) {
+  const geos = [];
+  const sH = totalH / n, sD = depth / n;
+  for (let i = 0; i < n; i++) {
+    const g = new THREE.BoxGeometry(width, sH, sD);
+    g.translate(0, sH * i + sH / 2, -sD * i - sD / 2);
+    geos.push(g);
+  }
+  return mergeGeos(geos);
+}
+
+function createBridgeGeo(w, thick, len, archH) {
+  const segs = 12, hw = w / 2, positions = [], indices = [];
+  for (let i = 0; i <= segs; i++) {
+    const t = i / segs, z = (t - 0.5) * len, y = Math.sin(t * Math.PI) * archH;
+    positions.push(-hw, y, z, hw, y, z, -hw, y - thick, z, hw, y - thick, z);
+  }
+  for (let i = 0; i < segs; i++) {
+    const a = i * 4;
+    indices.push(a,a+4,a+5, a,a+5,a+1, a+2,a+7,a+6, a+2,a+3,a+7, a,a+2,a+6, a,a+6,a+4, a+1,a+5,a+7, a+1,a+7,a+3);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function createTubeGeo(outerR, innerR, h, segs) {
+  const pts = [new THREE.Vector2(innerR,0), new THREE.Vector2(outerR,0), new THREE.Vector2(outerR,h), new THREE.Vector2(innerR,h)];
+  return new THREE.LatheGeometry(pts, segs);
+}
+
+function mergeGeos(geos) {
+  let tv = 0;
+  for (const g of geos) tv += g.attributes.position.count;
+  const pos = new Float32Array(tv * 3), idx = [];
+  let off = 0;
+  for (const g of geos) {
+    pos.set(g.attributes.position.array, off * 3);
+    if (g.index) for (let i = 0; i < g.index.count; i++) idx.push(g.index.array[i] + off);
+    off += g.attributes.position.count;
+  }
+  const m = new THREE.BufferGeometry();
+  m.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  if (idx.length) m.setIndex(idx);
+  m.computeVertexNormals();
+  return m;
+}
+
+export function buildCourseFromJSON(data) {
   Game.movingPieces = [];
   Game.specialPieces = [];
   const BOX_TYPES = ['box','sand','bouncepad','gravinv','ramp','wall','ice','trampoline',
@@ -774,6 +861,56 @@ function buildCourseFromJSON(data) {
     let mesh, bodyIdx;
     if (BOX_TYPES.includes(p.type) && p.size) {
       mesh = addPiece(p.size, parseColor(p.color), p.position, p.rotation || [0, 0, 0], p.type);
+      bodyIdx = Game.courseBodies.length - 1;
+    } else if (p.type === 'glass' && p.size) {
+      mesh = addPiece(p.size, parseColor(p.color), p.position, p.rotation || [0, 0, 0], 'glass');
+      bodyIdx = Game.courseBodies.length - 1;
+      // Override material for glass
+      mesh.material = new THREE.MeshPhysicalMaterial({
+        color: parseColor(p.color), roughness: 0.05, metalness: 0.1,
+        transparent: true, opacity: 0.35, clearcoat: 1.0, clearcoatRoughness: 0.05,
+      });
+    } else if (p.type === 'rail' && p.size) {
+      mesh = addPiece(p.size, parseColor(p.color), p.position, p.rotation || [0, 0, 0], 'rail');
+      bodyIdx = Game.courseBodies.length - 1;
+    } else if (p.type === 'wedge' && p.size) {
+      mesh = addDecorPiece(p, createWedgeGeo(p.size[0], p.size[1], p.size[2]),
+        new CANNON.Box(new CANNON.Vec3(p.size[0]/2, p.size[1]/2, p.size[2]/2)));
+      bodyIdx = Game.courseBodies.length - 1;
+    } else if (p.type === 'step' && p.size) {
+      mesh = addDecorPiece(p, createStepGeo(p.size[0], p.size[1], p.size[2], p.steps || 3),
+        new CANNON.Box(new CANNON.Vec3(p.size[0]/2, p.size[1]/2, p.size[2]/2)));
+      bodyIdx = Game.courseBodies.length - 1;
+    } else if (p.type === 'bridge' && p.size) {
+      mesh = addDecorPiece(p, createBridgeGeo(p.size[0], p.size[1], p.size[2], p.archHeight || 1.5),
+        new CANNON.Box(new CANNON.Vec3(p.size[0]/2, (p.archHeight||1.5)/2, p.size[2]/2)));
+      bodyIdx = Game.courseBodies.length - 1;
+    } else if (p.type === 'sphere' || p.type === 'dome' || p.type === 'curvedhill') {
+      const r = p.radius || 1;
+      mesh = addDecorPiece(p, new THREE.SphereGeometry(r, p.segments || 16, p.segments || 16),
+        new CANNON.Sphere(r));
+      bodyIdx = Game.courseBodies.length - 1;
+    } else if (p.type === 'cone' || p.type === 'pyramid') {
+      const r = p.radius || 1, h = p.height || 2;
+      mesh = addDecorPiece(p, new THREE.ConeGeometry(r, h, p.segments || 16),
+        new CANNON.Cylinder(0.01, r, h, p.segments || 8));
+      bodyIdx = Game.courseBodies.length - 1;
+    } else if (p.type === 'torus') {
+      const r = p.radius || 1.5, t = p.tube || 0.3;
+      mesh = addDecorPiece(p, new THREE.TorusGeometry(r, t, p.tubeSeg || 12, p.segments || 16),
+        new CANNON.Sphere(r + t)); // Approximate with sphere
+      bodyIdx = Game.courseBodies.length - 1;
+    } else if (p.type === 'halfpipe') {
+      const r = p.radius || 3, l = p.length || 6;
+      const hpGeo = new THREE.CylinderGeometry(r, r, l, p.segments || 16, 1, true, 0, Math.PI);
+      hpGeo.rotateX(Math.PI / 2);
+      mesh = addDecorPiece(p, hpGeo,
+        new CANNON.Box(new CANNON.Vec3(r, r/2, l/2)));
+      bodyIdx = Game.courseBodies.length - 1;
+    } else if (p.type === 'tube') {
+      const or = p.radiusOuter || 1, h = p.height || 3;
+      mesh = addDecorPiece(p, createTubeGeo(or, p.radiusInner || 0.7, h, p.segments || 16),
+        new CANNON.Cylinder(or, or, h, p.segments || 8));
       bodyIdx = Game.courseBodies.length - 1;
     } else if (p.type === 'cylinder') {
       addCyl(p.radiusTop, p.radiusBottom, p.height, p.segments || 8, parseColor(p.color), p.position);

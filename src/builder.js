@@ -50,6 +50,23 @@ const PRESETS = {
   // ── Warp & Utility ──
   teleporter: () => ({ type: 'teleporter', size: [1.5, 0.15, 1.5], position: [0, 8.3, 0], rotation: [0, 0, 0], color: '#ff44ff', target: [5, 8.8, 0] }),
   checkpoint: () => ({ type: 'checkpoint', size: [1.5, 0.1, 1.5], position: [0, 8.3, 0], rotation: [0, 0, 0], color: '#ffff00' }),
+  // ── Decorative / Shapes ──
+  glass:      () => ({ type: 'glass', size: [4, 0.5, 4], position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#aaddff' }),
+  wedge:      () => ({ type: 'wedge', size: [3, 1.5, 4], position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#88bb66' }),
+  sphere:     () => ({ type: 'sphere', radius: 1, segments: 16, position: [0, 9.25, 0], color: '#dddddd' }),
+  cone:       () => ({ type: 'cone', radius: 1, height: 2, segments: 16, position: [0, 9.25, 0], color: '#cc8844' }),
+  torus:      () => ({ type: 'torus', radius: 1.5, tube: 0.3, segments: 16, tubeSeg: 12, position: [0, 9, 0], color: '#ffcc44' }),
+  arch:       () => ({ type: 'torus', radius: 2, tube: 0.25, segments: 16, tubeSeg: 12, position: [0, 10, 0], color: '#bbbbbb' }),
+  column:     () => ({ type: 'cylinder', radiusTop: 0.3, radiusBottom: 0.35, height: 3, segments: 12, position: [0, 9.75, 0], color: '#ccccbb' }),
+  pyramid:    () => ({ type: 'cone', radius: 1.5, height: 2, segments: 4, position: [0, 9.25, 0], color: '#ddcc88' }),
+  halfpipe:   () => ({ type: 'halfpipe', radius: 3, length: 6, segments: 16, position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#99ccaa' }),
+  curvedhill: () => ({ type: 'sphere', radius: 4, segments: 24, position: [0, 6, 0], color: '#5ab85a' }),
+  dome:       () => ({ type: 'sphere', radius: 2, segments: 16, position: [0, 8.25, 0], color: '#aaaacc' }),
+  bridge:     () => ({ type: 'bridge', size: [2, 0.3, 8], position: [0, 9, 0], rotation: [0, 0, 0], color: '#997755', archHeight: 1.5 }),
+  rail:       () => ({ type: 'rail', size: [0.15, 0.6, 8], position: [0, 8.55, 0], rotation: [0, 0, 0], color: '#888888' }),
+  step:       () => ({ type: 'step', size: [4, 1.5, 3], position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#77aa77', steps: 3 }),
+  ring:       () => ({ type: 'torus', radius: 1, tube: 0.15, segments: 24, tubeSeg: 8, position: [0, 9.5, 0], color: '#ffaa00' }),
+  tube:       () => ({ type: 'tube', radiusOuter: 1, radiusInner: 0.7, height: 3, segments: 16, position: [0, 9.75, 0], color: '#66aacc' }),
 };
 
 // ── Init ─────────────────────────────────────────────────
@@ -314,16 +331,37 @@ function createMeshFromData(data) {
   // Emissive glow for special types
   const glowTypes = { teleporter: 0.6, checkpoint: 0.4, speedboost: 0.5, launcher: 0.4, cannon: 0.2, bumper: 0.5, blower: 0.3, magnet: 0.3, conveyor: 0.2 };
   const emissiveIntensity = glowTypes[data.type] || 0;
+  const isTransparent = data.type === 'water' || data.type === 'teleporter' || data.type === 'glass';
   mat = new THREE.MeshStandardMaterial({
-    color, flatShading: true,
+    color, flatShading: data.type !== 'sphere' && data.type !== 'torus' && data.type !== 'glass',
     emissive: emissiveIntensity > 0 ? color : 0x000000,
     emissiveIntensity,
-    transparent: data.type === 'water' || data.type === 'teleporter',
-    opacity: data.type === 'water' ? 0.55 : data.type === 'teleporter' ? 0.7 : 1.0,
+    transparent: isTransparent,
+    opacity: data.type === 'water' ? 0.55 : data.type === 'teleporter' ? 0.7 : data.type === 'glass' ? 0.35 : 1.0,
+    roughness: data.type === 'glass' ? 0.05 : undefined,
+    metalness: data.type === 'glass' ? 0.1 : undefined,
   });
 
   if (data.type === 'cylinder' || data.type === 'bumper') {
     geo = new THREE.CylinderGeometry(data.radiusTop, data.radiusBottom, data.height, data.segments || 8);
+  } else if (data.type === 'sphere') {
+    geo = new THREE.SphereGeometry(data.radius || 1, data.segments || 16, data.segments || 16);
+  } else if (data.type === 'cone') {
+    geo = new THREE.ConeGeometry(data.radius || 1, data.height || 2, data.segments || 16);
+  } else if (data.type === 'torus') {
+    geo = new THREE.TorusGeometry(data.radius || 1.5, data.tube || 0.3, data.tubeSeg || 12, data.segments || 16);
+  } else if (data.type === 'wedge') {
+    geo = createWedgeGeometry(data.size[0], data.size[1], data.size[2]);
+  } else if (data.type === 'halfpipe') {
+    geo = createHalfPipeGeometry(data.radius || 3, data.length || 6, data.segments || 16);
+  } else if (data.type === 'bridge') {
+    geo = createBridgeGeometry(data.size[0], data.size[1], data.size[2], data.archHeight || 1.5);
+  } else if (data.type === 'step') {
+    geo = createStepGeometry(data.size[0], data.size[1], data.size[2], data.steps || 3);
+  } else if (data.type === 'tube') {
+    geo = createTubeGeometry(data.radiusOuter || 1, data.radiusInner || 0.7, data.height || 3, data.segments || 16);
+  } else if (data.type === 'rail') {
+    geo = new THREE.BoxGeometry(data.size[0], data.size[1], data.size[2]);
   } else if (data.size) {
     geo = new THREE.BoxGeometry(data.size[0], data.size[1], data.size[2]);
   } else {
@@ -337,6 +375,127 @@ function createMeshFromData(data) {
   mesh.receiveShadow = true;
   mesh.userData.pieceData = data;
   return mesh;
+}
+
+// ── Custom Geometries ─────────────────────────────────────
+
+function createWedgeGeometry(w, h, d) {
+  const geo = new THREE.BufferGeometry();
+  const hw = w / 2, hd = d / 2;
+  // Wedge: full width at bottom, tapers to edge at top on one side
+  const verts = new Float32Array([
+    // Front face (z = +hd)
+    -hw, 0, hd,   hw, 0, hd,   hw, h, hd,
+    -hw, 0, hd,   hw, h, hd,   -hw, 0, hd, // degenerate, replaced below
+    // Back face (z = -hd)
+    hw, 0, -hd,   -hw, 0, -hd,   hw, h, -hd,
+    -hw, 0, -hd,  -hw, 0, -hd,   hw, h, -hd, // degenerate
+  ]);
+  // Use a simpler approach with indexed geometry
+  const positions = [
+    // 0: bottom-left-front, 1: bottom-right-front, 2: top-right-front
+    // 3: bottom-left-back, 4: bottom-right-back, 5: top-right-back
+    -hw, 0, hd,    // 0
+    hw, 0, hd,     // 1
+    hw, h, hd,     // 2
+    -hw, 0, -hd,   // 3
+    hw, 0, -hd,    // 4
+    hw, h, -hd,    // 5
+  ];
+  const indices = [
+    0, 1, 2,  // front
+    4, 3, 5,  // back
+    0, 3, 4,  0, 4, 1,  // bottom
+    1, 4, 5,  1, 5, 2,  // right (tall side)
+    0, 2, 5,  0, 5, 3,  // slope
+  ];
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function createHalfPipeGeometry(radius, length, segments) {
+  const geo = new THREE.CylinderGeometry(radius, radius, length, segments, 1, true, 0, Math.PI);
+  geo.rotateX(Math.PI / 2);
+  return geo;
+}
+
+function createBridgeGeometry(width, thickness, length, archHeight) {
+  // Curved bridge deck using a bent box approximation
+  const segs = 12;
+  const geo = new THREE.BufferGeometry();
+  const positions = [];
+  const indices = [];
+  const hw = width / 2;
+  for (let i = 0; i <= segs; i++) {
+    const t = i / segs;
+    const z = (t - 0.5) * length;
+    const y = Math.sin(t * Math.PI) * archHeight;
+    positions.push(-hw, y, z, hw, y, z);
+    positions.push(-hw, y - thickness, z, hw, y - thickness, z);
+  }
+  for (let i = 0; i < segs; i++) {
+    const a = i * 4;
+    // Top face
+    indices.push(a, a + 4, a + 5, a, a + 5, a + 1);
+    // Bottom face
+    indices.push(a + 2, a + 7, a + 6, a + 2, a + 3, a + 7);
+    // Left
+    indices.push(a, a + 2, a + 6, a, a + 6, a + 4);
+    // Right
+    indices.push(a + 1, a + 5, a + 7, a + 1, a + 7, a + 3);
+  }
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function createStepGeometry(width, totalHeight, depth, stepCount) {
+  const group = new THREE.BufferGeometry();
+  const geos = [];
+  const stepH = totalHeight / stepCount;
+  const stepD = depth / stepCount;
+  for (let i = 0; i < stepCount; i++) {
+    const g = new THREE.BoxGeometry(width, stepH, stepD);
+    g.translate(0, stepH * i + stepH / 2, -stepD * i - stepD / 2);
+    geos.push(g);
+  }
+  // Merge
+  return mergeGeometries(geos);
+}
+
+function mergeGeometries(geos) {
+  let totalVerts = 0, totalIdx = 0;
+  for (const g of geos) { totalVerts += g.attributes.position.count; totalIdx += (g.index ? g.index.count : 0); }
+  const pos = new Float32Array(totalVerts * 3);
+  const idx = [];
+  let vOff = 0, iOff = 0;
+  for (const g of geos) {
+    const p = g.attributes.position.array;
+    pos.set(p, vOff * 3);
+    if (g.index) {
+      for (let i = 0; i < g.index.count; i++) idx.push(g.index.array[i] + vOff);
+    }
+    vOff += g.attributes.position.count;
+  }
+  const merged = new THREE.BufferGeometry();
+  merged.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  if (idx.length > 0) merged.setIndex(idx);
+  merged.computeVertexNormals();
+  return merged;
+}
+
+function createTubeGeometry(outerR, innerR, height, segments) {
+  // Hollow cylinder (tube) using lathe
+  const points = [
+    new THREE.Vector2(innerR, 0),
+    new THREE.Vector2(outerR, 0),
+    new THREE.Vector2(outerR, height),
+    new THREE.Vector2(innerR, height),
+  ];
+  return new THREE.LatheGeometry(points, segments);
 }
 
 function addPiece(data) {
@@ -576,6 +735,10 @@ function setupToolbar() {
   });
   document.getElementById('file-input').addEventListener('change', importJSON);
   document.getElementById('btn-new').addEventListener('click', newMap);
+
+  // Test Map
+  document.getElementById('btn-test').addEventListener('click', startTestMode);
+  document.getElementById('btn-return-editor').addEventListener('click', stopTestMode);
 
   // Map name and time limit inputs
   document.getElementById('map-name-input').addEventListener('input', markUnsaved);
@@ -1061,6 +1224,50 @@ function newMap() {
   snapBtn.classList.remove('active');
 
   B.unsavedChanges = false;
+}
+
+// ── Test Mode ────────────────────────────────────────────
+
+function getCurrentMapJSON() {
+  B.pieces.forEach(p => syncDataFromMesh(p));
+  return {
+    name: document.getElementById('map-name-input').value || 'Untitled',
+    timeLimit: parseInt(document.getElementById('map-time-input').value) || 120,
+    timeOfDay: B.timeOfDay,
+    rain: B.rainEnabled,
+    start: [
+      parseFloat(document.getElementById('sx').value) || 0,
+      parseFloat(document.getElementById('sy').value) || 9,
+      parseFloat(document.getElementById('sz').value) || 0,
+    ],
+    hole: [
+      parseFloat(document.getElementById('hx').value) || 0,
+      parseFloat(document.getElementById('hy').value) || 8.5,
+      parseFloat(document.getElementById('hz').value) || -20,
+    ],
+    pieces: B.pieces.map(p => {
+      const d = { ...p.data };
+      d.position = [...d.position];
+      if (d.rotation) d.rotation = [...d.rotation];
+      return d;
+    }),
+  };
+}
+
+function startTestMode() {
+  const mapData = getCurrentMapJSON();
+  localStorage.setItem('__builder_test_map', JSON.stringify(mapData));
+  const overlay = document.getElementById('test-overlay');
+  const iframe = document.getElementById('test-iframe');
+  iframe.src = '/?test=builder';
+  overlay.style.display = 'block';
+}
+
+function stopTestMode() {
+  const overlay = document.getElementById('test-overlay');
+  const iframe = document.getElementById('test-iframe');
+  overlay.style.display = 'none';
+  iframe.src = '';
 }
 
 // ── Go ───────────────────────────────────────────────────
