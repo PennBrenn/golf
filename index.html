@@ -625,8 +625,25 @@
       flex-wrap: wrap;
       gap: 16px;
       justify-content: center;
-      max-width: 900px;
+      max-width: 860px;
+      max-height: 50vh;
+      overflow-y: auto;
       margin: 0 auto;
+      padding: 8px;
+    }
+    #map-vote-grid::-webkit-scrollbar {
+      width: 8px;
+    }
+    #map-vote-grid::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+    }
+    #map-vote-grid::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+    #map-vote-grid::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
     }
 
     .map-card {
