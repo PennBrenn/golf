@@ -22,6 +22,7 @@ export function initUI() {
     hud: document.getElementById('screen-hud'),
     leaderboard: document.getElementById('screen-leaderboard'),
     loading: document.getElementById('screen-loading'),
+    settings: document.getElementById('screen-settings'),
     toast: document.getElementById('toast'),
   };
 
@@ -57,10 +58,19 @@ export function initUI() {
     if (UI.onPlayAgain) UI.onPlayAgain();
   });
 
-  // Settings toggle
-  document.getElementById('btn-settings').addEventListener('click', () => {
-    const panel = document.getElementById('settings-panel');
-    panel.classList.toggle('hidden');
+  // Main menu settings button
+  document.getElementById('btn-settings-main').addEventListener('click', () => {
+    showSettings();
+  });
+
+  // Settings screen buttons
+  document.getElementById('btn-back-from-settings').addEventListener('click', () => {
+    showMainMenu();
+  });
+
+  document.getElementById('btn-save-settings').addEventListener('click', () => {
+    showToast('Settings saved!');
+    showMainMenu();
   });
 
   // Ball color picker
@@ -94,8 +104,6 @@ function hideAll() {
   for (const screen of Object.values(UI.screens)) {
     if (screen) screen.classList.add('hidden');
   }
-  const sp = document.getElementById('settings-panel');
-  if (sp) sp.classList.add('hidden');
   const sb = document.getElementById('spectator-banner');
   if (sb) sb.classList.add('hidden');
 }
@@ -103,6 +111,11 @@ function hideAll() {
 export function showMainMenu() {
   hideAll();
   UI.screens.mainMenu.classList.remove('hidden');
+}
+
+export function showSettings() {
+  hideAll();
+  UI.screens.settings.classList.remove('hidden');
 }
 
 export function showLoading(msg) {

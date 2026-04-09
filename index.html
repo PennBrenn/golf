@@ -371,65 +371,49 @@
       text-shadow: 0 1px 3px rgba(0,50,65,0.3);
     }
 
-    #btn-settings {
-      position: fixed;
-      top: 16px; left: 50%;
-      transform: translateX(-50%);
-      pointer-events: auto;
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1.5px solid rgba(255, 255, 255, 0.4);
-      border-radius: 20px;
-      color: #003040;
+    
+    /* ── Settings Screen ──────────────────────────── */
+
+    #screen-settings {
+      background: rgba(0, 50, 65, 0.5);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 150;
+    }
+
+    #settings-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .settings-section {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px) saturate(1.4);
+      -webkit-backdrop-filter: blur(12px) saturate(1.4);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: 16px;
+      padding: 20px 24px;
+    }
+
+    .settings-section h3 {
       font-family: 'Nunito', sans-serif;
-      font-weight: 600;
-      padding: 6px 16px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-      box-shadow: 0 2px 8px rgba(0,180,210,0.12);
-    }
-    #btn-settings:hover { 
-      background: rgba(255, 255, 255, 0.3); 
-      transform: translateX(-50%) translateY(-1px);
-    }
-
-    /* ── Settings Panel ──────────────────────────── */
-
-    #settings-panel {
-      position: fixed;
-      top: 60px; left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.22);
-      backdrop-filter: blur(18px) saturate(1.6);
-      -webkit-backdrop-filter: blur(18px) saturate(1.6);
-      border: 1.5px solid rgba(255, 255, 255, 0.45);
-      border-radius: 20px;
-      padding: 24px 32px;
-      z-index: 160;
-      text-align: center;
-      box-shadow: 0 8px 32px rgba(0, 180, 210, 0.2), inset 0 1px 0 rgba(255,255,255,0.6);
-      pointer-events: auto;
-    }
-
-    #settings-panel h3 { 
-      margin-bottom: 14px; 
-      font-family: 'Nunito', sans-serif;
-      font-size: 1rem; 
+      font-size: 1rem;
       font-weight: 700;
-      color: #003040;
+      color: white;
+      margin-bottom: 16px;
+      text-shadow: 0 1px 4px rgba(0,194,204,0.4);
     }
 
     #color-grid {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
       justify-content: center;
     }
 
     .color-swatch {
-      width: 36px; height: 36px;
+      width: 40px; height: 40px;
       border-radius: 50%;
       cursor: pointer;
       border: 3px solid rgba(255,255,255,0.4);
@@ -625,6 +609,7 @@
         <button id="btn-join" class="btn btn-primary">Join Game</button>
       </div>
       <div style="margin-top:16px;">
+        <button id="btn-settings-main" class="btn btn-small">Settings</button>
         <a href="/builder.html" class="btn btn-small" style="text-decoration:none;opacity:0.8;">Map Builder</a>
       </div>
     </div>
@@ -654,7 +639,6 @@
       <div id="hud-swings">Swings: 0</div>
     </div>
     <div id="hud-players"></div>
-    <button id="btn-settings">Settings</button>
     <div class="drag-bar-container" id="drag-bar-container">
       <div id="drag-fill"></div>
     </div>
@@ -663,12 +647,6 @@
 
   <!-- Spectator Banner -->
   <div id="spectator-banner" class="hidden">Spectating &mdash; waiting for others to finish</div>
-
-  <!-- Settings Panel -->
-  <div id="settings-panel" class="hidden">
-    <h3>Ball Color</h3>
-    <div id="color-grid"></div>
-  </div>
 
   <!-- Leaderboard -->
   <div id="screen-leaderboard" class="screen hidden">
@@ -689,6 +667,23 @@
   <div id="screen-loading" class="screen hidden">
     <div id="loading-text">Loading...</div>
     <div class="spinner"></div>
+  </div>
+
+  <!-- Settings Screen -->
+  <div id="screen-settings" class="screen hidden">
+    <div class="screen-panel">
+      <h1>Settings</h1>
+      <div id="settings-sections">
+        <div class="settings-section">
+          <h3>Ball Color</h3>
+          <div id="color-grid"></div>
+        </div>
+        <div class="btn-row">
+          <button id="btn-save-settings" class="btn btn-green">Save</button>
+          <button id="btn-back-from-settings" class="btn btn-primary">Back</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Toast -->
