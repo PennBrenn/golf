@@ -148,6 +148,16 @@ export function applyDayNightCycle(timeOfDay) {
   }
 }
 
+export function applyWindFromMapData(mapData) {
+  if (mapData.wind) {
+    Game.wind.x = mapData.wind.x || 0;
+    Game.wind.z = mapData.wind.z || 0;
+  } else {
+    Game.wind.x = 0;
+    Game.wind.z = 0;
+  }
+}
+
 function mt(color) { return new THREE.MeshStandardMaterial({ color, flatShading: true }); }
 
 function addPiece(g, c, p, r) {
@@ -307,6 +317,9 @@ export async function buildCourseByIndex(idx) {
 
   // Apply day/night cycle
   applyDayNightCycle(data.timeOfDay || 'day');
+  
+  // Apply wind from map data
+  applyWindFromMapData(data);
 
   const holeMesh = new THREE.Mesh(
     new THREE.CylinderGeometry(Game.holeRadius, Game.holeRadius, 0.02, 32), mt(0x111111)
@@ -323,6 +336,8 @@ export async function buildCourseByIndex(idx) {
   flag.castShadow = true; Game.scene.add(flag); Game.courseMeshes.push(flag);
 
   buildTerrain();
+  
+  return data; // Return for wind indicator update
 }
 
 export function renderMapThumbnail(mapData) {

@@ -4,7 +4,7 @@ import {
   createLocalBall, resetLocalBall,
   addRemoteBall, removeRemoteBall, updateRemoteBallState,
   setupInput, updateGame, renderGame, resetGameState, enterSpectator,
-  showChatBubble, updateMovingPieces, Game, BALL_COLORS,
+  showChatBubble, updateMovingPieces, applyWindFromMapData, Game, BALL_COLORS,
 } from './game.js';
 import {
   MP, createGame, joinGame, hostStartGame, hostPlayAgain, hostNextRound,
@@ -361,13 +361,6 @@ function handleStartGame() {
   hostStartGame();
 }
 
-function generateWind() {
-  const angle = Math.random() * Math.PI * 2;
-  const strength = Math.random() * 3;
-  Game.wind = { x: Math.cos(angle) * strength, z: Math.sin(angle) * strength };
-  updateWindIndicator();
-}
-
 function updateWindIndicator() {
   const el = document.getElementById('wind-indicator');
   if (!el) return;
@@ -391,8 +384,8 @@ function startNextRound(mapIndex) {
 
   showCountdown(async () => {
     resetGameState();
-    generateWind();
-    await buildCourseByIndex(mapIndex);
+    const mapData = await buildCourseByIndex(mapIndex);
+    updateWindIndicator();
 
     const local = getLocalPlayer();
     const colorIndex = local ? local.colorIndex : 0;
