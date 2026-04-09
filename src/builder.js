@@ -16,6 +16,7 @@ const B = {
   timeOfDay: 'day',  // 'day' or 'night'
   ambientLight: null, directionalLight: null,
   unsavedChanges: false,  // track unsaved changes
+  rainEnabled: false, rainSystem: null, rainDrops: [],
 };
 
 // ── Piece Defaults ───────────────────────────────────────
@@ -26,6 +27,8 @@ const PRESETS = {
   wall:       () => ({ type: 'box', size: [0.3, 0.8, 8], position: [0, 8.6, 0], rotation: [0, 0, 0], color: '#ffffff' }),
   ramp:       () => ({ type: 'box', size: [4, 0.5, 6], position: [0, 9.5, 0], rotation: [-0.28, 0, 0], color: '#7ec87e' }),
   bouncepad:  () => ({ type: 'box', size: [2, 0.3, 2], position: [0, 8.4, 0], rotation: [0, 0, 0], color: '#ff8800' }),
+  sand:       () => ({ type: 'box', size: [4, 0.5, 4], position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#e6d5a8' }),
+  gravinv:    () => ({ type: 'box', size: [2, 0.3, 2], position: [0, 8.4, 0], rotation: [0, 0, 0], color: '#aa44ff' }),
 };
 
 // ── Init ─────────────────────────────────────────────────
@@ -39,11 +42,11 @@ function init() {
   B.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   B.renderer.shadowMap.enabled = true;
   B.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  B.renderer.setClearColor(0x87ceeb);
+  B.renderer.setClearColor(0xffeedd);
   viewport.appendChild(B.renderer.domElement);
 
   B.scene = new THREE.Scene();
-  B.scene.fog = new THREE.Fog(0x87ceeb, 80, 200);
+  B.scene.fog = new THREE.FogExp2(0xffeedd, 0.006);
 
   B.camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 300);
   B.camera.position.set(10, 18, 25);
@@ -69,9 +72,9 @@ function init() {
   B.scene.add(B.transform);
 
   // Lights
-  B.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  B.ambientLight = new THREE.AmbientLight(0xffeedd, 0.6);
   B.scene.add(B.ambientLight);
-  B.directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+  B.directionalLight = new THREE.DirectionalLight(0xffddaa, 1.5);
   B.directionalLight.position.set(15, 35, 15);
   B.directionalLight.castShadow = true;
   B.directionalLight.shadow.mapSize.set(2048, 2048);
@@ -163,19 +166,93 @@ function applyDayNightCycle() {
     B.directionalLight.intensity = 0.4;
     B.directionalLight.color.setHex(0xaaccff);
   } else {
-    B.renderer.setClearColor(0x87ceeb);
-    B.scene.fog.color.setHex(0x87ceeb);
-    B.ambientLight.intensity = 0.5;
-    B.ambientLight.color.setHex(0xffffff);
-    B.directionalLight.intensity = 1.0;
-    B.directionalLight.color.setHex(0xffffff);
+    B.renderer.setClearColor(0xffeedd);
+    B.scene.fog.color.setHex(0xffeedd);
+    B.ambientLight.intensity = 0.6;
+    B.ambientLight.color.setHex(0xffeedd);
+    B.directionalLight.intensity = 1.5;
+    B.directionalLight.color.setHex(0xffddaa);
   }
 }
 
 function animate() {
   requestAnimationFrame(animate);
   B.orbit.update();
+
+  // Animate rain
+  if (B.rainEnabled && B.rainDrops.length > 0) {
+    for (const drop of B.rainDrops) {
+      drop.position.y -= drop.userData.speed;
+      if (drop.position.y < 0) {
+        drop.position.y = 20;
+        drop.position.x = (Math.random() - 0.5) * 60;
+        drop.position.z = (Math.random() - 0.5) * 60;
+      }
+    }
+  }
+
   B.renderer.render(B.scene, B.camera);
+}
+
+function createRainSystem() {
+  if (B.rainSystem) return;
+
+  B.rainDrops = [];
+  const rainGeo = new THREE.BufferGeometry();
+  const rainCount = 2000;
+  const positions = new Float32Array(rainCount * 3);
+
+  for (let i = 0; i < rainCount; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 60;
+    positions[i * 3 + 1] = Math.random() * 20;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 60;
+  }
+
+  rainGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  const rainMat = new THREE.PointsMaterial({
+    color: 0x88aacc,
+    size: 0.1,
+    transparent: true,
+    opacity: 0.6,
+    sizeAttenuation: true
+  });
+
+  B.rainSystem = new THREE.Points(rainGeo, rainMat);
+  B.scene.add(B.rainSystem);
+
+  // Create individual drop meshes for animation
+  for (let i = 0; i < rainCount; i++) {
+    const drop = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.02, 0.02, 0.3, 4),
+      new THREE.MeshBasicMaterial({ color: 0x88aacc, transparent: true, opacity: 0.4 })
+    );
+    drop.position.set(
+      (Math.random() - 0.5) * 60,
+      Math.random() * 20,
+      (Math.random() - 0.5) * 60
+    );
+    drop.rotation.x = Math.PI / 2;
+    drop.userData.speed = 0.3 + Math.random() * 0.2;
+    B.scene.add(drop);
+    B.rainDrops.push(drop);
+  }
+}
+
+function destroyRainSystem() {
+  if (B.rainSystem) {
+    B.scene.remove(B.rainSystem);
+    B.rainSystem.geometry.dispose();
+    B.rainSystem.material.dispose();
+    B.rainSystem = null;
+  }
+
+  for (const drop of B.rainDrops) {
+    B.scene.remove(drop);
+    drop.geometry.dispose();
+    drop.material.dispose();
+  }
+  B.rainDrops = [];
 }
 
 // ── Piece Management ─────────────────────────────────────
@@ -347,6 +424,9 @@ function onKeyDown(e) {
     case 'g': setMode('translate'); break;
     case 'r': setMode('rotate'); break;
     case 's': setMode('scale'); break;
+    case 'f':
+      if (B.selected) focusOnSelected();
+      break;
     case 'delete':
     case 'backspace':
       if (B.selected) removePiece(B.selected);
@@ -370,6 +450,12 @@ function duplicateSelected() {
   const newData = JSON.parse(JSON.stringify(B.selected.data));
   newData.position[0] += 2;
   addPiece(newData);
+}
+
+function focusOnSelected() {
+  if (!B.selected) return;
+  const pos = B.selected.mesh.position;
+  B.orbit.target.set(pos.x, pos.y, pos.z);
 }
 
 // ── Toolbar ──────────────────────────────────────────────
@@ -399,6 +485,18 @@ function setupToolbar() {
     const btn = document.getElementById('btn-toggle-time');
     btn.textContent = B.timeOfDay === 'day' ? '☀️ Day' : '🌙 Night';
     applyDayNightCycle();
+    markUnsaved();
+  });
+
+  document.getElementById('btn-toggle-rain').addEventListener('click', () => {
+    B.rainEnabled = !B.rainEnabled;
+    const btn = document.getElementById('btn-toggle-rain');
+    btn.classList.toggle('active', B.rainEnabled);
+    if (B.rainEnabled) {
+      createRainSystem();
+    } else {
+      destroyRainSystem();
+    }
     markUnsaved();
   });
 
@@ -662,6 +760,7 @@ function exportJSON() {
     name: document.getElementById('map-name-input').value || 'Untitled',
     timeLimit: parseInt(document.getElementById('map-time-input').value) || 120,
     timeOfDay: B.timeOfDay,
+    rain: B.rainEnabled,
     start: [
       parseFloat(document.getElementById('sx').value) || 0,
       parseFloat(document.getElementById('sy').value) || 9,
@@ -723,6 +822,17 @@ function loadMapData(data) {
   btn.textContent = B.timeOfDay === 'day' ? '☀️ Day' : '🌙 Night';
   applyDayNightCycle();
 
+  // Restore rain setting (or enable for test.json)
+  const mapName = (data.name || '').toLowerCase();
+  B.rainEnabled = data.rain || (mapName === 'test');
+  const rainBtn = document.getElementById('btn-toggle-rain');
+  rainBtn.classList.toggle('active', B.rainEnabled);
+  if (B.rainEnabled) {
+    createRainSystem();
+  } else {
+    destroyRainSystem();
+  }
+
   if (data.start) {
     document.getElementById('sx').value = data.start[0];
     document.getElementById('sy').value = data.start[1];
@@ -766,6 +876,13 @@ function newMap() {
   B.holeMarker.position.set(0, 8.5, -20);
   B.orbit.target.set(0, 8, -10);
   selectPiece(null);
+
+  // Reset rain
+  B.rainEnabled = false;
+  const rainBtn = document.getElementById('btn-toggle-rain');
+  rainBtn.classList.remove('active');
+  destroyRainSystem();
+
   B.unsavedChanges = false;
 }
 

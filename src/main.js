@@ -1,7 +1,7 @@
 import {
   initScene, buildCourseByIndex, buildTerrain, fetchMapManifest,
   getAllMapData, renderMapThumbnail, loadMenuBackground, updateMenuCamera,
-  createLocalBall, resetLocalBall,
+  createLocalBall, resetLocalBall, updateBallAppearance,
   addRemoteBall, removeRemoteBall, updateRemoteBallState,
   setupInput, updateGame, renderGame, resetGameState, enterSpectator,
   showChatBubble, updateMovingPieces, applyWindFromMapData, Game, BALL_COLORS,
@@ -20,6 +20,7 @@ import {
   showLeaderboard, hideLeaderboard,
   showMapVote, updateMapVotes, showVoteWinner, hideMapVote,
   showToast, loadSettings, getSettings, UI,
+  showESCMenu, hideESCMenu, showKickPlayers, hideKickPlayers,
 } from './ui.js';
 
 // ── App State ────────────────────────────────────────────
@@ -59,6 +60,15 @@ async function init() {
   UI.onColorPick = (color) => { Game.ballColor = color; };
   UI.onMapVote = (mapIndex) => { sendVote(mapIndex); };
   UI.onSettingsChanged = (s) => applySettings(s);
+  UI.onReturnToMenu = handleReturnToMenuFromGame;
+  UI.onKickPlayer = handleKickPlayer;
+  UI.onResetBall = handleResetBall;
+
+  // Override showKickPlayers to pass current players
+  UI.showKickPlayers = () => showKickPlayers(MP.players);
+
+  // Override showESCMenu to pass host status
+  UI.showESCMenu = () => showESCMenu(MP.isHost);
 
   // Wire game callbacks
   Game.onDragChanged = (ratio, active) => updateDragIndicator(ratio, active);
@@ -148,6 +158,9 @@ function escapeHtml(str) {
 function applySettings(s) {
   // Ball color
   Game.ballColor = s.ballColor;
+
+  // Hat, glow, and trail
+  updateBallAppearance(s.hat, s.glowIntensity, s.ballTrail, s.trailColor);
 
   // Shadows
   if (s.shadows === 'off') {
@@ -488,6 +501,32 @@ function handleReturnToLobby() {
   showLobby(MP.roomCode, MP.isHost);
   updatePlayerList(MP.players);
   if (MP.isHost) updateStartButton(MP.players.length >= 1);
+}
+
+function handleReturnToMenuFromGame() {
+  gameRunning = false;
+  menuMode = true;
+  resetGameState();
+  hideHUD();
+  hideESCMenu();
+  cleanupMultiplayer();
+  currentRound = 0;
+  MP.leaderboard = [];
+  setTimeout(async () => { await loadMenuBackground(); showMainMenu(); }, 500);
+}
+
+function handleKickPlayer(playerId) {
+  if (MP.isHost) {
+    // Send kick message via peerjs (would need to implement in network.js)
+    // For now, just show a toast
+    showToast('Kick feature not yet implemented', 3000);
+  }
+}
+
+function handleResetBall() {
+  Game.lastSwingPosition.copy(Game.startPosition);
+  resetLocalBall();
+  showToast('Ball reset to start position', 2000);
 }
 
 // ── Go ───────────────────────────────────────────────────

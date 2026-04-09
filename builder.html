@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>⛳ Map Builder</title>
+  <title>⛳ PicoGolf - Map Builder</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -277,6 +277,7 @@
     <button class="tb-btn" id="btn-set-start" title="Place start position">Set Start</button>
     <button class="tb-btn" id="btn-set-hole" title="Place hole position">Set Hole</button>
     <div class="tb-sep"></div>
+    <button class="tb-btn" id="btn-toggle-rain" title="Toggle rain">🌧 Rain</button>
     <button class="tb-btn" id="btn-toggle-time" title="Toggle day/night">☀️ Day</button>
     <div class="tb-spacer"></div>
     <button class="tb-btn" id="btn-import">Import</button>
@@ -292,6 +293,8 @@
     <button class="add-btn" data-type="wall">🧱 Wall</button>
     <button class="add-btn" data-type="ramp">📐 Ramp</button>
     <button class="add-btn" data-type="bouncepad">🔶 Bounce Pad</button>
+    <button class="add-btn" data-type="sand">🏖 Sand</button>
+    <button class="add-btn" data-type="gravinv">🌀 Gravity Inverter</button>
 
     <div class="panel-heading">Pieces</div>
     <div id="piece-list"></div>
@@ -338,6 +341,7 @@
           <select id="motion-type" style="flex: 1; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25); border-radius: 6px; color: white; padding: 4px 8px; font-family: 'Nunito', sans-serif; font-size: 0.8rem;">
             <option value="">None</option>
             <option value="translate">Translate</option>
+            <option value="rotate">Rotate</option>
           </select>
         </div>
         <div class="prop-row">

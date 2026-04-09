@@ -1,4 +1,4 @@
-import { BALL_COLORS } from './game.js';
+import { BALL_COLORS, getAllMapData, renderMapThumbnail } from './game.js';
 
 // ── Settings Defaults ────────────────────────────────────
 
@@ -6,6 +6,9 @@ const SETTINGS_KEY = 'minigolf_settings';
 const DEFAULT_SETTINGS = {
   playerName: '',
   ballColor: BALL_COLORS[0],
+  trailColor: '#ffffff',
+  hat: 'none',
+  glowIntensity: 0,
   shadows: 'high',
   terrainDetail: 'high',
   ballTrail: 'off',
@@ -44,6 +47,9 @@ export const UI = {
   onNextRound: null,     // callback()
   onMapVote: null,       // callback(mapIndex)
   onSettingsChanged: null, // callback(settings)
+  onReturnToMenu: null,  // callback()
+  onKickPlayer: null,    // callback(playerId)
+  onResetBall: null,     // callback()
 };
 
 // ── Init ─────────────────────────────────────────────────
@@ -58,6 +64,9 @@ export function initUI() {
     loading: document.getElementById('screen-loading'),
     settings: document.getElementById('screen-settings'),
     mapVote: document.getElementById('screen-map-vote'),
+    mapLibrary: document.getElementById('screen-map-library'),
+    escMenu: document.getElementById('screen-esc-menu'),
+    kickPlayers: document.getElementById('screen-kick-players'),
     toast: document.getElementById('toast'),
   };
 
@@ -103,9 +112,64 @@ export function initUI() {
     window.location.href = '/builder.html';
   });
 
+  // Main menu map library button
+  document.getElementById('btn-map-library').addEventListener('click', () => {
+    showMapLibrary();
+  });
+
   // Settings screen buttons
   document.getElementById('btn-back-from-settings').addEventListener('click', () => {
     showMainMenu();
+  });
+
+  // Map library back button
+  document.getElementById('btn-back-from-library').addEventListener('click', () => {
+    showMainMenu();
+  });
+
+  // ESC menu buttons
+  document.getElementById('btn-esc-settings').addEventListener('click', () => {
+    showSettings();
+  });
+
+  document.getElementById('btn-esc-kick').addEventListener('click', () => {
+    if (UI.showKickPlayers) UI.showKickPlayers(); else showKickPlayers();
+  });
+
+  document.getElementById('btn-esc-reset').addEventListener('click', () => {
+    if (UI.onResetBall) UI.onResetBall();
+    hideESCMenu();
+  });
+
+  document.getElementById('btn-esc-return-menu').addEventListener('click', () => {
+    if (UI.onReturnToMenu) UI.onReturnToMenu();
+  });
+
+  document.getElementById('btn-esc-resume').addEventListener('click', () => {
+    hideESCMenu();
+  });
+
+  document.getElementById('btn-back-from-kick').addEventListener('click', () => {
+    hideKickPlayers();
+    showESCMenu();
+  });
+
+  // ESC key handler
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (!UI.screens.escMenu.classList.contains('hidden')) {
+        hideESCMenu();
+      } else if (!UI.screens.kickPlayers.classList.contains('hidden')) {
+        hideKickPlayers();
+        if (UI.showESCMenu) UI.showESCMenu(); else showESCMenu();
+      } else if (!UI.screens.settings.classList.contains('hidden')) {
+        showMainMenu();
+      } else if (!UI.screens.mapLibrary.classList.contains('hidden')) {
+        showMainMenu();
+      } else if (!UI.screens.hud.classList.contains('hidden')) {
+        if (UI.showESCMenu) UI.showESCMenu(); else showESCMenu();
+      }
+    }
   });
 
   document.getElementById('btn-save-settings').addEventListener('click', () => {
@@ -113,7 +177,12 @@ export function initUI() {
     saveSettings();
     if (UI.onSettingsChanged) UI.onSettingsChanged(currentSettings);
     showToast('Settings saved!');
-    showMainMenu();
+    // Return to ESC menu if it was open, otherwise main menu
+    if (!UI.screens.escMenu.classList.contains('hidden')) {
+      showESCMenu();
+    } else {
+      showMainMenu();
+    }
   });
 
   // Settings radio buttons
@@ -152,6 +221,10 @@ function collectSettings() {
   if (hexInput && /^#[0-9a-fA-F]{6}$/.test(hexInput.value.trim())) {
     currentSettings.ballColor = parseInt(hexInput.value.trim().slice(1), 16);
   }
+  currentSettings.trailColor = document.getElementById('settings-trail-color').value;
+  const hatBtn = document.querySelector('#settings-hat .settings-radio.active');
+  if (hatBtn) currentSettings.hat = hatBtn.dataset.val;
+  currentSettings.glowIntensity = parseInt(document.getElementById('settings-glow').value);
   const shadowBtn = document.querySelector('#settings-shadows .settings-radio.active');
   if (shadowBtn) currentSettings.shadows = shadowBtn.dataset.val;
   const terrainBtn = document.querySelector('#settings-terrain .settings-radio.active');
@@ -170,6 +243,10 @@ function populateSettings() {
   if (nameInput && currentSettings.playerName) nameInput.value = currentSettings.playerName;
   const hexInput = document.getElementById('settings-hex');
   if (hexInput) hexInput.value = '#' + currentSettings.ballColor.toString(16).padStart(6, '0');
+
+  document.getElementById('settings-trail-color').value = currentSettings.trailColor || '#ffffff';
+  setRadioActive('settings-hat', currentSettings.hat || 'none');
+  document.getElementById('settings-glow').value = currentSettings.glowIntensity || 0;
 
   // Set radio buttons
   setRadioActive('settings-shadows', currentSettings.shadows);
@@ -230,6 +307,88 @@ export function showMainMenu() {
 export function showSettings() {
   hideAll();
   UI.screens.settings.classList.remove('hidden');
+}
+
+export async function showMapLibrary() {
+  hideAll();
+  UI.screens.mapLibrary.classList.remove('hidden');
+
+  const grid = document.getElementById('map-library-grid');
+  grid.innerHTML = '';
+
+  try {
+    const maps = await getAllMapData();
+    maps.forEach((mapData) => {
+      const card = document.createElement('div');
+      card.className = 'library-map-card';
+
+      const img = document.createElement('img');
+      img.src = renderMapThumbnail(mapData);
+      img.alt = mapData.name;
+      card.appendChild(img);
+
+      const info = document.createElement('div');
+      info.className = 'library-map-card-info';
+
+      const name = document.createElement('div');
+      name.className = 'library-map-card-name';
+      name.textContent = mapData.name;
+      info.appendChild(name);
+
+      card.appendChild(info);
+      grid.appendChild(card);
+    });
+  } catch (err) {
+    console.error('Failed to load maps:', err);
+    grid.innerHTML = '<div style="color:white;grid-column:1/-1;text-align:center;">Failed to load maps</div>';
+  }
+}
+
+export function showESCMenu(isHost = false) {
+  UI.screens.escMenu.classList.remove('hidden');
+  const kickBtn = document.getElementById('btn-esc-kick');
+  if (kickBtn) {
+    kickBtn.classList.toggle('hidden', !isHost);
+  }
+}
+
+export function hideESCMenu() {
+  UI.screens.escMenu.classList.add('hidden');
+}
+
+export function showKickPlayers(players) {
+  hideAll();
+  UI.screens.kickPlayers.classList.remove('hidden');
+
+  const list = document.getElementById('kick-player-list');
+  list.innerHTML = '';
+
+  if (players) {
+    players.forEach((p) => {
+      const li = document.createElement('li');
+      const colorHex = playerColorHex(p.colorIndex);
+      li.innerHTML = `
+        <span style="display:flex;align-items:center;gap:10px;">
+          <span class="player-dot" style="background:${colorHex}"></span>
+          ${escapeHtml(p.name)}${p.isHost ? ' (Host)' : ''}
+        </span>
+      `;
+      if (!p.isHost) {
+        const kickBtn = document.createElement('button');
+        kickBtn.className = 'kick-btn';
+        kickBtn.textContent = 'Kick';
+        kickBtn.addEventListener('click', () => {
+          if (UI.onKickPlayer) UI.onKickPlayer(p.id);
+        });
+        li.appendChild(kickBtn);
+      }
+      list.appendChild(li);
+    });
+  }
+}
+
+export function hideKickPlayers() {
+  UI.screens.kickPlayers.classList.add('hidden');
 }
 
 export function showLoading(msg) {

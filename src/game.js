@@ -22,13 +22,17 @@ export const Game = {
   swings: 0, timerStart: 0, elapsedTime: 0, timeLimit: 120, remainingTime: 120,
   hasFinished: false, spectatorMode: false, currentCourseIndex: -1,
   wind: { x: 0, z: 0 },
-  waterZones: [], lastSafePosition: new THREE.Vector3(), waterSplashed: false,
+  waterZones: [], lastSafePosition: new THREE.Vector3(), lastSwingPosition: new THREE.Vector3(), waterSplashed: false,
+  hat: null, hatMesh: null, glowIntensity: 0,
+  trailEnabled: false, trailColor: '#ffffff', trailPoints: [], trailLine: null,
+  rainEnabled: false, rainDrops: [],
   onSwingCountChanged: null, onTimeUpdate: null, onTimeUp: null,
   onFinishHole: null, onDragChanged: null, onWaterSplash: null,
 };
 
 const BALL_RADIUS = 0.2;
 const GROUND_MAT = new CANNON.Material('ground');
+const SAND_MAT = new CANNON.Material('sand');
 const BALL_MAT_C = new CANNON.Material('ball');
 
 function hash(x, z) {
@@ -51,7 +55,7 @@ function fbm(x, z) {
 
 export function initScene(container) {
   Game.scene = new THREE.Scene();
-  Game.scene.fog = new THREE.Fog(0x87ceeb, 20, 150);
+  Game.scene.fog = new THREE.FogExp2(0xffeedd, 0.006);
 
   const aspect = window.innerWidth / window.innerHeight;
   Game.camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
@@ -73,7 +77,7 @@ export function initScene(container) {
   container.appendChild(Game.labelRenderer.domElement);
 
   Game.scene = new THREE.Scene();
-  Game.scene.fog = new THREE.Fog(0x87ceeb, 50, 150);
+  Game.scene.fog = new THREE.FogExp2(0xffeedd, 0.006);
   Game.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300);
   Game.camera.position.set(0, 15, 20);
 
@@ -86,7 +90,7 @@ export function initScene(container) {
   Game.controls.touches = { ONE: THREE.MOUSE.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE };
 
   // Improved Lighting
-  const sun = new THREE.DirectionalLight(0xfff5e0, 1.2);
+  const sun = new THREE.DirectionalLight(0xffddaa, 1.5);
   sun.position.set(80, 120, 60);
   sun.castShadow = true;
   sun.shadow.mapSize.width = 2048;
@@ -100,14 +104,14 @@ export function initScene(container) {
   sun.shadow.bias = -0.001;
   Game.scene.add(sun);
 
-  const ambientLight = new THREE.AmbientLight(0xb0d8f0, 0.45);
+  const ambientLight = new THREE.AmbientLight(0xffeedd, 0.6);
   Game.scene.add(ambientLight);
 
-  const fillLight = new THREE.DirectionalLight(0x88ccff, 0.3);
+  const fillLight = new THREE.DirectionalLight(0xffcc88, 0.4);
   fillLight.position.set(-40, 30, -40);
   Game.scene.add(fillLight);
 
-  const groundBounce = new THREE.HemisphereLight(0x88cc66, 0x334422, 0.4);
+  const groundBounce = new THREE.HemisphereLight(0xffdd99, 0x886644, 0.5);
   Game.scene.add(groundBounce);
 
   Game.clock = new THREE.Clock();
@@ -115,6 +119,7 @@ export function initScene(container) {
   Game.world.broadphase = new CANNON.SAPBroadphase(Game.world);
   Game.world.allowSleep = false;
   Game.world.addContactMaterial(new CANNON.ContactMaterial(GROUND_MAT, BALL_MAT_C, { friction: 0.4, restitution: 0.3 }));
+  Game.world.addContactMaterial(new CANNON.ContactMaterial(SAND_MAT, BALL_MAT_C, { friction: 2.5, restitution: 0.1 }));
 
   window.addEventListener('resize', onResize);
 }
@@ -293,6 +298,58 @@ function createLeafTexture() {
   return texture;
 }
 
+function createSandTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+
+  // Base sand color (warm beige)
+  ctx.fillStyle = '#e6d5a8';
+  ctx.fillRect(0, 0, 256, 256);
+
+  // Sand grains
+  ctx.fillStyle = '#d4c49a';
+  for (let i = 0; i < 400; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    const size = Math.random() * 2 + 1;
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Lighter sand highlights
+  ctx.fillStyle = '#f0e0b8';
+  for (let i = 0; i < 200; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    const size = Math.random() * 1.5 + 0.5;
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Darker sand shadows
+  ctx.fillStyle = '#c8b888';
+  for (let i = 0; i < 150; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    const size = Math.random() * 1.5 + 0.5;
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.magFilter = THREE.NearestFilter;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+
+  return texture;
+}
+
 function createShinyTexture() {
   const canvas = document.createElement('canvas');
   canvas.width = 256;
@@ -339,7 +396,7 @@ export function buildTerrain() {
     Game.terrainMesh.material.dispose();
     Game.terrainMesh = null;
   }
-  const geo = new THREE.PlaneGeometry(300, 300, 60, 60);
+  const geo = new THREE.PlaneGeometry(3000, 3000, 200, 200);
   geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
@@ -348,15 +405,15 @@ export function buildTerrain() {
     pos.setY(i, h - 2);
   }
   geo.computeVertexNormals();
-  
+
   const terrainTex = createTerrainTexture();
-  const mat = new THREE.MeshStandardMaterial({ 
+  const mat = new THREE.MeshStandardMaterial({
     color: 0xffffff, // Let texture drive color
     map: terrainTex,
     flatShading: true,
     roughness: 0.9
   });
-  
+
   Game.terrainMesh = new THREE.Mesh(geo, mat);
   Game.terrainMesh.receiveShadow = true;
   Game.terrainMesh.position.y = -2;
@@ -365,49 +422,49 @@ export function buildTerrain() {
 
 export function applyDayNightCycle(timeOfDay) {
   const isNight = timeOfDay === 'night';
-  
+
   // Sky color (fog only, background is transparent to show CSS gradient)
-  const skyColor = isNight ? 0x0a1828 : 0x87ceeb;
+  const skyColor = isNight ? 0x0a1828 : 0xffeedd;
   Game.scene.fog.color.setHex(skyColor);
-  
+
   // Update CSS background for sky gradient
   const bg = document.getElementById('game-container');
   if (bg) {
     if (isNight) {
       bg.style.background = 'radial-gradient(ellipse at 50% 0%, #0a1828 0%, #05101a 50%, #000000 100%)';
     } else {
-      bg.style.background = 'radial-gradient(ellipse at 50% 0%, #b8f0ff 0%, #72d4f0 25%, #3ab8e0 55%, #1a7aaa 85%, #0d4a70 100%)';
+      bg.style.background = 'radial-gradient(ellipse at 50% 0%, #fff8e0 0%, #ffe0a0 25%, #ffcc66 55%, #ffaa33 85%, #dd8822 100%)';
     }
   }
 
   // Find and update lights
   Game.scene.traverse((obj) => {
     if (obj.isAmbientLight) {
-      obj.intensity = isNight ? 0.20 : 0.45;
-      obj.color.setHex(isNight ? 0x446688 : 0xb0d8f0);
+      obj.intensity = isNight ? 0.20 : 0.6;
+      obj.color.setHex(isNight ? 0x446688 : 0xffeedd);
     }
     if (obj.isDirectionalLight) {
       // Sun
       if (obj.castShadow) {
-        obj.intensity = isNight ? 0.3 : 1.2;
-        obj.color.setHex(isNight ? 0x88aadd : 0xfff5e0);
+        obj.intensity = isNight ? 0.3 : 1.5;
+        obj.color.setHex(isNight ? 0x88aadd : 0xffddaa);
       } 
       // Fill light
       else {
-        obj.intensity = isNight ? 0.1 : 0.3;
-        obj.color.setHex(isNight ? 0x224466 : 0x88ccff);
+        obj.intensity = isNight ? 0.1 : 0.4;
+        obj.color.setHex(isNight ? 0x446688 : 0xffcc88);
       }
     }
     if (obj.isHemisphereLight) {
-      obj.intensity = isNight ? 0.15 : 0.4;
-      obj.color.setHex(isNight ? 0x224455 : 0x88cc66);
-      obj.groundColor.setHex(isNight ? 0x112211 : 0x334422);
+      obj.intensity = isNight ? 0.2 : 0.5;
+      obj.color.setHex(isNight ? 0x223344 : 0xffdd99);
+      obj.groundColor.setHex(isNight ? 0x111122 : 0x886644);
     }
   });
 
   // Update terrain color for night
   if (Game.terrainMesh) {
-    Game.terrainMesh.material.color.setHex(isNight ? 0x1a3a2a : 0x4a8c3f);
+    Game.terrainMesh.material.color.setHex(isNight ? 0x1a3a2a : 0x7aad5c);
   }
 }
 
@@ -435,6 +492,9 @@ function onBouncePadCollision(e, padBody) {
   
   // Add a small boost to ensure it clears the pad
   Game.ballBody.position.y += 0.1;
+  
+  // Play sound effect
+  if (Game.onWaterSplash) Game.onWaterSplash();
 }
 
 function mt(color, type, rotation) {
@@ -454,12 +514,23 @@ function mt(color, type, rotation) {
   if (type === 'box') {
     // Bounce pad (orange color)
     if (hex === 'ff8800') {
-      return new THREE.MeshStandardMaterial({ 
+      return new THREE.MeshStandardMaterial({
         color: 0xff8800,
         roughness: 0.5,
         metalness: 0.3,
         emissive: 0xff4400,
         emissiveIntensity: 0.2
+      });
+    }
+
+    // Gravity inverter (purple color)
+    if (hex === 'aa44ff') {
+      return new THREE.MeshStandardMaterial({
+        color: 0xaa44ff,
+        roughness: 0.4,
+        metalness: 0.5,
+        emissive: 0x6622cc,
+        emissiveIntensity: 0.3
       });
     }
     
@@ -474,14 +545,24 @@ function mt(color, type, rotation) {
     
     // Ramp (has rotation on X or Z) - leaf texture
     if (rotation && (rotation[0] !== 0 || rotation[2] !== 0)) {
-      return new THREE.MeshStandardMaterial({ 
+      return new THREE.MeshStandardMaterial({
         color: 0xffffff,
         map: createLeafTexture(),
         roughness: 0.85,
         metalness: 0.0
       });
     }
-    
+
+    // Sand (beige color)
+    if (hex === 'e6d5a8') {
+      return new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        map: createSandTexture(),
+        roughness: 0.95,
+        metalness: 0.0
+      });
+    }
+
     // Default box (fairway/grass) - grass texture
     return new THREE.MeshStandardMaterial({ 
       color: 0xffffff,
@@ -507,7 +588,13 @@ function addPiece(g, c, p, r) {
   if (r) mesh.rotation.set(r[0], r[1], r[2]);
   mesh.castShadow = true; mesh.receiveShadow = true;
   Game.scene.add(mesh); Game.courseMeshes.push(mesh);
-  const body = new CANNON.Body({ mass: 0, material: GROUND_MAT });
+
+  // Check if this is sand (beige color #e6d5a8)
+  const hex = c.toString(16).toLowerCase();
+  const isSand = hex === 'e6d5a8';
+  const bodyMat = isSand ? SAND_MAT : GROUND_MAT;
+
+  const body = new CANNON.Body({ mass: 0, material: bodyMat });
   body.addShape(new CANNON.Box(new CANNON.Vec3(g[0] / 2, g[1] / 2, g[2] / 2)));
   body.position.set(p[0], p[1], p[2]);
   if (r) {
@@ -557,6 +644,8 @@ function buildCourseFromJSON(data) {
       const body = Game.courseBodies[bodyIdx];
       body.addEventListener('collide', (e) => onBouncePadCollision(e, body));
     }
+
+    // Gravity inverters (purple color #aa44ff) - handled in updateGame loop
 
     if (p.motion) {
       const body = Game.courseBodies[bodyIdx];
@@ -650,6 +739,18 @@ export function clearCourse() {
   for (const m of Game.courseMeshes) Game.scene.remove(m);
   for (const b of Game.courseBodies) Game.world.removeBody(b);
   Game.courseMeshes = []; Game.courseBodies = [];
+
+  // Clear trail
+  if (Game.trailLine) {
+    Game.scene.remove(Game.trailLine);
+    Game.trailLine.geometry.dispose();
+    Game.trailLine = null;
+  }
+  Game.trailPoints = [];
+
+  // Clear rain
+  destroyRainSystem();
+  Game.rainEnabled = false;
 }
 
 export async function buildCourseByIndex(idx) {
@@ -711,19 +812,19 @@ export async function buildCourseByIndex(idx) {
 export function renderMapThumbnail(mapData) {
   const w = 320, h = 200;
   const thumbScene = new THREE.Scene();
-  thumbScene.fog = new THREE.Fog(0x87ceeb, 50, 150);
-  thumbScene.background = new THREE.Color(0x87ceeb);
+  thumbScene.fog = new THREE.FogExp2(0xffeedd, 0.012);
+  thumbScene.background = new THREE.Color(0xffeedd);
   
-  const sun = new THREE.DirectionalLight(0xfff5e0, 1.2);
+  const sun = new THREE.DirectionalLight(0xffddaa, 1.5);
   sun.position.set(15, 35, 15);
   thumbScene.add(sun);
-  thumbScene.add(new THREE.AmbientLight(0xb0d8f0, 0.45));
-  
-  const fillLight = new THREE.DirectionalLight(0x88ccff, 0.3);
+  thumbScene.add(new THREE.AmbientLight(0xffeedd, 0.6));
+
+  const fillLight = new THREE.DirectionalLight(0xffcc88, 0.4);
   fillLight.position.set(-20, 20, -20);
   thumbScene.add(fillLight);
   
-  thumbScene.add(new THREE.HemisphereLight(0x88cc66, 0x334422, 0.4));
+  thumbScene.add(new THREE.HemisphereLight(0xffdd99, 0x886644, 0.5));
 
   for (const p of mapData.pieces) {
     let geo, color = parseColor(p.color);
@@ -767,6 +868,10 @@ export async function loadMenuBackground() {
   buildTerrain();
   applyDayNightCycle(data.timeOfDay || 'day');
 
+  // Enable rain if map has it or is test.json
+  const mapName = (data.name || '').toLowerCase();
+  setRainEnabled(data.rain || (mapName === 'test'));
+
   const cx = (data.start[0] + data.hole[0]) / 2;
   const cy = Math.max(data.start[1], data.hole[1]);
   const cz = (data.start[2] + data.hole[2]) / 2;
@@ -789,11 +894,29 @@ export function updateMenuCamera(time) {
 
 export function createLocalBall(color) {
   const c = color !== undefined ? color : Game.ballColor;
+
+  // Apply glow effect if enabled
+  const glowMat = Game.glowIntensity > 0
+    ? new THREE.MeshStandardMaterial({
+        color: c,
+        emissive: c,
+        emissiveIntensity: Game.glowIntensity / 100,
+        flatShading: true
+      })
+    : new THREE.MeshStandardMaterial({ color: c, flatShading: true });
+
   Game.ball = new THREE.Mesh(
     new THREE.SphereGeometry(BALL_RADIUS, 16, 16),
-    new THREE.MeshStandardMaterial({ color: c, flatShading: true })
+    glowMat
   );
   Game.ball.castShadow = true; Game.scene.add(Game.ball);
+
+  // Add hat if enabled
+  if (Game.hat && Game.hat !== 'none') {
+    Game.hatMesh = createHatMesh(Game.hat, c);
+    Game.ball.add(Game.hatMesh);
+  }
+
   Game.ballBody = new CANNON.Body({
     mass: 1, shape: new CANNON.Sphere(BALL_RADIUS), material: BALL_MAT_C,
     linearDamping: 0.3, angularDamping: 0.4,
@@ -803,13 +926,166 @@ export function createLocalBall(color) {
   Game.hasFinished = false; Game.spectatorMode = false;
   Game.swings = 0; Game.timerStart = Date.now(); Game.elapsedTime = 0;
   Game.lastSafePosition.copy(Game.startPosition);
+  Game.lastSwingPosition.copy(Game.startPosition);
   Game.waterSplashed = false;
+}
+
+function createHatMesh(hatType, ballColor) {
+  const group = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.7 });
+
+  if (hatType === 'tophat') {
+    // Top hat cylinder
+    const brim = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.18, 0.02, 16),
+      mat
+    );
+    brim.position.y = 0.2;
+    group.add(brim);
+
+    const top = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.1, 0.1, 0.15, 16),
+      mat
+    );
+    top.position.y = 0.28;
+    group.add(top);
+  } else if (hatType === 'baseball') {
+    // Baseball cap
+    const brim = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.18, 0.02, 16),
+      mat
+    );
+    brim.position.y = 0.19;
+    group.add(brim);
+
+    const dome = new THREE.Mesh(
+      new THREE.SphereGeometry(0.12, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+      mat
+    );
+    dome.position.y = 0.19;
+    group.add(dome);
+
+    // Visor
+    const visor = new THREE.Mesh(
+      new THREE.BoxGeometry(0.2, 0.02, 0.08),
+      mat
+    );
+    visor.position.set(0, 0.19, 0.12);
+    visor.rotation.x = -0.3;
+    group.add(visor);
+  } else if (hatType === 'beanie') {
+    // Beanie
+    const beanie = new THREE.Mesh(
+      new THREE.SphereGeometry(0.13, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.MeshStandardMaterial({ color: ballColor, roughness: 0.8 })
+    );
+    beanie.position.y = 0.18;
+    group.add(beanie);
+
+    // Fold at bottom
+    const fold = new THREE.Mesh(
+      new THREE.TorusGeometry(0.13, 0.02, 8, 16),
+      new THREE.MeshStandardMaterial({ color: ballColor, roughness: 0.8 })
+    );
+    fold.position.y = 0.18;
+    fold.rotation.x = Math.PI / 2;
+    group.add(fold);
+  }
+
+  return group;
+}
+
+export function updateBallAppearance(hat, glowIntensity, trailEnabled, trailColor) {
+  Game.hat = hat;
+  Game.glowIntensity = glowIntensity;
+  Game.trailEnabled = trailEnabled === 'on';
+  Game.trailColor = trailColor || '#ffffff';
+
+  if (Game.ball) {
+    // Update material for glow
+    const c = Game.ball.material.color.getHex();
+    Game.ball.material.dispose();
+    Game.ball.material = Game.glowIntensity > 0
+      ? new THREE.MeshStandardMaterial({
+          color: c,
+          emissive: c,
+          emissiveIntensity: Game.glowIntensity / 100,
+          flatShading: true
+        })
+      : new THREE.MeshStandardMaterial({ color: c, flatShading: true });
+
+    // Update hat
+    if (Game.hatMesh) {
+      Game.ball.remove(Game.hatMesh);
+      Game.hatMesh = null;
+    }
+
+    if (Game.hat && Game.hat !== 'none') {
+      Game.hatMesh = createHatMesh(Game.hat, c);
+      Game.ball.add(Game.hatMesh);
+    }
+  }
+
+  // Clear trail if disabled
+  if (!Game.trailEnabled && Game.trailLine) {
+    Game.scene.remove(Game.trailLine);
+    Game.trailLine.geometry.dispose();
+    Game.trailLine = null;
+    Game.trailPoints = [];
+  }
+}
+
+export function setRainEnabled(enabled) {
+  Game.rainEnabled = enabled;
+  if (enabled) {
+    createRainSystem();
+  } else {
+    destroyRainSystem();
+  }
+}
+
+function createRainSystem() {
+  if (Game.rainDrops.length > 0) return;
+
+  const rainCount = 500;
+  for (let i = 0; i < rainCount; i++) {
+    const drop = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.02, 0.02, 0.3, 4),
+      new THREE.MeshBasicMaterial({ color: 0x88aacc, transparent: true, opacity: 0.4 })
+    );
+    drop.position.set(
+      (Math.random() - 0.5) * 60,
+      Math.random() * 30,
+      (Math.random() - 0.5) * 60
+    );
+    drop.rotation.x = Math.PI / 2;
+    drop.userData.speed = 0.5 + Math.random() * 0.3;
+    Game.scene.add(drop);
+    Game.rainDrops.push(drop);
+  }
+}
+
+function destroyRainSystem() {
+  for (const drop of Game.rainDrops) {
+    Game.scene.remove(drop);
+    drop.geometry.dispose();
+    drop.material.dispose();
+  }
+  Game.rainDrops = [];
 }
 
 export function resetLocalBall() {
   if (!Game.ballBody) return;
-  Game.ballBody.position.set(Game.startPosition.x, Game.startPosition.y, Game.startPosition.z);
+  Game.ballBody.position.set(Game.lastSwingPosition.x, Game.lastSwingPosition.y, Game.lastSwingPosition.z);
   Game.ballBody.velocity.setZero(); Game.ballBody.angularVelocity.setZero();
+
+  // Clear trail on reset
+  if (Game.trailLine) {
+    Game.scene.remove(Game.trailLine);
+    Game.trailLine.geometry.dispose();
+    Game.trailLine = null;
+  }
+  Game.trailPoints = [];
 }
 
 export function addRemoteBall(playerId, color, playerName) {
@@ -924,9 +1200,10 @@ function updateDragVis() {
   
   // Align cone with shoot direction
   // The translated Cone points exactly along +Y, so we align +Y with worldDir
+  // Rotate 180 degrees to point opposite to shoot direction (visual only)
   const up = new THREE.Vector3(0, 1, 0);
   const quaternion = new THREE.Quaternion();
-  quaternion.setFromUnitVectors(up, worldDir);
+  quaternion.setFromUnitVectors(up, worldDir.clone().negate());
   Game.dragArrow.setRotationFromQuaternion(quaternion);
   
   Game.scene.add(Game.dragArrow);
@@ -944,6 +1221,8 @@ function fireDrag() {
   if (!Game.ballBody || Game.hasFinished) return;
   const { ratio, worldDir } = getDragDir();
   if (ratio < 0.05 || !worldDir) return;
+  // Save position before swing
+  Game.lastSwingPosition.copy(Game.ballBody.position);
   const power = ratio * Game.maxPower;
   Game.ballBody.velocity.x += worldDir.x * power;
   Game.ballBody.velocity.z += worldDir.z * power;
@@ -958,6 +1237,15 @@ function checkWin() {
   if (Math.sqrt(dx * dx + dz * dz) < Game.holeRadius && bp.y < Game.holePosition.y) {
     Game.hasFinished = true;
     Game.elapsedTime = (Date.now() - Game.timerStart) / 1000;
+
+    // Clear trail on finish
+    if (Game.trailLine) {
+      Game.scene.remove(Game.trailLine);
+      Game.trailLine.geometry.dispose();
+      Game.trailLine = null;
+    }
+    Game.trailPoints = [];
+
     if (Game.onFinishHole) Game.onFinishHole();
   }
 }
@@ -1022,11 +1310,83 @@ export function updateGame(dt) {
   if (Game.ballBody && !Game.hasFinished && (Game.wind.x !== 0 || Game.wind.z !== 0)) {
     Game.ballBody.applyForce(new CANNON.Vec3(Game.wind.x, 0, Game.wind.z), Game.ballBody.position);
   }
+
+  // Check for gravity inverters - apply upward force if ball is above them
+  if (Game.ballBody && !Game.hasFinished) {
+    for (let i = 0; i < Game.courseBodies.length; i++) {
+      const body = Game.courseBodies[i];
+      const mesh = Game.courseMeshes[i];
+      // Check if this is a gravity inverter (purple color #aa44ff)
+      const hex = mesh.material.color.getHex().toString(16).toLowerCase();
+      if (hex === 'aa44ff') {
+        const ballPos = Game.ballBody.position;
+        const invPos = body.position;
+        const size = mesh.geometry.parameters;
+        // Check if ball is above the inverter (within x/z bounds and above y)
+        const halfX = size.width / 2;
+        const halfZ = size.depth / 2;
+        const halfY = size.height / 2;
+        if (ballPos.x >= invPos.x - halfX && ballPos.x <= invPos.x + halfX &&
+            ballPos.z >= invPos.z - halfZ && ballPos.z <= invPos.z + halfZ &&
+            ballPos.y >= invPos.y - halfY && ballPos.y <= invPos.y + halfY + 5) {
+          // Apply upward force
+          Game.ballBody.velocity.y = Math.max(Game.ballBody.velocity.y, 12);
+          Game.ballBody.velocity.x *= 0.95;
+          Game.ballBody.velocity.z *= 0.95;
+        }
+      }
+    }
+  }
+
   Game.world.step(1 / 60, dt, 3);
   if (Game.ball && Game.ballBody && !Game.hasFinished) {
     Game.ball.position.copy(Game.ballBody.position);
     Game.ball.quaternion.copy(Game.ballBody.quaternion);
-    if (Game.ballBody.position.y < Game.courseBaseY - 3) resetLocalBall();
+
+    // Update trail
+    if (Game.trailEnabled && Game.ballBody) {
+      Game.trailPoints.push(Game.ballBody.position.clone());
+      if (Game.trailPoints.length > 100) Game.trailPoints.shift();
+
+      if (Game.trailPoints.length > 1) {
+        if (Game.trailLine) {
+          Game.scene.remove(Game.trailLine);
+          Game.trailLine.geometry.dispose();
+        }
+
+        const points = Game.trailPoints;
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({
+          color: Game.trailColor,
+          transparent: true,
+          opacity: 0.6
+        });
+        Game.trailLine = new THREE.Line(geometry, material);
+        Game.scene.add(Game.trailLine);
+      }
+    }
+
+    // Animate rain
+    if (Game.rainEnabled && Game.rainDrops.length > 0) {
+      for (const drop of Game.rainDrops) {
+        drop.position.y -= drop.userData.speed;
+        if (drop.position.y < Game.courseBaseY - 10) {
+          drop.position.y = 30;
+          drop.position.x = Game.ballBody.position.x + (Math.random() - 0.5) * 40;
+          drop.position.z = Game.ballBody.position.z + (Math.random() - 0.5) * 40;
+        }
+      }
+    }
+    if (Game.ballBody.position.y < Game.courseBaseY - 3) {
+      // Reset to last swing position instead of start
+      Game.ballBody.position.set(
+        Game.lastSwingPosition.x,
+        Game.lastSwingPosition.y,
+        Game.lastSwingPosition.z
+      );
+      Game.ballBody.velocity.setZero();
+      Game.ballBody.angularVelocity.setZero();
+    }
   }
   // Track last safe position (when ball is on a surface and not in water)
   if (Game.ballBody && !Game.hasFinished) {
