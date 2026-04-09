@@ -449,9 +449,10 @@ export function buildTerrain() {
 export function applyDayNightCycle(timeOfDay) {
   const isNight = timeOfDay === 'night';
 
-  // Sky color (fog only, background is transparent to show CSS gradient)
-  const skyColor = isNight ? 0x0a1828 : 0xffeedd;
-  Game.scene.fog.color.setHex(skyColor);
+  // Sky color — set scene.background so post-processing captures it
+  const skyColor = isNight ? 0x0a1828 : 0x87ceeb;
+  Game.scene.background = new THREE.Color(skyColor);
+  Game.scene.fog.color.setHex(isNight ? 0x0a1828 : 0x87ceeb);
 
   // Update CSS background for sky gradient
   const bg = document.getElementById('game-container');
@@ -466,25 +467,25 @@ export function applyDayNightCycle(timeOfDay) {
   // Find and update lights
   Game.scene.traverse((obj) => {
     if (obj.isAmbientLight) {
-      obj.intensity = isNight ? 0.20 : 0.6;
-      obj.color.setHex(isNight ? 0x446688 : 0xffeedd);
+      obj.intensity = isNight ? 0.45 : 0.6;
+      obj.color.setHex(isNight ? 0x5577aa : 0xffeedd);
     }
     if (obj.isDirectionalLight) {
-      // Sun
+      // Sun / Moon
       if (obj.castShadow) {
-        obj.intensity = isNight ? 0.3 : 1.5;
-        obj.color.setHex(isNight ? 0x88aadd : 0xffddaa);
+        obj.intensity = isNight ? 0.6 : 1.5;
+        obj.color.setHex(isNight ? 0x99bbee : 0xffddaa);
       } 
       // Fill light
       else {
-        obj.intensity = isNight ? 0.1 : 0.4;
-        obj.color.setHex(isNight ? 0x446688 : 0xffcc88);
+        obj.intensity = isNight ? 0.25 : 0.4;
+        obj.color.setHex(isNight ? 0x5577aa : 0xffcc88);
       }
     }
     if (obj.isHemisphereLight) {
-      obj.intensity = isNight ? 0.2 : 0.5;
-      obj.color.setHex(isNight ? 0x223344 : 0xffdd99);
-      obj.groundColor.setHex(isNight ? 0x111122 : 0x886644);
+      obj.intensity = isNight ? 0.35 : 0.5;
+      obj.color.setHex(isNight ? 0x334466 : 0xffdd99);
+      obj.groundColor.setHex(isNight ? 0x1a1a33 : 0x886644);
     }
   });
 

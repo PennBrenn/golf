@@ -170,10 +170,10 @@ export function setColorGrade(isNight) {
 
   const u = VFX.colorGradePass.uniforms;
   if (isNight) {
-    u.brightness.value = -0.03;
-    u.contrast.value = 1.15;
-    u.saturation.value = 0.8;
-    u.warmth.value = -0.6;
+    u.brightness.value = 0.0;
+    u.contrast.value = 1.08;
+    u.saturation.value = 0.85;
+    u.warmth.value = -0.35;
   } else {
     u.brightness.value = 0.02;
     u.contrast.value = 1.05;
