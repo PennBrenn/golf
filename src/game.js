@@ -1474,7 +1474,7 @@ export function updateGame(dt) {
   }
 
   interpolateRemoteBalls(dt);
-  if (Game.ball && !Game.spectatorMode) Game.controls.target.lerp(Game.ball.position, 0.1);
+  if (Game.ball && !Game.spectatorMode) Game.controls.target.lerp(Game.ball.position, 1.0);
   Game.controls.update();
   checkWin();
 }
