@@ -856,7 +856,7 @@ export function buildCourseFromJSON(data) {
   Game.specialPieces = [];
   const BOX_TYPES = ['box','sand','bouncepad','gravinv','ramp','wall','ice','trampoline',
     'launcher','cannon','speedboost','blower','magnet','conveyor','spinner','windmill',
-    'door','teleporter','checkpoint'];
+    'door','teleporter','checkpoint','killbrick'];
 
   for (const p of data.pieces) {
     let mesh, bodyIdx;

@@ -125,18 +125,8 @@ export function initUI() {
     window.location.href = '/builder.html';
   });
 
-  // Main menu map library button
-  document.getElementById('btn-map-library').addEventListener('click', () => {
-    showMapLibrary();
-  });
-
   // Settings screen buttons
   document.getElementById('btn-back-from-settings').addEventListener('click', () => {
-    showMainMenu();
-  });
-
-  // Map library back button
-  document.getElementById('btn-back-from-library').addEventListener('click', () => {
     showMainMenu();
   });
 

@@ -50,6 +50,7 @@ const PRESETS = {
   // ── Warp & Utility ──
   teleporter: () => ({ type: 'teleporter', size: [1.5, 0.15, 1.5], position: [0, 8.3, 0], rotation: [0, 0, 0], color: '#ff44ff', target: [5, 8.8, 0] }),
   checkpoint: () => ({ type: 'checkpoint', size: [1.5, 0.1, 1.5], position: [0, 8.3, 0], rotation: [0, 0, 0], color: '#ffff00' }),
+  killbrick:   () => ({ type: 'killbrick', size: [2, 0.3, 2], position: [0, 8.4, 0], rotation: [0, 0, 0], color: '#ff0044' }),
   // ── Decorative / Shapes ──
   glass:      () => ({ type: 'glass', size: [4, 0.5, 4], position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#aaddff' }),
   wedge:      () => ({ type: 'wedge', size: [3, 1.5, 4], position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#88bb66' }),
@@ -326,14 +327,14 @@ function destroyRainSystem() {
 
 const BOX_TYPES = ['box','wall','ramp','sand','bouncepad','gravinv','ice','trampoline',
   'launcher','cannon','speedboost','blower','magnet','conveyor','spinner','windmill',
-  'door','teleporter','checkpoint','water'];
+  'door','teleporter','checkpoint','killbrick','water'];
 
 function createMeshFromData(data) {
   let geo, mat;
   const color = parseColor(data.color);
 
   // Emissive glow for special types
-  const glowTypes = { teleporter: 0.6, checkpoint: 0.4, speedboost: 0.5, launcher: 0.4, cannon: 0.2, bumper: 0.5, blower: 0.3, magnet: 0.3, conveyor: 0.2, pointlight: 0.8, spotlight: 0.8, laser: 1.0 };
+  const glowTypes = { teleporter: 0.6, checkpoint: 0.4, speedboost: 0.5, launcher: 0.4, cannon: 0.2, bumper: 0.5, blower: 0.3, magnet: 0.3, conveyor: 0.2, killbrick: 0.7, pointlight: 0.8, spotlight: 0.8, laser: 1.0 };
   const emissiveIntensity = glowTypes[data.type] || 0;
   const isTransparent = data.type === 'water' || data.type === 'teleporter' || data.type === 'glass';
   const isLight = data.type === 'pointlight' || data.type === 'spotlight' || data.type === 'laser';
