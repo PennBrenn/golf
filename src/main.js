@@ -496,7 +496,6 @@ async function handleVoteResult(winnerIndex) {
   showLoading('Loading map...');
   if (mapManifest.length === 0) await fetchMapManifest();
   const data = await fetchMap(mapManifest[winnerIndex]);
-  hideLoading();
   const mapName = data.name || 'Map ' + (winnerIndex + 1);
   showVoteWinner(mapName);
 
@@ -562,7 +561,7 @@ function startNextRound(mapIndex) {
   currentRound++;
   roundFinishEntries = [];
 
-  showLoading('Loading course...');
+  showLoading('Loading course and spawning players...');
   (async () => {
     resetGameState();
     const mapData = await buildCourseByIndex(mapIndex);
