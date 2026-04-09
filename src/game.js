@@ -309,14 +309,14 @@ export function setupInput() {
 }
 
 function getDragDir() {
-  const dx = Game.dragStart.x - Game.dragCurrent.x;
-  const dy = Game.dragStart.y - Game.dragCurrent.y;
+  const dx = Game.dragCurrent.x - Game.dragStart.x;
+  const dy = Game.dragCurrent.y - Game.dragStart.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
   const ratio = Math.min(dist / 200, 1);
   const forward = new THREE.Vector3();
   Game.camera.getWorldDirection(forward); forward.y = 0; forward.normalize();
   const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), forward).normalize();
-  const worldDir = new THREE.Vector3().addScaledVector(forward, dy / 200).addScaledVector(right, -dx / 200);
+  const worldDir = new THREE.Vector3().addScaledVector(forward, dy / 200).addScaledVector(right, dx / 200);
   worldDir.y = 0;
   return { ratio, worldDir: worldDir.length() > 0.01 ? worldDir.normalize() : null };
 }
@@ -326,13 +326,49 @@ function updateDragVis() {
   if (Game.onDragChanged) Game.onDragChanged(ratio, true);
   if (!Game.ballBody || !worldDir || ratio < 0.02) { clearDragVis(); return; }
   const bp = new THREE.Vector3().copy(Game.ballBody.position); bp.y += 0.1;
+  
   if (Game.dragArrow) Game.scene.remove(Game.dragArrow);
-  Game.dragArrow = new THREE.ArrowHelper(worldDir, bp, ratio * 4 + 0.5, 0xffffff, 0.3, 0.2);
+  
+  // Create triangle arrow
+  const length = ratio * 4 + 0.5;
+  const baseWidth = 0.4;
+  const tipWidth = 0.05;
+  
+  const geo = new THREE.BufferGeometry();
+  const vertices = new Float32Array([
+    // Base (wider)
+    -baseWidth/2, 0, 0,
+     baseWidth/2, 0, 0,
+    // Tip (point)
+    0, 0, -length
+  ]);
+  const indices = new Uint16Array([0, 1, 2]);
+  
+  geo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+  geo.setIndex(new THREE.BufferAttribute(indices, 1));
+  
+  const mat = new THREE.MeshBasicMaterial({ 
+    color: 0xffffff, 
+    transparent: true, 
+    opacity: 0.8,
+    side: THREE.DoubleSide
+  });
+  
+  Game.dragArrow = new THREE.Mesh(geo, mat);
+  Game.dragArrow.position.copy(bp);
+  
+  // Align triangle with shoot direction
+  Game.dragArrow.lookAt(new THREE.Vector3().copy(bp).add(worldDir));
+  Game.dragArrow.rotateX(Math.PI / 2);
+  
   Game.scene.add(Game.dragArrow);
 }
 
 function clearDragVis() {
-  if (Game.dragArrow) { Game.scene.remove(Game.dragArrow); Game.dragArrow = null; }
+  if (Game.dragArrow) { 
+    Game.scene.remove(Game.dragArrow); 
+    Game.dragArrow = null; 
+  }
   if (Game.onDragChanged) Game.onDragChanged(0, false);
 }
 
