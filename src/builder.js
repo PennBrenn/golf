@@ -76,59 +76,71 @@ const PRESETS = {
 // ── Init ─────────────────────────────────────────────────
 
 function init() {
-  const viewport = document.getElementById('viewport');
-  const w = viewport.clientWidth, h = viewport.clientHeight;
+  // Small delay to ensure CSS layout is applied
+  setTimeout(() => {
+    const viewport = document.getElementById('viewport');
+    let w = viewport.clientWidth, h = viewport.clientHeight;
 
-  B.renderer = new THREE.WebGLRenderer({ 
-    antialias: true,
-    powerPreference: 'high-performance'
-  });
-  B.renderer.setSize(w, h);
-  B.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3));
-  B.renderer.shadowMap.enabled = true;
-  B.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  B.renderer.setClearColor(0x87ceeb);
-  viewport.appendChild(B.renderer.domElement);
+    // Ensure viewport has valid dimensions
+    if (w === 0 || h === 0) {
+      w = window.innerWidth - 440; // Subtract left and right panel widths
+      h = window.innerHeight - 92; // Subtract toolbar and tool-bar heights
+    }
 
-  B.scene = new THREE.Scene();
-  B.scene.fog = new THREE.Fog(0x87ceeb, 80, 280);
+    // Ensure minimum dimensions
+    w = Math.max(w, 100);
+    h = Math.max(h, 100);
 
-  B.camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 300);
-  B.camera.position.set(10, 18, 25);
+    B.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      powerPreference: 'high-performance'
+    });
+    B.renderer.setSize(w, h);
+    B.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3));
+    B.renderer.shadowMap.enabled = true;
+    B.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    B.renderer.setClearColor(0x87ceeb);
+    viewport.appendChild(B.renderer.domElement);
 
-  // Orbit controls (right-click)
-  B.orbit = new OrbitControls(B.camera, B.renderer.domElement);
-  B.orbit.enableDamping = true;
-  B.orbit.dampingFactor = 0.12;
-  B.orbit.target.set(0, 8, -10);
+    B.scene = new THREE.Scene();
+    B.scene.fog = new THREE.Fog(0x87ceeb, 80, 280);
 
-  // Transform controls
-  B.transform = new TransformControls(B.camera, B.renderer.domElement);
-  B.transform.addEventListener('dragging-changed', (e) => {
-    B.orbit.enabled = !e.value;
-  });
-  B.transform.addEventListener('objectChange', () => {
-    if (B.selected) {
-      syncDataFromMesh(B.selected);
+    B.camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 300);
+    B.camera.position.set(10, 18, 25);
 
-      // Apply snap if enabled
-      if (B.snapEnabled) {
-        const mesh = B.selected.mesh;
-        const grid = B.snapGridSize;
+    // Orbit controls (right-click)
+    B.orbit = new OrbitControls(B.camera, B.renderer.domElement);
+    B.orbit.enableDamping = true;
+    B.orbit.dampingFactor = 0.12;
+    B.orbit.target.set(0, 8, -10);
 
-        // Snap position
-        mesh.position.x = Math.round(mesh.position.x / grid) * grid;
-        mesh.position.y = Math.round(mesh.position.y / grid) * grid;
-        mesh.position.z = Math.round(mesh.position.z / grid) * grid;
+    // Transform controls
+    B.transform = new TransformControls(B.camera, B.renderer.domElement);
+    B.transform.addEventListener('dragging-changed', (e) => {
+      B.orbit.enabled = !e.value;
+    });
+    B.transform.addEventListener('objectChange', () => {
+      if (B.selected) {
+        syncDataFromMesh(B.selected);
 
-        // Snap rotation (to 45 degrees by default, or grid size if it's small)
-        const snapAngle = grid < 0.5 ? Math.PI / 12 : Math.PI / 4; // 15° or 45°
-        mesh.rotation.x = Math.round(mesh.rotation.x / snapAngle) * snapAngle;
-        mesh.rotation.y = Math.round(mesh.rotation.y / snapAngle) * snapAngle;
-        mesh.rotation.z = Math.round(mesh.rotation.z / snapAngle) * snapAngle;
+        // Apply snap if enabled
+        if (B.snapEnabled) {
+          const mesh = B.selected.mesh;
+          const grid = B.snapGridSize;
 
-        // Snap scale (only for scale mode)
-        if (B.transform.getMode() === 'scale') {
+          // Snap position
+          mesh.position.x = Math.round(mesh.position.x / grid) * grid;
+          mesh.position.y = Math.round(mesh.position.y / grid) * grid;
+          mesh.position.z = Math.round(mesh.position.z / grid) * grid;
+
+          // Snap rotation (to 45 degrees by default, or grid size if it's small)
+          const snapAngle = grid < 0.5 ? Math.PI / 12 : Math.PI / 4; // 15° or 45°
+          mesh.rotation.x = Math.round(mesh.rotation.x / snapAngle) * snapAngle;
+          mesh.rotation.y = Math.round(mesh.rotation.y / snapAngle) * snapAngle;
+          mesh.rotation.z = Math.round(mesh.rotation.z / snapAngle) * snapAngle;
+
+          // Snap scale (only for scale mode)
+          if (B.transform.getMode() === 'scale') {
           mesh.scale.x = Math.max(0.1, Math.round(mesh.scale.x / grid) * grid);
           mesh.scale.y = Math.max(0.1, Math.round(mesh.scale.y / grid) * grid);
           mesh.scale.z = Math.max(0.1, Math.round(mesh.scale.z / grid) * grid);
@@ -188,6 +200,7 @@ function init() {
 
   applyWorkspaceProperties();
   animate();
+  }, 100); // 100ms delay to ensure CSS layout is applied
 }
 
 function markUnsaved() {
