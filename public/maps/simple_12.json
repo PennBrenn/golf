@@ -7,8 +7,8 @@
   "brightness": 1,
   "gravity": 9.8,
   "ballSpeed": 1,
-  "start": [0, 9, 15],
-  "hole": [0, 11.5, -15],
+  "start": [0, 11.5, -15],
+  "hole": [0, 9, 15],
   "pieces": [
     {"type": "box", "size": [4, 0.5, 6], "position": [0, 8.25, 10], "rotation": [0, 0, 0], "color": "#5ab85a"},
     {"type": "box", "size": [4, 0.5, 6], "position": [0, 9, 4], "rotation": [0, 0, 0], "color": "#5ab85a"},
