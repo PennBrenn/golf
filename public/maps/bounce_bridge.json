@@ -1,0 +1,250 @@
+{
+  "name": "Bounce Bridge",
+  "timeLimit": 120,
+  "timeOfDay": "day",
+  "rain": false,
+  "skyColor": "#87CEEB",
+  "brightness": 1,
+  "gravity": 9.8,
+  "ballSpeed": 1,
+  "start": [
+    0,
+    9,
+    20
+  ],
+  "hole": [
+    0,
+    8.5,
+    -20
+  ],
+  "pieces": [
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8,
+        20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8,
+        10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0,
+        7,
+        15
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0,
+        7,
+        5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0,
+        7,
+        -5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0,
+        7,
+        -15
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        1,
+        1
+      ],
+      "position": [
+        0,
+        8,
+        8
+      ],
+      "rotation": [
+        -0.785,
+        0,
+        0
+      ],
+      "color": "#e6d5a8"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        1,
+        1
+      ],
+      "position": [
+        0,
+        8,
+        -2
+      ],
+      "rotation": [
+        -0.785,
+        0,
+        0
+      ],
+      "color": "#e6d5a8"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        1,
+        1
+      ],
+      "position": [
+        0,
+        8,
+        -12
+      ],
+      "rotation": [
+        -0.785,
+        0,
+        0
+      ],
+      "color": "#e6d5a8"
+    }
+  ]
+}

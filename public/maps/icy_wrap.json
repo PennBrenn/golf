@@ -1,0 +1,668 @@
+{
+  "name": "Icy Wrap",
+  "timeLimit": 120,
+  "timeOfDay": "day",
+  "rain": false,
+  "skyColor": "#87CEEB",
+  "brightness": 1,
+  "gravity": 9.8,
+  "ballSpeed": 1,
+  "start": [
+    0,
+    9,
+    0
+  ],
+  "hole": [
+    -8,
+    8.5,
+    -20
+  ],
+  "pieces": [
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8,
+        -4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        8,
+        8,
+        -8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        8,
+        8,
+        -12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        4,
+        8,
+        -4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        8,
+        8,
+        -4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        8,
+        8,
+        -16
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        8,
+        8,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        12,
+        8,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        16,
+        8,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        16,
+        8,
+        -16
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        16,
+        8,
+        -12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        16,
+        8,
+        -8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        16,
+        8,
+        -4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        16,
+        8,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        16,
+        8,
+        4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        12,
+        8,
+        4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        8,
+        8,
+        4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        8,
+        8,
+        8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        4,
+        8,
+        8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8,
+        8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -4,
+        8,
+        8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -8,
+        8,
+        8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -8,
+        8,
+        4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -8,
+        8,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -8,
+        8,
+        -4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -8,
+        8,
+        -8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -8,
+        8,
+        -12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -4,
+        8,
+        -12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8,
+        -12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8,
+        -16
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -4,
+        8,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -8,
+        8,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    }
+  ]
+}

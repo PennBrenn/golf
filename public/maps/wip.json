@@ -1,0 +1,342 @@
+{
+  "name": "Untitled",
+  "timeLimit": 120,
+  "timeOfDay": "day",
+  "rain": false,
+  "skyColor": "#87CEEB",
+  "brightness": 1,
+  "gravity": 9.8,
+  "ballSpeed": 1,
+  "start": [
+    0,
+    100,
+    0
+  ],
+  "hole": [
+    0,
+    8.5,
+    -20
+  ],
+  "pieces": [
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        1.886,
+        98.258,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -1.56
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        100,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        2.125,
+        94.42,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -1.46
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        2.641,
+        90.667,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -1.409
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        3.441,
+        86.778,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -1.327
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        4.427,
+        82.98,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -1.308
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        5.489,
+        79.329,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -1.271
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        7.019,
+        75.782,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -1.063
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        9.019,
+        72.479,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -0.993
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        11.281,
+        69.329,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -0.907
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        13.757,
+        66.379,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -0.837
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        16.614,
+        63.678,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -0.678
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        19.874,
+        61.374,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -0.553
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        23.325,
+        59.623,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -0.381
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        27.087,
+        58.737,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -0.077
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        30.986,
+        58.657,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0.033
+      ],
+      "color": "#5ab85a",
+      "id": "piece_1"
+    }
+  ]
+}
