@@ -22,12 +22,6 @@ const B = {
 
 // ── Piece Defaults ───────────────────────────────────────
 
-let nextPieceId = 1;
-
-function generatePieceId() {
-  return `piece_${nextPieceId++}`;
-}
-
 const PRESETS = {
   // ── Basic ──
   box:        () => ({ type: 'box', size: [4, 0.5, 4], position: [0, 8.25, 0], rotation: [0, 0, 0], color: '#5ab85a' }),
@@ -192,6 +186,7 @@ function init() {
   setupPalette();
   setupProps();
 
+  applyWorkspaceProperties();
   animate();
 }
 
@@ -249,6 +244,26 @@ function applyDayNightCycle() {
     B.directionalLight.intensity = 1.5;
     B.directionalLight.color.setHex(0xffddaa);
   }
+  // Re-apply workspace properties after day/night change
+  applyWorkspaceProperties();
+}
+
+function applyWorkspaceProperties() {
+  const skyColor = document.getElementById('sky-color').value;
+  const brightness = parseFloat(document.getElementById('brightness').value) || 1;
+
+  // Apply sky color
+  const color = new THREE.Color(skyColor);
+  B.renderer.setClearColor(color);
+  B.scene.fog.color.copy(color);
+
+  // Apply brightness to lights
+  B.ambientLight.intensity = 0.6 * brightness;
+  B.directionalLight.intensity = 1.5 * brightness;
+
+  // Store gravity and ball speed for use in game
+  B.gravity = parseFloat(document.getElementById('gravity').value) || 9.8;
+  B.ballSpeed = parseFloat(document.getElementById('ball-speed').value) || 1;
 }
 
 function animate() {
@@ -486,16 +501,6 @@ function addPiece(data) {
   const mesh = createMeshFromData(data);
   B.scene.add(mesh);
   const piece = { mesh, data: { ...data } };
-  // Assign unique ID if not present
-  if (!piece.data.id) {
-    piece.data.id = generatePieceId();
-  } else {
-    // Update counter if imported ID is higher
-    const idNum = parseInt(piece.data.id.replace('piece_', ''));
-    if (!isNaN(idNum) && idNum >= nextPieceId) {
-      nextPieceId = idNum + 1;
-    }
-  }
   B.pieces.push(piece);
   selectPiece(piece);
   refreshPieceList();
@@ -723,6 +728,12 @@ function setupToolbar() {
     B.snapGridSize = parseFloat(e.target.value) || 0.5;
   });
 
+  // Workspace property listeners
+  document.getElementById('sky-color').addEventListener('input', applyWorkspaceProperties);
+  document.getElementById('brightness').addEventListener('input', applyWorkspaceProperties);
+  document.getElementById('gravity').addEventListener('input', applyWorkspaceProperties);
+  document.getElementById('ball-speed').addEventListener('input', applyWorkspaceProperties);
+
   document.getElementById('btn-export').addEventListener('click', exportJSON);
   document.getElementById('btn-import').addEventListener('click', () => {
     document.getElementById('file-input').click();
@@ -863,52 +874,6 @@ function setupProps() {
     const hex = document.getElementById('pcolor').value;
     B.selected.data.color = hex;
     B.selected.mesh.material.color.set(parseColor(hex));
-    markUnsaved();
-  });
-
-  // Physics properties
-  document.getElementById('prop-anchored').addEventListener('change', () => {
-    if (!B.selected) return;
-    B.selected.data.anchored = document.getElementById('prop-anchored').checked;
-    markUnsaved();
-  });
-
-  ['prop-mass', 'prop-friction', 'prop-restitution'].forEach(id => {
-    document.getElementById(id).addEventListener('input', () => {
-      if (!B.selected) return;
-      B.selected.data.mass = parseFloat(document.getElementById('prop-mass').value) || 1;
-      B.selected.data.friction = parseFloat(document.getElementById('prop-friction').value) || 0.5;
-      B.selected.data.restitution = parseFloat(document.getElementById('prop-restitution').value) || 0.3;
-      markUnsaved();
-    });
-  });
-
-  document.getElementById('prop-weld').addEventListener('change', () => {
-    if (!B.selected) return;
-    B.selected.data.weldTo = document.getElementById('prop-weld').value || '';
-    markUnsaved();
-  });
-
-  // Collision properties
-  document.getElementById('prop-collision').addEventListener('change', () => {
-    if (!B.selected) return;
-    B.selected.data.collision = document.getElementById('prop-collision').checked;
-    markUnsaved();
-  });
-
-  ['prop-collision-group', 'prop-collision-mask'].forEach(id => {
-    document.getElementById(id).addEventListener('input', () => {
-      if (!B.selected) return;
-      B.selected.data.collisionGroup = parseInt(document.getElementById('prop-collision-group').value) || 0;
-      B.selected.data.collisionMask = parseInt(document.getElementById('prop-collision-mask').value) || 0xFFFFFFFF;
-      markUnsaved();
-    });
-  });
-
-  // Material properties
-  document.getElementById('prop-material').addEventListener('change', () => {
-    if (!B.selected) return;
-    B.selected.data.material = document.getElementById('prop-material').value;
     markUnsaved();
   });
 
@@ -1068,36 +1033,6 @@ function updatePropsUI() {
 
   document.getElementById('pcolor').value = colorToHex(d.color);
 
-  // Physics properties
-  document.getElementById('prop-anchored').checked = d.anchored || false;
-  document.getElementById('prop-mass').value = d.mass || 1;
-  document.getElementById('prop-friction').value = d.friction || 0.5;
-  document.getElementById('prop-restitution').value = d.restitution || 0.3;
-  document.getElementById('prop-weld').value = d.weldTo || '';
-
-  // Collision properties
-  document.getElementById('prop-collision').checked = d.collision !== false;
-  document.getElementById('prop-collision-group').value = d.collisionGroup || 0;
-  document.getElementById('prop-collision-mask').value = d.collisionMask || 0xFFFFFFFF;
-
-  // Material properties
-  document.getElementById('prop-material').value = d.material || 'standard';
-
-  // Update weld dropdown with available pieces
-  const weldSelect = document.getElementById('prop-weld');
-  weldSelect.innerHTML = '<option value="">None</option>';
-  B.pieces.forEach(p => {
-    if (p !== B.selected) {
-      const opt = document.createElement('option');
-      opt.value = p.data.id;
-      opt.textContent = `${p.data.type} (${p.data.id})`;
-      weldSelect.appendChild(opt);
-    }
-  });
-  if (d.weldTo) {
-    weldSelect.value = d.weldTo;
-  }
-
   // Motion properties
   const motion = d.motion;
   if (motion) {
@@ -1166,6 +1101,10 @@ function exportJSON() {
     timeLimit: parseInt(document.getElementById('map-time-input').value) || 120,
     timeOfDay: B.timeOfDay,
     rain: B.rainEnabled,
+    skyColor: document.getElementById('sky-color').value || '#87CEEB',
+    brightness: parseFloat(document.getElementById('brightness').value) || 1,
+    gravity: parseFloat(document.getElementById('gravity').value) || 9.8,
+    ballSpeed: parseFloat(document.getElementById('ball-speed').value) || 1,
     start: [
       parseFloat(document.getElementById('sx').value) || 0,
       parseFloat(document.getElementById('sy').value) || 9,
@@ -1218,9 +1157,6 @@ function loadMapData(data) {
   // Clear existing
   while (B.pieces.length > 0) removePiece(B.pieces[0]);
 
-  // Reset ID counter
-  nextPieceId = 1;
-
   document.getElementById('map-name-input').value = data.name || 'Untitled';
   document.getElementById('map-time-input').value = data.timeLimit !== undefined ? data.timeLimit : 120;
 
@@ -1240,6 +1176,13 @@ function loadMapData(data) {
   } else {
     destroyRainSystem();
   }
+
+  // Restore workspace properties
+  document.getElementById('sky-color').value = data.skyColor || '#87CEEB';
+  document.getElementById('brightness').value = data.brightness !== undefined ? data.brightness : 1;
+  document.getElementById('gravity').value = data.gravity !== undefined ? data.gravity : 9.8;
+  document.getElementById('ball-speed').value = data.ballSpeed !== undefined ? data.ballSpeed : 1;
+  applyWorkspaceProperties();
 
   if (data.start) {
     document.getElementById('sx').value = data.start[0];

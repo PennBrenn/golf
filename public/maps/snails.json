@@ -3,6 +3,10 @@
   "timeLimit": 120,
   "timeOfDay": "day",
   "rain": false,
+  "skyColor": "#87CEEB",
+  "brightness": 1,
+  "gravity": 9.8,
+  "ballSpeed": 1,
   "start": [
     0,
     19,
