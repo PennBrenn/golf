@@ -1,0 +1,345 @@
+{
+  "name": "Minefield",
+  "timeLimit": 120,
+  "timeOfDay": "day",
+  "rain": false,
+  "skyColor": "#87ceeb",
+  "brightness": 1,
+  "gravity": 9.8,
+  "ballSpeed": 1,
+  "start": [
+    0,
+    8.5,
+    20
+  ],
+  "hole": [
+    0,
+    8.5,
+    -20
+  ],
+  "pieces": [
+    {
+      "type": "ice",
+      "size": [
+        18,
+        0.5,
+        42
+      ],
+      "position": [
+        0,
+        8.5,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        6.5,
+        9,
+        12.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -4,
+        9,
+        2
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        5,
+        9,
+        6
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -5.204,
+        9,
+        11.468
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0.756,
+        9,
+        15.43
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        1.369,
+        9,
+        -5.255
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -0.648,
+        9,
+        7.536
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        4.786,
+        9,
+        -0.309
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -5.416,
+        9,
+        -4.811
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -0.076,
+        9,
+        0.136
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -6.088,
+        9,
+        -12.06
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -1.433,
+        9,
+        -9.629
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        4.749,
+        9,
+        -11.028
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        5.38,
+        9,
+        -17.575
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -0.656,
+        9,
+        -15.505
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    },
+    {
+      "type": "killbrick",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -5.278,
+        9,
+        -18.076
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0044"
+    }
+  ]
+}

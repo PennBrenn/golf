@@ -1,0 +1,17 @@
+{
+  "name": "Trampoline Hop",
+  "timeLimit": 90,
+  "timeOfDay": "day",
+  "rain": false,
+  "skyColor": "#87CEEB",
+  "brightness": 1,
+  "gravity": 9.8,
+  "ballSpeed": 1,
+  "start": [0, 9, 10],
+  "hole": [0, 8.5, -10],
+  "pieces": [
+    {"type": "box", "size": [4, 0.5, 6], "position": [0, 8.25, 6], "rotation": [0, 0, 0], "color": "#5ab85a"},
+    {"type": "trampoline", "size": [3, 0.2, 3], "position": [0, 8.35, 0], "rotation": [0, 0, 0], "color": "#ff66aa"},
+    {"type": "box", "size": [4, 0.5, 6], "position": [0, 8.25, -6], "rotation": [0, 0, 0], "color": "#5ab85a"}
+  ]
+}

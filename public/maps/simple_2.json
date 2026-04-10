@@ -1,0 +1,15 @@
+{
+  "name": "Straight Shot",
+  "timeLimit": 60,
+  "timeOfDay": "day",
+  "rain": false,
+  "skyColor": "#87CEEB",
+  "brightness": 1,
+  "gravity": 9.8,
+  "ballSpeed": 1,
+  "start": [0, 9, 15],
+  "hole": [0, 8.5, -15],
+  "pieces": [
+    {"type": "box", "size": [4, 0.5, 30], "position": [0, 8.25, 0], "rotation": [0, 0, 0], "color": "#5ab85a"}
+  ]
+}
