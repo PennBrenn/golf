@@ -1,0 +1,205 @@
+{
+  "name": "Who is gorn and why do I have to pay him",
+  "timeLimit": 60,
+  "timeOfDay": "day",
+  "rain": false,
+  "skyColor": "#5ef3e1",
+  "brightness": 1,
+  "gravity": 9.8,
+  "ballSpeed": 151223,
+  "start": [
+    0,
+    9,
+    0
+  ],
+  "hole": [
+    0,
+    8.5,
+    -6
+  ],
+  "pieces": [
+    {
+      "type": "cylinder",
+      "radiusTop": 0.4,
+      "radiusBottom": 0.4,
+      "height": 1.5,
+      "segments": 8,
+      "position": [
+        0,
+        11.5,
+        -3
+      ],
+      "color": "#5588cc",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "motion": {
+        "type": "translate",
+        "axis": "x",
+        "range": 10,
+        "speed": 1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "sphere",
+      "radius": 1,
+      "segments": 16,
+      "position": [
+        -1,
+        9,
+        -3
+      ],
+      "color": "#dddddd",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "motion": {
+        "type": "translate",
+        "axis": "x",
+        "range": 10,
+        "speed": 1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "sphere",
+      "radius": 1,
+      "segments": 16,
+      "position": [
+        1,
+        9,
+        -3
+      ],
+      "color": "#dddddd",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "motion": {
+        "type": "translate",
+        "axis": "x",
+        "range": 10,
+        "speed": 1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "cylinder",
+      "radiusTop": 0.4,
+      "radiusBottom": 0.4,
+      "height": 1.5,
+      "segments": 8,
+      "position": [
+        0,
+        10,
+        -3
+      ],
+      "color": "#5588cc",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "motion": {
+        "type": "translate",
+        "axis": "x",
+        "range": 10,
+        "speed": 1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "cylinder",
+      "radiusTop": 0.4,
+      "radiusBottom": 0.4,
+      "height": 1.5,
+      "segments": 8,
+      "position": [
+        0,
+        13,
+        -3
+      ],
+      "color": "#5588cc",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "motion": {
+        "type": "translate",
+        "axis": "x",
+        "range": 10,
+        "speed": 1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "cone",
+      "radius": 1,
+      "height": 2,
+      "segments": 16,
+      "position": [
+        0,
+        14.5,
+        -3
+      ],
+      "color": "#cc8844",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "motion": {
+        "type": "translate",
+        "axis": "x",
+        "range": 10,
+        "speed": 1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8.5,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        0,
+        8.5,
+        -6
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    }
+  ]
+}

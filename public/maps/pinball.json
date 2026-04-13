@@ -1,0 +1,466 @@
+{
+  "name": "Pinball",
+  "timeLimit": 120,
+  "timeOfDay": "day",
+  "rain": false,
+  "skyColor": "#5ef3e1",
+  "brightness": 1,
+  "gravity": 9.8,
+  "ballSpeed": 15,
+  "start": [
+    9,
+    9,
+    0
+  ],
+  "hole": [
+    -4,
+    8.5,
+    -20
+  ],
+  "pieces": [
+    {
+      "type": "ice",
+      "size": [
+        21.762,
+        0.5,
+        34.717
+      ],
+      "position": [
+        0,
+        9.942,
+        -15.737
+      ],
+      "rotation": [
+        0.109,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.3,
+        0.8,
+        30.293
+      ],
+      "position": [
+        8.464,
+        10.254,
+        -13.608
+      ],
+      "rotation": [
+        0.1,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "bouncepad",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        10.298,
+        12.157,
+        -32.211
+      ],
+      "rotation": [
+        0,
+        0.759,
+        1.602
+      ],
+      "color": "#ff8800"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.3,
+        0.8,
+        2.541
+      ],
+      "position": [
+        9.637,
+        8.732,
+        1.568
+      ],
+      "rotation": [
+        0,
+        -1.538,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.3,
+        0.8,
+        30.293
+      ],
+      "position": [
+        10.967,
+        10.254,
+        -13.608
+      ],
+      "rotation": [
+        0.1,
+        0,
+        0
+      ],
+      "color": "#ffffff"
+    },
+    {
+      "type": "blower",
+      "size": [
+        1,
+        1.5,
+        1
+      ],
+      "position": [
+        9.015,
+        8.125,
+        -3.936
+      ],
+      "rotation": [
+        0.302,
+        0,
+        0
+      ],
+      "color": "#88ddff",
+      "blowForce": 8,
+      "blowDir": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "type": "blower",
+      "size": [
+        1,
+        1.5,
+        1
+      ],
+      "position": [
+        9.955,
+        8.125,
+        -3.936
+      ],
+      "rotation": [
+        0.302,
+        0,
+        0
+      ],
+      "color": "#88ddff",
+      "blowForce": 8,
+      "blowDir": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "type": "blower",
+      "size": [
+        1,
+        1.5,
+        1
+      ],
+      "position": [
+        10.546,
+        8.125,
+        -3.936
+      ],
+      "rotation": [
+        0.302,
+        0,
+        0
+      ],
+      "color": "#88ddff",
+      "blowForce": 8,
+      "blowDir": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "type": "gravinv",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -3.645,
+        8.25,
+        -6.492
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#aa44ff"
+    },
+    {
+      "type": "gravinv",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        2.454,
+        8.25,
+        -13.693
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#aa44ff"
+    },
+    {
+      "type": "launcher",
+      "size": [
+        1.5,
+        0.3,
+        1.5
+      ],
+      "position": [
+        1.862,
+        8.25,
+        -3.256
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff4488",
+      "launchForce": 20
+    },
+    {
+      "type": "launcher",
+      "size": [
+        1.5,
+        0.3,
+        1.5
+      ],
+      "position": [
+        -5.213,
+        8.25,
+        -17.792
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff4488",
+      "launchForce": 20
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        6
+      ],
+      "position": [
+        5.345,
+        9.622,
+        -10.981
+      ],
+      "rotation": [
+        -0.28,
+        0,
+        0
+      ],
+      "color": "#7ec87e"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        6
+      ],
+      "position": [
+        -5.294,
+        10.851,
+        -25.61
+      ],
+      "rotation": [
+        -0.28,
+        0,
+        0
+      ],
+      "color": "#7ec87e"
+    },
+    {
+      "type": "speedboost",
+      "size": [
+        2,
+        0.15,
+        3
+      ],
+      "position": [
+        4.265,
+        11.219,
+        -25.592
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#44ff44",
+      "boostForce": 12
+    },
+    {
+      "type": "speedboost",
+      "size": [
+        2,
+        0.15,
+        3
+      ],
+      "position": [
+        -5.344,
+        9.629,
+        -10.724
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#44ff44",
+      "boostForce": 12
+    },
+    {
+      "type": "spinner",
+      "size": [
+        5,
+        0.4,
+        0.6
+      ],
+      "position": [
+        4.265,
+        10.598,
+        -17.93
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#4488ff",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 180,
+        "speed": 0.3,
+        "phase": 0
+      }
+    },
+    {
+      "type": "spinner",
+      "size": [
+        5,
+        0.4,
+        0.6
+      ],
+      "position": [
+        -6.264,
+        9.526,
+        -5.914
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#4488ff",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 180,
+        "speed": 0.3,
+        "phase": 0
+      }
+    },
+    {
+      "type": "cone",
+      "radius": 1.5,
+      "height": 2,
+      "segments": 4,
+      "position": [
+        -0.485,
+        10.475,
+        -11.993
+      ],
+      "color": "#ddcc88",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "cone",
+      "radius": 1.5,
+      "height": 2,
+      "segments": 4,
+      "position": [
+        3.64,
+        9.913,
+        -4.076
+      ],
+      "color": "#ddcc88",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        -2.653,
+        6.668,
+        -17.214
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        -0.653,
+        7.479,
+        -26.29
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}
