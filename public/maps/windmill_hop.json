@@ -1,0 +1,672 @@
+{
+  "name": "Windmill Hop",
+  "timeLimit": 120,
+  "timeOfDay": "day",
+  "rain": false,
+  "skyColor": "#87ceeb",
+  "brightness": 1,
+  "gravity": 9.8,
+  "ballSpeed": 1,
+  "start": [
+    0,
+    9,
+    0
+  ],
+  "hole": [
+    12,
+    8.5,
+    -12
+  ],
+  "pieces": [
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        0,
+        8,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        4,
+        8,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        -4,
+        8,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        -8,
+        8,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        -12,
+        8,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        8,
+        8,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        12,
+        8,
+        -4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        0,
+        8,
+        4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        0,
+        8,
+        8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        0,
+        8,
+        12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        0,
+        8,
+        -4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        0,
+        8,
+        -8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        0,
+        8,
+        -12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        12,
+        8,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        12,
+        8,
+        -8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        12,
+        8,
+        -12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        -4,
+        8,
+        -12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        -8,
+        8,
+        -12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        -12,
+        8,
+        -12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        -12,
+        8,
+        4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        -12,
+        8,
+        8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        -12,
+        8,
+        12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        4,
+        8,
+        12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        8,
+        8,
+        12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "box",
+      "size": [
+        3,
+        0.5,
+        3
+      ],
+      "position": [
+        12,
+        8,
+        12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a",
+      "motion": {
+        "type": "rotate",
+        "axis": "y",
+        "range": 360,
+        "speed": 0.1,
+        "phase": 0
+      }
+    }
+  ]
+}

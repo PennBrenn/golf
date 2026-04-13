@@ -1,0 +1,764 @@
+{
+  "name": "The island",
+  "timeLimit": 120,
+  "timeOfDay": "day",
+  "rain": false,
+  "skyColor": "#87ceeb",
+  "brightness": 1,
+  "gravity": 9.8,
+  "ballSpeed": 1,
+  "start": [
+    -0.096,
+    9,
+    0.627
+  ],
+  "hole": [
+    0,
+    8.5,
+    -20
+  ],
+  "pieces": [
+    {
+      "type": "water",
+      "size": [
+        101.557,
+        0.05,
+        92.935
+      ],
+      "position": [
+        0,
+        7,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#1e8cff",
+      "motion": {
+        "type": "translate",
+        "axis": "y",
+        "range": 1,
+        "speed": 1,
+        "phase": 0
+      }
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        -0.138,
+        4.751,
+        -0.542
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        2.282,
+        4.209,
+        1.224
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        -1.675,
+        4.209,
+        2.249
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        4.125,
+        4.209,
+        -4.128
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        0.411,
+        4.209,
+        -6.294
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        -3.458,
+        4.209,
+        -4.183
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        -1.253,
+        5.133,
+        -3.067
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        2.964,
+        3.669,
+        -1.82
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        0.786,
+        3.056,
+        4.368
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        -4.596,
+        3.056,
+        -1.275
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        -3.661,
+        3.354,
+        0.108
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        2.581,
+        4.209,
+        1.998
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        -5.856,
+        3.53,
+        2.326
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        -6.645,
+        3.53,
+        -4.393
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        4,
+        4
+      ],
+      "position": [
+        0,
+        6.971,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        4,
+        4
+      ],
+      "position": [
+        1.715,
+        6.971,
+        -2.443
+      ],
+      "rotation": [
+        0,
+        0.893,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -1,
+        9.178,
+        -3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "gravinv",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -2,
+        9.5,
+        -2
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#aa44ff"
+    },
+    {
+      "type": "gravinv",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0,
+        9.5,
+        -2
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#aa44ff"
+    },
+    {
+      "type": "gravinv",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0,
+        9.5,
+        -4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#aa44ff"
+    },
+    {
+      "type": "gravinv",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -2,
+        9.5,
+        -4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#aa44ff"
+    },
+    {
+      "type": "gravinv",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -2,
+        10.25,
+        -2
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#aa44ff"
+    },
+    {
+      "type": "gravinv",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0,
+        10.25,
+        -2
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#aa44ff"
+    },
+    {
+      "type": "gravinv",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0,
+        10.25,
+        -4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#aa44ff"
+    },
+    {
+      "type": "gravinv",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        -2,
+        10.25,
+        -4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#aa44ff"
+    },
+    {
+      "type": "ice",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -1,
+        9.885,
+        -3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ccf2ff"
+    },
+    {
+      "type": "cone",
+      "radius": 1.5,
+      "height": 2,
+      "segments": 4,
+      "position": [
+        -0.884,
+        11.408,
+        -2.963
+      ],
+      "color": "#ddcc88",
+      "rotation": [
+        0,
+        0.78,
+        0
+      ]
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        0.5,
+        6
+      ],
+      "position": [
+        1.459,
+        9.346,
+        -5.909
+      ],
+      "rotation": [
+        -2.374,
+        -1.162,
+        -2.416
+      ],
+      "color": "#7ec87e"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        4,
+        4
+      ],
+      "position": [
+        3.474,
+        6.971,
+        -5.316
+      ],
+      "rotation": [
+        0,
+        1.173,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        4,
+        0.993
+      ],
+      "position": [
+        -1.71,
+        8.401,
+        -6.92
+      ],
+      "rotation": [
+        0,
+        1.267,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        4,
+        0.993
+      ],
+      "position": [
+        -2.657,
+        9.184,
+        -6.72
+      ],
+      "rotation": [
+        0,
+        1.267,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "glass",
+      "size": [
+        4,
+        0.5,
+        4
+      ],
+      "position": [
+        -1.256,
+        14.349,
+        -4.26
+      ],
+      "rotation": [
+        0.615,
+        0,
+        0
+      ],
+      "color": "#aaddff"
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        4,
+        4
+      ],
+      "position": [
+        -0.716,
+        10.229,
+        -9.944
+      ],
+      "rotation": [
+        0,
+        1.546,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "tube",
+      "radiusOuter": 1,
+      "radiusInner": 0.7,
+      "height": 3,
+      "segments": 16,
+      "position": [
+        -0.203,
+        11.683,
+        -18.456
+      ],
+      "color": "#66aacc",
+      "rotation": [
+        1.193,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "box",
+      "size": [
+        4,
+        4,
+        4
+      ],
+      "position": [
+        -0.616,
+        10.229,
+        -13.885
+      ],
+      "rotation": [
+        0,
+        1.546,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        -1.164,
+        4.794,
+        -15.795
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        -3.44,
+        5.02,
+        -20.559
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        -0.874,
+        4.448,
+        -18.607
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        1.837,
+        3.934,
+        -19.038
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        -0.769,
+        4.888,
+        -22.829
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 4,
+      "segments": 24,
+      "position": [
+        0.68,
+        3.945,
+        -15.235
+      ],
+      "color": "#5ab85a",
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}
