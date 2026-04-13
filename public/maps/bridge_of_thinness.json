@@ -1,0 +1,41 @@
+{
+  "name": "Bridge of Thinness",
+  "timeLimit": 120,
+  "timeOfDay": "day",
+  "rain": true,
+  "skyColor": "#ff0000",
+  "brightness": 1,
+  "gravity": 9.8,
+  "ballSpeed": 1,
+  "start": [
+    0,
+    9,
+    0
+  ],
+  "hole": [
+    0,
+    8.5,
+    -20
+  ],
+  "pieces": [
+    {
+      "type": "rail",
+      "size": [
+        0.083,
+        0.6,
+        21.107
+      ],
+      "position": [
+        0,
+        8.25,
+        -10.15
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#ff0000"
+    }
+  ]
+}

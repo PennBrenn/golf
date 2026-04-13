@@ -1,0 +1,79 @@
+{
+  "name": "Yes, its possible",
+  "timeLimit": 120,
+  "timeOfDay": "day",
+  "rain": false,
+  "skyColor": "#ffffff",
+  "brightness": 1,
+  "gravity": 9.8,
+  "ballSpeed": 1,
+  "start": [
+    0,
+    9,
+    0
+  ],
+  "hole": [
+    0,
+    8.5,
+    -20
+  ],
+  "pieces": [
+    {
+      "type": "gravinv",
+      "size": [
+        2,
+        0.3,
+        2
+      ],
+      "position": [
+        0,
+        8.25,
+        -1.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#aa44ff"
+    },
+    {
+      "type": "box",
+      "size": [
+        1,
+        0.5,
+        1
+      ],
+      "position": [
+        0,
+        8.25,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    },
+    {
+      "type": "box",
+      "size": [
+        1,
+        0.5,
+        1
+      ],
+      "position": [
+        0,
+        8.25,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": "#5ab85a"
+    }
+  ]
+}
